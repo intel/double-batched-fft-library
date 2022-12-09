@@ -29,13 +29,13 @@ These functions JIT-compile OpenCL-C.
 OpenCL
 ------
 
-.. doxygenfunction:: build_module(std::string, cl_context, cl_device_id)
+.. doxygenfunction:: build_kernel_bundle(std::string, cl_context, cl_device_id)
 
 .. doxygenfunction:: create_kernel(cl_program, std::string)
 
 Level Zero
 ----------
 
-.. doxygenfunction:: build_module(std::string, ze_context_handle_t, ze_device_handle_t)
+.. doxygenfunction:: build_kernel_bundle(std::string, ze_context_handle_t, ze_device_handle_t)
 
 .. doxygenfunction:: create_kernel(ze_module_handle_t, std::string)

@@ -11,21 +11,21 @@ Creating and executing plans
 SYCL factory functions
 ----------------------
 
-.. doxygenfunction:: bbfft::make_plan(configuration, ::sycl::queue)
+.. doxygenfunction:: bbfft::make_plan(configuration const&, ::sycl::queue)
 
-.. doxygenfunction:: bbfft::make_plan(configuration, ::sycl::queue, ::sycl::context, ::sycl::device)
+.. doxygenfunction:: bbfft::make_plan(configuration const&, ::sycl::queue, ::sycl::context, ::sycl::device)
 
 OpenCL factory functions
 ------------------------
 
-.. doxygenfunction:: bbfft::make_plan(configuration, cl_command_queue)
+.. doxygenfunction:: bbfft::make_plan(configuration const&, cl_command_queue)
 
-.. doxygenfunction:: bbfft::make_plan(configuration, cl_command_queue, cl_context, cl_device_id)
+.. doxygenfunction:: bbfft::make_plan(configuration const&, cl_command_queue, cl_context, cl_device_id)
 
 Level Zero factory function
 ---------------------------
 
-.. doxygenfunction:: bbfft::make_plan(configuration, ze_command_list_handle_t, ze_context_handle_t, ze_device_handle_t)
+.. doxygenfunction:: bbfft::make_plan(configuration const&, ze_command_list_handle_t, ze_context_handle_t, ze_device_handle_t)
 
 Plan class
 ----------
