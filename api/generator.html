@@ -1,0 +1,622 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Utilities" href="utilities.html" /><link rel="prev" title="Plans" href="plan.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Offline generation - Double-Batched FFT Library documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Double-Batched FFT Library  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Double-Batched FFT Library  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../manual/index.html">User manual</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../manual/build.html">Building and linking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/plans.html">Creating and using plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/data-layout.html">Understanding data layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/examples.html">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plan.html">Plans</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Offline generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="offline-generation">
+<h1>Offline generation<a class="headerlink" href="#offline-generation" title="Permalink to this heading">#</a></h1>
+<p>The basis for all FFT algorithms are two 1D FFT algorithms.
+The “small batch FFT” is intended for FFT sizes up to about N=64</p>
+<p>(the maximum size depends on the size of the register file of the device).
+The “two factor FFT” is intended for larger FFT up to the size of the shared local memory.</p>
+<p>The OpenCL C source code of the two algorithms is generated using the following API calls.</p>
+<section id="small-batch-fft">
+<h2>Small batch fft<a class="headerlink" href="#small-batch-fft" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25configure_small_batch_fftERK13configuration11device_info">
+<span id="_CPPv3N5bbfft25configure_small_batch_fftERK13configuration11device_info"></span><span id="_CPPv2N5bbfft25configure_small_batch_fftERK13configuration11device_info"></span><span id="bbfft::configure_small_batch_fft__configurationCR.device_info"></span><span class="target" id="namespacebbfft_1a9ff7aa230613ce22417746c94a07687a"></span><a class="reference internal" href="#_CPPv4N5bbfft25small_batch_configurationE" title="bbfft::small_batch_configuration"><span class="n"><span class="pre">small_batch_configuration</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">configure_small_batch_fft</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft25configure_small_batch_fftERK13configuration11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Configure small batch FFT algorithm. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> – configuration </p></li>
+<li><p><strong>info</strong> – Properties of target device</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1small__batch__configuration"><span class="std std-ref">small_batch_configuration</span></a> </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration">
+<span id="_CPPv3N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration"></span><span id="_CPPv2N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration"></span><span id="bbfft::generate_small_batch_fft__osR.ss.small_batch_configurationCR"></span><span class="target" id="namespacebbfft_1a99c14d8e0d9d71f185caa36edd09cad1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_small_batch_fft</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft25small_batch_configurationE" title="bbfft::small_batch_configuration"><span class="n"><span class="pre">small_batch_configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Generate OpenCL C code for small batch FFT algorithm. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os</strong> – Output stream (e.g. std::cout) </p></li>
+<li><p><strong>name</strong> – Kernel name </p></li>
+<li><p><strong>cfg</strong> – small batch configuration </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configurationE">
+<span id="_CPPv3N5bbfft25small_batch_configurationE"></span><span id="_CPPv2N5bbfft25small_batch_configurationE"></span><span id="bbfft::small_batch_configuration"></span><span class="target" id="structbbfft_1_1small__batch__configuration"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">small_batch_configuration</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configurationE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Configuration for small batch FFT. </p>
+<p><dl class="simple">
+<dt><strong>Attention</strong></dt><dd><p>Do not set values directly but use <a class="reference internal" href="#namespacebbfft_1a9ff7aa230613ce22417746c94a07687a"><span class="std std-ref">configure_small_batch_fft</span></a> </p>
+</dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration9directionE">
+<span id="_CPPv3N5bbfft25small_batch_configuration9directionE"></span><span id="_CPPv2N5bbfft25small_batch_configuration9directionE"></span><span id="bbfft::small_batch_configuration::direction__i"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a7fcf95d7ae19f47d3dc242cc35bb5aed"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">direction</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration9directionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>-1 or +1 </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration1ME">
+<span id="_CPPv3N5bbfft25small_batch_configuration1ME"></span><span id="_CPPv2N5bbfft25small_batch_configuration1ME"></span><span id="bbfft::small_batch_configuration::M__std::s"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a1c2d150a56adea613f837c1790bde1fa"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">M</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration1ME" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>M. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration2MbE">
+<span id="_CPPv3N5bbfft25small_batch_configuration2MbE"></span><span id="_CPPv2N5bbfft25small_batch_configuration2MbE"></span><span id="bbfft::small_batch_configuration::Mb__std::s"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1ad42f54ef70722a0174391c6ad527774e"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Mb</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration2MbE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>M block size (w.r.t. to reshaped data) </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration1NE">
+<span id="_CPPv3N5bbfft25small_batch_configuration1NE"></span><span id="_CPPv2N5bbfft25small_batch_configuration1NE"></span><span id="bbfft::small_batch_configuration::N__std::s"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1aa28abff3b7c37e89a13bd7ae7b5254ea"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration1NE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of points in DFT. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration2KbE">
+<span id="_CPPv3N5bbfft25small_batch_configuration2KbE"></span><span id="_CPPv2N5bbfft25small_batch_configuration2KbE"></span><span id="bbfft::small_batch_configuration::Kb__std::s"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a4c2de77d82f98307b0a6ae9f47a877cb"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Kb</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration2KbE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>K block size. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration3sgsE">
+<span id="_CPPv3N5bbfft25small_batch_configuration3sgsE"></span><span id="_CPPv2N5bbfft25small_batch_configuration3sgsE"></span><span id="bbfft::small_batch_configuration::sgs__std::s"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a131cda4e1952a05e1738e5a0450427fb"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sgs</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration3sgsE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>sub group size </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration2fpE">
+<span id="_CPPv3N5bbfft25small_batch_configuration2fpE"></span><span id="_CPPv2N5bbfft25small_batch_configuration2fpE"></span><span id="bbfft::small_batch_configuration::fp__precision"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1ab1589b8d8db55510799233883ac9a55a"></span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fp</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration2fpE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>floating-point precision </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration4typeE">
+<span id="_CPPv3N5bbfft25small_batch_configuration4typeE"></span><span id="_CPPv2N5bbfft25small_batch_configuration4typeE"></span><span id="bbfft::small_batch_configuration::type__transform_type"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a14dba91f52460c4bd6503a0150d00f58"></span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft14transform_typeE" title="bbfft::transform_type"><span class="n"><span class="pre">transform_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration4typeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>transform type (c2c, r2c, c2r) </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration7istrideE">
+<span id="_CPPv3N5bbfft25small_batch_configuration7istrideE"></span><span id="_CPPv2N5bbfft25small_batch_configuration7istrideE"></span><span id="bbfft::small_batch_configuration::istride__std::array:std::s.3u:"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1ae341de71dada172cbbecdd96a5cccbe4"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">3u</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">istride</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration7istrideE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>stride of input tensor </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration7ostrideE">
+<span id="_CPPv3N5bbfft25small_batch_configuration7ostrideE"></span><span id="_CPPv2N5bbfft25small_batch_configuration7ostrideE"></span><span id="bbfft::small_batch_configuration::ostride__std::array:std::s.3u:"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a2e9075f79ab59bf5ec9fd85828d1dfa1"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">3u</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ostride</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration7ostrideE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>stride of output tensor </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration19inplace_unsupportedE">
+<span id="_CPPv3N5bbfft25small_batch_configuration19inplace_unsupportedE"></span><span id="_CPPv2N5bbfft25small_batch_configuration19inplace_unsupportedE"></span><span id="bbfft::small_batch_configuration::inplace_unsupported__b"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1ac03712bb77c8090a3341c7a8aae44185"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">inplace_unsupported</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration19inplace_unsupportedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>true if inplace not available </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration13load_functionE">
+<span id="_CPPv3N5bbfft25small_batch_configuration13load_functionE"></span><span id="_CPPv2N5bbfft25small_batch_configuration13load_functionE"></span><span id="bbfft::small_batch_configuration::load_function__cCP"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a8365f29e8b3907989d3acd521f4c690a"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">load_function</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration13load_functionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>user provided load callback name </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25small_batch_configuration14store_functionE">
+<span id="_CPPv3N5bbfft25small_batch_configuration14store_functionE"></span><span id="_CPPv2N5bbfft25small_batch_configuration14store_functionE"></span><span id="bbfft::small_batch_configuration::store_function__cCP"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1a47013f216188103bc4f52a6d2e7251e7"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">store_function</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configuration14store_functionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>user provided store callback name </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="two-factor-fft">
+<h2>Two factor fft<a class="headerlink" href="#two-factor-fft" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25configure_factor2_slm_fftERK13configuration11device_info">
+<span id="_CPPv3N5bbfft25configure_factor2_slm_fftERK13configuration11device_info"></span><span id="_CPPv2N5bbfft25configure_factor2_slm_fftERK13configuration11device_info"></span><span id="bbfft::configure_factor2_slm_fft__configurationCR.device_info"></span><span class="target" id="namespacebbfft_1ac01199e187c3912903a4be29bb4f4de0"></span><a class="reference internal" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="bbfft::factor2_slm_configuration"><span class="n"><span class="pre">factor2_slm_configuration</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">configure_factor2_slm_fft</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft25configure_factor2_slm_fftERK13configuration11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Configure two factor FFT algorithm. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg</strong> – configuration </p></li>
+<li><p><strong>info</strong> – Properties of target device</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1factor2__slm__configuration"><span class="std std-ref">factor2_slm_configuration</span></a> </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration">
+<span id="_CPPv3N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration"></span><span id="_CPPv2N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration"></span><span id="bbfft::generate_factor2_slm_fft__osR.ss.factor2_slm_configurationCR"></span><span class="target" id="namespacebbfft_1a1a2224b1ad6430884fa19e3ce1f5ed93"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_factor2_slm_fft</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="bbfft::factor2_slm_configuration"><span class="n"><span class="pre">factor2_slm_configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Generate OpenCL C code for two factor FFT algorithm. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os</strong> – Output stream (e.g. std::cout) </p></li>
+<li><p><strong>name</strong> – Kernel name </p></li>
+<li><p><strong>cfg</strong> – small batch configuration </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configurationE">
+<span id="_CPPv3N5bbfft25factor2_slm_configurationE"></span><span id="_CPPv2N5bbfft25factor2_slm_configurationE"></span><span id="bbfft::factor2_slm_configuration"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">factor2_slm_configuration</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Configuration for two factor FFT. </p>
+<p><dl class="simple">
+<dt><strong>Attention</strong></dt><dd><p>Do not set values directly but use <a class="reference internal" href="#namespacebbfft_1ac01199e187c3912903a4be29bb4f4de0"><span class="std std-ref">configure_factor2_slm_fft</span></a> </p>
+</dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration9directionE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration9directionE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration9directionE"></span><span id="bbfft::factor2_slm_configuration::direction__i"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a7bc02be81f01ef2739c5a6078f644c9d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">direction</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration9directionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>-1 or +1 </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration1ME">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration1ME"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration1ME"></span><span id="bbfft::factor2_slm_configuration::M__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a283645ad93fc233d6509ed03366edc0a"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">M</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration1ME" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>M. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration2MbE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration2MbE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration2MbE"></span><span id="bbfft::factor2_slm_configuration::Mb__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a573a0e25e767d3d571dd7e42f4c739ad"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Mb</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration2MbE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>M block size. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration2N1E">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration2N1E"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration2N1E"></span><span id="bbfft::factor2_slm_configuration::N1__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a8345e589e5d58ef75245acc96c303eac"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N1</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration2N1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>First factor in N=N1*N2. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration2N2E">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration2N2E"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration2N2E"></span><span id="bbfft::factor2_slm_configuration::N2__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a44fee5d30d649512d5d132e766a32d8b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">N2</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration2N2E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Second factor in N=N1*N2. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration2NbE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration2NbE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration2NbE"></span><span id="bbfft::factor2_slm_configuration::Nb__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a3f9d00670740b1326bc1e0bc46b8ee56"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Nb</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration2NbE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of parallel FFTs in factor. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration2KbE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration2KbE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration2KbE"></span><span id="bbfft::factor2_slm_configuration::Kb__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1aa9486579df6fa9fc20290437a83ad297"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Kb</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration2KbE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>K block size. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration3sgsE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration3sgsE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration3sgsE"></span><span id="bbfft::factor2_slm_configuration::sgs__std::s"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a8fa423f2ff4db93d4dabe8064ef7f867"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sgs</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration3sgsE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>sub group size </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration2fpE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration2fpE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration2fpE"></span><span id="bbfft::factor2_slm_configuration::fp__precision"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a636d8788e4791bc66448b795fb9b69aa"></span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fp</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration2fpE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>floating-point precision </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration4typeE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration4typeE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration4typeE"></span><span id="bbfft::factor2_slm_configuration::type__transform_type"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a2ea0e661396bf1a9f454a3c3ff15318e"></span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft14transform_typeE" title="bbfft::transform_type"><span class="n"><span class="pre">transform_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration4typeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>transform type (c2c, r2c, c2r) </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration7istrideE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration7istrideE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration7istrideE"></span><span id="bbfft::factor2_slm_configuration::istride__std::array:std::s.3u:"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1ad71f43c8d2f9515f145b2e03382b8ea6"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">3u</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">istride</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration7istrideE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>stride of input tensor </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration7ostrideE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration7ostrideE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration7ostrideE"></span><span id="bbfft::factor2_slm_configuration::ostride__std::array:std::s.3u:"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a8d270e33ba3d0d6c47e07bc4b98ac458"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">3u</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ostride</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration7ostrideE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>stride of output tensor </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration15external_bufferE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration15external_bufferE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration15external_bufferE"></span><span id="bbfft::factor2_slm_configuration::external_buffer__b"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a36e33a5e572650624d1822e3397d54ca"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">external_buffer</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration15external_bufferE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>use global memory buffer instead of slm </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration19inplace_unsupportedE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration19inplace_unsupportedE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration19inplace_unsupportedE"></span><span id="bbfft::factor2_slm_configuration::inplace_unsupported__b"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a6e4e5812cc137e4c2874c7b6df3e9b01"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">inplace_unsupported</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration19inplace_unsupportedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>true if inplace not available </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration13load_functionE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration13load_functionE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration13load_functionE"></span><span id="bbfft::factor2_slm_configuration::load_function__cCP"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1a980f3531852dfcec34edbebb0ab1ce64"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">load_function</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration13load_functionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>user provided load callback name </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25factor2_slm_configuration14store_functionE">
+<span id="_CPPv3N5bbfft25factor2_slm_configuration14store_functionE"></span><span id="_CPPv2N5bbfft25factor2_slm_configuration14store_functionE"></span><span id="bbfft::factor2_slm_configuration::store_function__cCP"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1aa21324de356a2ea37b66ccfdc3627a1d"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">store_function</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configuration14store_functionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>user provided store callback name </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="device-info">
+<h2>Device info<a class="headerlink" href="#device-info" title="Permalink to this heading">#</a></h2>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_infoE">
+<span id="_CPPv3N5bbfft11device_infoE"></span><span id="_CPPv2N5bbfft11device_infoE"></span><span id="bbfft::device_info"></span><span class="target" id="structbbfft_1_1device__info"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">device_info</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_infoE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Parameters of target device. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17min_subgroup_sizeEv">
+<span id="_CPPv3N5bbfft11device_info17min_subgroup_sizeEv"></span><span id="_CPPv2N5bbfft11device_info17min_subgroup_sizeEv"></span><span id="bbfft::device_info::min_subgroup_size"></span><span class="target" id="structbbfft_1_1device__info_1a859c2e4ab8dfe624b4cdb6a5cc66da6c"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">min_subgroup_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17min_subgroup_sizeEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Minimum subgroup size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17max_subgroup_sizeEv">
+<span id="_CPPv3N5bbfft11device_info17max_subgroup_sizeEv"></span><span id="_CPPv2N5bbfft11device_info17max_subgroup_sizeEv"></span><span id="bbfft::device_info::max_subgroup_size"></span><span class="target" id="structbbfft_1_1device__info_1aa8d4b7119d6bdc9ff80f5af39eb414ed"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_subgroup_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17max_subgroup_sizeEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Maximum subgroup size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info14register_spaceEv">
+<span id="_CPPv3N5bbfft11device_info14register_spaceEv"></span><span id="_CPPv2N5bbfft11device_info14register_spaceEv"></span><span id="bbfft::device_info::register_space"></span><span class="target" id="structbbfft_1_1device__info_1a6ac26dfc7202e556f6816ba90a752544"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">register_space</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft11device_info14register_spaceEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Size of register file in bytes. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info19max_work_group_sizeE">
+<span id="_CPPv3N5bbfft11device_info19max_work_group_sizeE"></span><span id="_CPPv2N5bbfft11device_info19max_work_group_sizeE"></span><span id="bbfft::device_info::max_work_group_size__std::s"></span><span class="target" id="structbbfft_1_1device__info_1acf6f6223e02a3bd30910e0d9c31e86e8"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_work_group_size</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info19max_work_group_sizeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>maximum number of work items in work group </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info14subgroup_sizesE">
+<span id="_CPPv3N5bbfft11device_info14subgroup_sizesE"></span><span id="_CPPv2N5bbfft11device_info14subgroup_sizesE"></span><span id="bbfft::device_info::subgroup_sizes__std::array:std::s.5:"></span><span class="target" id="structbbfft_1_1device__info_1a1cf10281ca2d54cb75b7f0fb589996d9"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">5</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subgroup_sizes</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info14subgroup_sizesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>supported sub group sizes </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info18num_subgroup_sizesE">
+<span id="_CPPv3N5bbfft11device_info18num_subgroup_sizesE"></span><span id="_CPPv2N5bbfft11device_info18num_subgroup_sizesE"></span><span id="bbfft::device_info::num_subgroup_sizes__std::s"></span><span class="target" id="structbbfft_1_1device__info_1a9f362910abf0b3ea807bb47bd985403a"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">num_subgroup_sizes</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info18num_subgroup_sizesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>number of entries in subgroup_sizes </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17local_memory_sizeE">
+<span id="_CPPv3N5bbfft11device_info17local_memory_sizeE"></span><span id="_CPPv2N5bbfft11device_info17local_memory_sizeE"></span><span id="bbfft::device_info::local_memory_size__std::s"></span><span class="target" id="structbbfft_1_1device__info_1af369731f0f98b59bd24756c86664572b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">local_memory_size</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17local_memory_sizeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>size of shared local memory </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="utilities.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Utilities</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="plan.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Plans</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Intel Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Offline generation</a><ul>
+<li><a class="reference internal" href="#small-batch-fft">Small batch fft</a></li>
+<li><a class="reference internal" href="#two-factor-fft">Two factor fft</a></li>
+<li><a class="reference internal" href="#device-info">Device info</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>

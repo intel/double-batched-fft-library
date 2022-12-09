@@ -1,0 +1,653 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Plans" href="plan.html" /><link rel="prev" title="API reference" href="index.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Configuration - Double-Batched FFT Library documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Double-Batched FFT Library  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Double-Batched FFT Library  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../manual/index.html">User manual</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../manual/build.html">Building and linking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/plans.html">Creating and using plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/data-layout.html">Understanding data layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/examples.html">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plan.html">Plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generator.html">Offline generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">#</a></h1>
+<section id="main-configuration">
+<h2>Main configuration<a class="headerlink" href="#main-configuration" title="Permalink to this heading">#</a></h2>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configurationE">
+<span id="_CPPv3N5bbfft13configurationE"></span><span id="_CPPv2N5bbfft13configurationE"></span><span id="bbfft::configuration"></span><span class="target" id="structbbfft_1_1configuration"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">configuration</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft13configurationE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>The unified configuration struct contains parameters for all plan types, including complex data, real data, and 1D to 3D FFTs. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration19set_strides_defaultEb">
+<span id="_CPPv3N5bbfft13configuration19set_strides_defaultEb"></span><span id="_CPPv2N5bbfft13configuration19set_strides_defaultEb"></span><span id="bbfft::configuration::set_strides_default__b"></span><span class="target" id="structbbfft_1_1configuration_1ae64ac7b10309d2c8304e8595c90da956"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">set_strides_default</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">inplace</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft13configuration19set_strides_defaultEb" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute and set strides from shape assuming the default data layout. </p>
+<p>See default_istride and default_ostride functions for a description of the default data layout.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>inplace</strong> – Set to true for in-place transform. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration3dimE">
+<span id="_CPPv3N5bbfft13configuration3dimE"></span><span id="_CPPv2N5bbfft13configuration3dimE"></span><span id="bbfft::configuration::dim__unsigned"></span><span class="target" id="structbbfft_1_1configuration_1ab3e34d52b3d53b53e14677072367aae0"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dim</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft13configuration3dimE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>FFT dimension (1,2, …, max_fft_dim). </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration5shapeE">
+<span id="_CPPv3N5bbfft13configuration5shapeE"></span><span id="_CPPv2N5bbfft13configuration5shapeE"></span><span id="bbfft::configuration::shape__std::array:std::s.max_tensor_dim:"></span><span class="target" id="structbbfft_1_1configuration_1ae576c4fd932aaedd83294aff4ea8d647"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft13configuration5shapeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Shape of the <span class="math notranslate nohighlight">\(M \times N_1 \times \dots \times N_d \times K\)</span> input tensor. The FFT is taken over the N-modes, M and K are batch modes. The <strong>column-major</strong> layout is assumed, therefore the M-mode varies fastest in memory and the K-mode varies slowest in memory. Set shape array to {M, N_1, …, N_d, K}. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration2fpE">
+<span id="_CPPv3N5bbfft13configuration2fpE"></span><span id="_CPPv2N5bbfft13configuration2fpE"></span><span id="bbfft::configuration::fp__precision"></span><span class="target" id="structbbfft_1_1configuration_1afc8a96e7fa9cf4f73702d3daab0517af"></span><a class="reference internal" href="#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fp</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft13configuration2fpE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Floating-point precision. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration3dirE">
+<span id="_CPPv3N5bbfft13configuration3dirE"></span><span id="_CPPv2N5bbfft13configuration3dirE"></span><span id="bbfft::configuration::dir__direction"></span><span class="target" id="structbbfft_1_1configuration_1a89e269084590016531f1003bb834173b"></span><a class="reference internal" href="#_CPPv4N5bbfft9directionE" title="bbfft::direction"><span class="n"><span class="pre">direction</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dir</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft9directionE" title="bbfft::direction"><span class="n"><span class="pre">direction</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft9direction7forwardE" title="bbfft::direction::forward"><span class="n"><span class="pre">forward</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft13configuration3dirE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Forward or backward transform. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration4typeE">
+<span id="_CPPv3N5bbfft13configuration4typeE"></span><span id="_CPPv2N5bbfft13configuration4typeE"></span><span id="bbfft::configuration::type__transform_type"></span><span class="target" id="structbbfft_1_1configuration_1af13ad04b5cb5d31b2e25581ca0628104"></span><a class="reference internal" href="#_CPPv4N5bbfft14transform_typeE" title="bbfft::transform_type"><span class="n"><span class="pre">transform_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14transform_typeE" title="bbfft::transform_type"><span class="n"><span class="pre">transform_type</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft14transform_type3c2cE" title="bbfft::transform_type::c2c"><span class="n"><span class="pre">c2c</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft13configuration4typeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Select complex data or real data FFTs. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration7istrideE">
+<span id="_CPPv3N5bbfft13configuration7istrideE"></span><span id="_CPPv2N5bbfft13configuration7istrideE"></span><span id="bbfft::configuration::istride__std::array:std::s.max_tensor_dim:"></span><span class="target" id="structbbfft_1_1configuration_1aced0429d7f0c84ac9423f7f0751457e4"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">istride</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft15default_istrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb" title="bbfft::default_istride"><span class="n"><span class="pre">default_istride</span></span></a><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv4N5bbfft13configuration3dimE" title="bbfft::configuration::dim"><span class="n"><span class="pre">dim</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft13configuration5shapeE" title="bbfft::configuration::shape"><span class="n"><span class="pre">shape</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft13configuration4typeE" title="bbfft::configuration::type"><span class="n"><span class="pre">type</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4N5bbfft13configuration7istrideE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Stride used for address calculation of the input array. For index <span class="math notranslate nohighlight">\((m,n_1,...,n_d,k)\)</span> the offset is calculated as <div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[m s_0 + \sum_{i=1}^dn_i s_i + k s_{d+1},\]</div>
+</div>
+ where <span class="math notranslate nohighlight">\(s_i\)</span> are the entries of <em>istride</em>. The offset is measured in real if the input tensor is real and measured in complex if the input tensor is complex.</p>
+<p><strong>Note:</strong> <span class="math notranslate nohighlight">\(s_0\neq 1\)</span> currently not supported. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration7ostrideE">
+<span id="_CPPv3N5bbfft13configuration7ostrideE"></span><span id="_CPPv2N5bbfft13configuration7ostrideE"></span><span id="bbfft::configuration::ostride__std::array:std::s.max_tensor_dim:"></span><span class="target" id="structbbfft_1_1configuration_1a9208cb97c2b675efd746c166987a8ac3"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ostride</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft15default_ostrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb" title="bbfft::default_ostride"><span class="n"><span class="pre">default_ostride</span></span></a><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv4N5bbfft13configuration3dimE" title="bbfft::configuration::dim"><span class="n"><span class="pre">dim</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft13configuration5shapeE" title="bbfft::configuration::shape"><span class="n"><span class="pre">shape</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft13configuration4typeE" title="bbfft::configuration::type"><span class="n"><span class="pre">type</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">true</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4N5bbfft13configuration7ostrideE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Stride used for address calculation of the output array. For index <span class="math notranslate nohighlight">\((m,n_1,...,n_d,k)\)</span> the offset is calculated as <div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[m s_0 + \sum_{i=1}^dn_i s_i + k s_{d+1},\]</div>
+</div>
+ where <span class="math notranslate nohighlight">\(s_i\)</span> are the entries of <em>ostride</em>. The offset is measured in real if the output tensor is real and measured in complex if the output tensor is complex.</p>
+<p><strong>Note:</strong> <span class="math notranslate nohighlight">\(s_0\neq 1\)</span> currently not supported. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13configuration9callbacksE">
+<span id="_CPPv3N5bbfft13configuration9callbacksE"></span><span id="_CPPv2N5bbfft13configuration9callbacksE"></span><span id="bbfft::configuration::callbacks__user_module"></span><span class="target" id="structbbfft_1_1configuration_1a2fdf0efa55ef22f22bf7238d82ad7f63"></span><a class="reference internal" href="#_CPPv4N5bbfft11user_moduleE" title="bbfft::user_module"><span class="n"><span class="pre">user_module</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">callbacks</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N5bbfft13configuration9callbacksE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>User-provided load and store functions. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="constants">
+<h2>Constants<a class="headerlink" href="#constants" title="Permalink to this heading">#</a></h2>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11max_fft_dimE">
+<span id="_CPPv3N5bbfft11max_fft_dimE"></span><span id="_CPPv2N5bbfft11max_fft_dimE"></span><span id="bbfft::max_fft_dim__unsigned"></span><span class="target" id="namespacebbfft_1ab1f15e5ee091298144877576a2a20716"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">max_fft_dim</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">3</span></span><a class="headerlink" href="#_CPPv4N5bbfft11max_fft_dimE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Maximum supported FFT dimension. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft14max_tensor_dimE">
+<span id="_CPPv3N5bbfft14max_tensor_dimE"></span><span id="_CPPv2N5bbfft14max_tensor_dimE"></span><span id="bbfft::max_tensor_dim__unsigned"></span><span class="target" id="namespacebbfft_1afbfe3ec30ddebe69aff86551b8104797"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">max_tensor_dim</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft11max_fft_dimE" title="bbfft::max_fft_dim"><span class="n"><span class="pre">max_fft_dim</span></span></a><span class="w"> </span><span class="o"><span class="pre">+</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><a class="headerlink" href="#_CPPv4N5bbfft14max_tensor_dimE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Maximum supported tensor dimension with batch indices. </p>
+</dd></dl>
+
+</section>
+<section id="enumerations">
+<h2>Enumerations<a class="headerlink" href="#enumerations" title="Permalink to this heading">#</a></h2>
+<section id="precision">
+<h3>Precision<a class="headerlink" href="#precision" title="Permalink to this heading">#</a></h3>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9precisionE">
+<span id="_CPPv3N5bbfft9precisionE"></span><span id="_CPPv2N5bbfft9precisionE"></span><span class="target" id="namespacebbfft_1a3018c7a0b669b68e809599f54f73c93b"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">precision</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><a class="headerlink" href="#_CPPv4N5bbfft9precisionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Floating-point precision. </p>
+<p>The value is the number of bytes needed to store one floating-point number, e.g. static_cast&lt;int&gt;(precision::f32) = 4. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9precision3f32E">
+<span id="_CPPv3N5bbfft9precision3f32E"></span><span id="_CPPv2N5bbfft9precision3f32E"></span><span class="target" id="namespacebbfft_1a3018c7a0b669b68e809599f54f73c93ba512dc597be7ae761876315165dc8bd2e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">f32</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft9precision3f32E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>32-bit (single) </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9precision3f64E">
+<span id="_CPPv3N5bbfft9precision3f64E"></span><span id="_CPPv2N5bbfft9precision3f64E"></span><span class="target" id="namespacebbfft_1a3018c7a0b669b68e809599f54f73c93ba714b98e0a797e8f119f257a4ab802f86"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">f64</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft9precision3f64E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>64-bit (double) </p>
+</dd></dl>
+
+</dd></dl>
+
+<p>In templated code the following helper converts the data type to the precision value:</p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN5bbfft12to_precisionE">
+<span id="_CPPv3I0EN5bbfft12to_precisionE"></span><span id="_CPPv2I0EN5bbfft12to_precisionE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structbbfft_1_1to__precision"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_precision</span></span></span><a class="headerlink" href="#_CPPv4I0EN5bbfft12to_precisionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Convert C++ type to precision enum. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>T</strong> – float or double </p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Specializations store the precision in the value member:</p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4IEN5bbfft12to_precisionIfEE">
+<span id="_CPPv3IEN5bbfft12to_precisionIfEE"></span><span id="_CPPv2IEN5bbfft12to_precisionIfEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structbbfft_1_1to__precision_3_01float_01_4"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_precision</span></span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">float</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4IEN5bbfft12to_precisionIfEE" title="Permalink to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-attributes">Public Static Attributes</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft12to_precisionIfE5valueE">
+<span id="_CPPv3N5bbfft12to_precisionIfE5valueE"></span><span id="_CPPv2N5bbfft12to_precisionIfE5valueE"></span><span id="bbfft::to_precision:float:::value__precision"></span><span class="target" id="structbbfft_1_1to__precision_3_01float_01_4_1a652ab9176f1c0370d9fb20bc1c891ea7"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft9precision3f32E" title="bbfft::precision::f32"><span class="n"><span class="pre">f32</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft12to_precisionIfE5valueE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Precision corresponding to float. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4IEN5bbfft12to_precisionIdEE">
+<span id="_CPPv3IEN5bbfft12to_precisionIdEE"></span><span id="_CPPv2IEN5bbfft12to_precisionIdEE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="structbbfft_1_1to__precision_3_01double_01_4"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_precision</span></span></span><span class="p"><span class="pre">&lt;</span></span><span class="kt"><span class="pre">double</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4IEN5bbfft12to_precisionIdEE" title="Permalink to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-static-attributes">Public Static Attributes</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft12to_precisionIdE5valueE">
+<span id="_CPPv3N5bbfft12to_precisionIdE5valueE"></span><span id="_CPPv2N5bbfft12to_precisionIdE5valueE"></span><span id="bbfft::to_precision:double:::value__precision"></span><span class="target" id="structbbfft_1_1to__precision_3_01double_01_4_1a489e0faaf9a54ce4a2fa019f49e30392"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">value</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft9precision3f64E" title="bbfft::precision::f64"><span class="n"><span class="pre">f64</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft12to_precisionIdE5valueE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Precision corresponding to double. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<p>The following helper allows to write shorter code:</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4I0EN5bbfft14to_precision_vE">
+<span id="_CPPv3I0EN5bbfft14to_precision_vE"></span><span id="_CPPv2I0EN5bbfft14to_precision_vE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">T</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespacebbfft_1a306e5ff8faf1dc684ae6825fca0bc331"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft9precisionE" title="bbfft::precision"><span class="n"><span class="pre">precision</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">to_precision_v</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN5bbfft12to_precisionE" title="bbfft::to_precision"><span class="n"><span class="pre">to_precision</span></span></a><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I0EN5bbfft14to_precision_vE" title="bbfft::to_precision_v::T"><span class="n"><span class="pre">T</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">value</span></span><a class="headerlink" href="#_CPPv4I0EN5bbfft14to_precision_vE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Convenience wrapper for <a class="reference internal" href="#structbbfft_1_1to__precision"><span class="std std-ref">to_precision</span></a>. </p>
+<p>Example: precision p = to_precision_v&lt;double&gt;;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters</dt>
+<dd class="field-odd"><p><strong>T</strong> – float or double </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="direction">
+<h3>Direction<a class="headerlink" href="#direction" title="Permalink to this heading">#</a></h3>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9directionE">
+<span id="_CPPv3N5bbfft9directionE"></span><span id="_CPPv2N5bbfft9directionE"></span><span class="target" id="namespacebbfft_1a9c85def57873ad4d7f884aa8c4bfced1"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">direction</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><a class="headerlink" href="#_CPPv4N5bbfft9directionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Sign in the exponential in the discrete Fourier transform. </p>
+<p>The convention is adopted that the forward transform as negative sign and that the backward transform has positive sign. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9direction7forwardE">
+<span id="_CPPv3N5bbfft9direction7forwardE"></span><span id="_CPPv2N5bbfft9direction7forwardE"></span><span class="target" id="namespacebbfft_1a9c85def57873ad4d7f884aa8c4bfced1a965dbaac085fc891bfbbd4f9d145bbc8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">forward</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft9direction7forwardE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Forward direction (-1) </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9direction8backwardE">
+<span id="_CPPv3N5bbfft9direction8backwardE"></span><span id="_CPPv2N5bbfft9direction8backwardE"></span><span class="target" id="namespacebbfft_1a9c85def57873ad4d7f884aa8c4bfced1a195fe59b6f103787a914aead0f3db502"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">backward</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft9direction8backwardE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Backward direction (+1) </p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="transform-type">
+<h3>Transform type<a class="headerlink" href="#transform-type" title="Permalink to this heading">#</a></h3>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft14transform_typeE">
+<span id="_CPPv3N5bbfft14transform_typeE"></span><span id="_CPPv2N5bbfft14transform_typeE"></span><span class="target" id="namespacebbfft_1aafb21224464fa6c55a411d6573e4cc02"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">transform_type</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><a class="headerlink" href="#_CPPv4N5bbfft14transform_typeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Complex data and real data FFTs. </p>
+<p>The “standard” FFT is c2c, that is complex-valued input and complex-valued output.</p>
+<p>In practice, input data is often real-valued. Optimised plans for real-valued input or output data can be selected with transform_type. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft14transform_type3c2cE">
+<span id="_CPPv3N5bbfft14transform_type3c2cE"></span><span id="_CPPv2N5bbfft14transform_type3c2cE"></span><span class="target" id="namespacebbfft_1aafb21224464fa6c55a411d6573e4cc02a725ad7265830d2c0aae80b6e27b31007"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">c2c</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft14transform_type3c2cE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>complex input, complex output </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft14transform_type3r2cE">
+<span id="_CPPv3N5bbfft14transform_type3r2cE"></span><span id="_CPPv2N5bbfft14transform_type3r2cE"></span><span class="target" id="namespacebbfft_1aafb21224464fa6c55a411d6573e4cc02ab20e18af87f236e45ca797f969a608de"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">r2c</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft14transform_type3r2cE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>real input, complex output </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft14transform_type3c2rE">
+<span id="_CPPv3N5bbfft14transform_type3c2rE"></span><span id="_CPPv2N5bbfft14transform_type3c2rE"></span><span class="target" id="namespacebbfft_1aafb21224464fa6c55a411d6573e4cc02a7dc71dd91ab8fb868d32882dc655b6e7"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">c2r</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft14transform_type3c2rE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>complex input, real input </p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+<section id="stride-computation">
+<h2>Stride computation<a class="headerlink" href="#stride-computation" title="Permalink to this heading">#</a></h2>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15default_istrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb">
+<span id="_CPPv3N5bbfft15default_istrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb"></span><span id="_CPPv2N5bbfft15default_istrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb"></span><span id="bbfft::default_istride__unsigned.std::array:std::s.max_tensor_dim:CR.transform_type.b"></span><span class="target" id="namespacebbfft_1a505466bfad1bd9273f53390b603058f9"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">default_istride</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dim</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">shape</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft14transform_typeE" title="bbfft::transform_type"><span class="n"><span class="pre">transform_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">inplace</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft15default_istrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute the default strides of the input tensor. </p>
+<p>Let the shape be <span class="math notranslate nohighlight">\((M,N_1,\dots,N_d,K)\)</span>, where d is the FFT dimension. For <strong>c2c</strong> transforms the first two three entries of the stride array are given by <span class="math notranslate nohighlight">\(s_0=1\)</span> and <span class="math notranslate nohighlight">\(s_1=M\)</span>. Further entries are computed with <div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[i=2,\dots,d+1: s_i = s_{i-1}N_{i-1}.\]</div>
+</div>
+</p>
+<p>For out-of-place r2c transforms strides are the same as for c2c transforms. For <strong>in-place r2c</strong> transforms we have to pad the first FFT mode such that the output data fits into the input tensor. That is, we have <span class="math notranslate nohighlight">\(N_1' = 2 (\lfloor N_1/2\rfloor+1)\)</span>. The stride computation goes according to the stride computation for c2c but with every instance of <span class="math notranslate nohighlight">\(N_1\)</span> replaced with <span class="math notranslate nohighlight">\(N_1'\)</span>.</p>
+<p>For <strong>c2r</strong> transform (both in-place and out-of-place) we expect that only <span class="math notranslate nohighlight">\(N_1''=\lfloor N_1/2\rfloor+1\)</span> complex numbers in the first FFT mode are stored (due to symmetry). The stride computation goes according to the stride computation for c2c but with every instance of <span class="math notranslate nohighlight">\(N_1\)</span> replaced with <span class="math notranslate nohighlight">\(N_1''\)</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> – FFT dimension </p></li>
+<li><p><strong>shape</strong> – Input tensor Shape </p></li>
+<li><p><strong>type</strong> – complex or real-valued FFT </p></li>
+<li><p><strong>inplace</strong> – Is the transform in-place?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stride array </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15default_ostrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb">
+<span id="_CPPv3N5bbfft15default_ostrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb"></span><span id="_CPPv2N5bbfft15default_ostrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb"></span><span id="bbfft::default_ostride__unsigned.std::array:std::s.max_tensor_dim:CR.transform_type.b"></span><span class="target" id="namespacebbfft_1a176e82cab7e26fcb28e0b13a964d0a7a"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">default_ostride</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dim</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">shape</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft14transform_typeE" title="bbfft::transform_type"><span class="n"><span class="pre">transform_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">inplace</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft14max_tensor_dimE" title="bbfft::max_tensor_dim"><span class="n"><span class="pre">max_tensor_dim</span></span></a><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft15default_ostrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Computes the default strides of the output tensor. </p>
+<p>“Reverses” the role of default_istride in the following manner:</p>
+<p><ul class="simple">
+<li><p><strong>r2c:</strong> Same as default_istride called for type = c2r.</p></li>
+<li><p><strong>c2r:</strong> Same as default_istride called for type = r2c.</p></li>
+<li><p><strong>c2c:</strong> Same as default_istride.</p></li>
+</ul>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> – FFT dimension </p></li>
+<li><p><strong>shape</strong> – Output tensor Shape </p></li>
+<li><p><strong>type</strong> – complex or real-valued FFT </p></li>
+<li><p><strong>inplace</strong> – Is the transform in-place?</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Stride array </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="user-callbacks">
+<h2>User callbacks<a class="headerlink" href="#user-callbacks" title="Permalink to this heading">#</a></h2>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15kernel_languageE">
+<span id="_CPPv3N5bbfft15kernel_languageE"></span><span id="_CPPv2N5bbfft15kernel_languageE"></span><span class="target" id="namespacebbfft_1a4e299deb896ae4ffb29f7ad5157621e5"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">kernel_language</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft15kernel_languageE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Language of user module. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15kernel_language8opencl_cE">
+<span id="_CPPv3N5bbfft15kernel_language8opencl_cE"></span><span id="_CPPv2N5bbfft15kernel_language8opencl_cE"></span><span class="target" id="namespacebbfft_1a4e299deb896ae4ffb29f7ad5157621e5a4a196ed426a0217f8a9ab38abe926150"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">opencl_c</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft15kernel_language8opencl_cE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>OpenCL-C language. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11user_moduleE">
+<span id="_CPPv3N5bbfft11user_moduleE"></span><span id="_CPPv2N5bbfft11user_moduleE"></span><span id="bbfft::user_module"></span><span class="target" id="structbbfft_1_1user__module"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">user_module</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11user_moduleE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Definition of user callbacks. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11user_modulecvbEv">
+<span id="_CPPv3NK5bbfft11user_modulecvbEv"></span><span id="_CPPv2NK5bbfft11user_modulecvbEv"></span><span id="bbfft::user_module::castto-b-operatorC"></span><span class="target" id="structbbfft_1_1user__module_1a240e2f4f7488334127088c102c71e05f"></span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11user_modulecvbEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Checks if user module is set up properly. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Is user module valid? </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11user_module4dataE">
+<span id="_CPPv3N5bbfft11user_module4dataE"></span><span id="_CPPv2N5bbfft11user_module4dataE"></span><span id="bbfft::user_module::data__cCP"></span><span class="target" id="structbbfft_1_1user__module_1aabd3a13e453372fa80c86e6c2d51e919"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><a class="headerlink" href="#_CPPv4N5bbfft11user_module4dataE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Source code string. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11user_module6lengthE">
+<span id="_CPPv3N5bbfft11user_module6lengthE"></span><span id="_CPPv2N5bbfft11user_module6lengthE"></span><span id="bbfft::user_module::length__std::s"></span><span class="target" id="structbbfft_1_1user__module_1a6b274841747a9392e7114200dfe554b2"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">length</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11user_module6lengthE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Length of source code string. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11user_module13load_functionE">
+<span id="_CPPv3N5bbfft11user_module13load_functionE"></span><span id="_CPPv2N5bbfft11user_module13load_functionE"></span><span id="bbfft::user_module::load_function__cCP"></span><span class="target" id="structbbfft_1_1user__module_1ac6c8086ba4a712758e557e26fae42099"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">load_function</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><a class="headerlink" href="#_CPPv4N5bbfft11user_module13load_functionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Name of load function (C string) </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11user_module14store_functionE">
+<span id="_CPPv3N5bbfft11user_module14store_functionE"></span><span id="_CPPv2N5bbfft11user_module14store_functionE"></span><span id="bbfft::user_module::store_function__cCP"></span><span class="target" id="structbbfft_1_1user__module_1a823d287b2f4103cdc8a5c860778a53c2"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">store_function</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">nullptr</span></span><a class="headerlink" href="#_CPPv4N5bbfft11user_module14store_functionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Name of store function (C string) </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11user_module8languageE">
+<span id="_CPPv3N5bbfft11user_module8languageE"></span><span id="_CPPv2N5bbfft11user_module8languageE"></span><span id="bbfft::user_module::language__kernel_language"></span><span class="target" id="structbbfft_1_1user__module_1a79df7c54564bbd0faf00d1a6826b0237"></span><a class="reference internal" href="#_CPPv4N5bbfft15kernel_languageE" title="bbfft::kernel_language"><span class="n"><span class="pre">kernel_language</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">language</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft15kernel_languageE" title="bbfft::kernel_language"><span class="n"><span class="pre">kernel_language</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft15kernel_language8opencl_cE" title="bbfft::kernel_language::opencl_c"><span class="n"><span class="pre">opencl_c</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft11user_module8languageE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Language. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="plan.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Plans</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">API reference</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Intel Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Configuration</a><ul>
+<li><a class="reference internal" href="#main-configuration">Main configuration</a></li>
+<li><a class="reference internal" href="#constants">Constants</a></li>
+<li><a class="reference internal" href="#enumerations">Enumerations</a><ul>
+<li><a class="reference internal" href="#precision">Precision</a></li>
+<li><a class="reference internal" href="#direction">Direction</a></li>
+<li><a class="reference internal" href="#transform-type">Transform type</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stride-computation">Stride computation</a></li>
+<li><a class="reference internal" href="#user-callbacks">User callbacks</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
