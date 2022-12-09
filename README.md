@@ -46,6 +46,12 @@ cmake --install build --prefix /path/to/installation
 
 ## Documentation
 
+### Online
+
+The documentation is available at https://intel.github.io/double-batched-fft-library/
+
+### Local build
+
 Install Doxygen and Python dependencies:
 
 ```bash
