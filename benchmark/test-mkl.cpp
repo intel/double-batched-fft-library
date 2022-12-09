@@ -58,7 +58,7 @@ result test_body(sycl::queue Q, unsigned int M, unsigned int N, unsigned int K =
             }
         } else {
             for (unsigned int i = 0; i < M; ++i) {
-                oneapi::mkl::dft::compute_forward(*plan, X_ref.data() + i, x_ref.data() + i);
+                oneapi::mkl::dft::compute_backward(*plan, X_ref.data() + i, x_ref.data() + i);
             }
         }
     };
@@ -95,7 +95,7 @@ void test(sycl::queue Q, args const &a) {
     if (a.p == 's') {
         if (a.d == 'r') {
             test_fun_i = &test_body<float, true>;
-            test_fun_o = nullptr;
+            test_fun_o = &test_body<float, false>;
         } else {
             test_fun_i = &test_body<std::complex<float>, true>;
             test_fun_o = &test_body<std::complex<float>, false>;
@@ -105,7 +105,7 @@ void test(sycl::queue Q, args const &a) {
     else {
         if (a.d == 'r') {
             test_fun_i = &test_body<double, true>;
-            test_fun_o = nullptr;
+            test_fun_o = &test_body<double, false>;
         } else {
             test_fun_i = &test_body<std::complex<double>, true>;
             test_fun_o = &test_body<std::complex<double>, false>;
