@@ -76,7 +76,7 @@ template <typename T, std::size_t D> class harness {
         if (pollute_0_imaginary) {
             Q.parallel_for(range{K, M}, [=](id<2> idx) {
                  auto k = idx[0], m = idx[1];
-                 X[Xi_f(m, 0, k)].imag(T(1.0 + m + k));
+                 X[Xi_f(m, 0, k)].imag(T(1.0) + m + k);
              }).wait();
         }
     }
