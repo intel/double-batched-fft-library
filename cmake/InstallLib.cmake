@@ -11,6 +11,9 @@ function(install_lib target namespace)
         set(type static)
     endif ()
 
+    set_target_properties(${target} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+    set_target_properties(${target} PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
+
     file(READ ${CMAKE_SOURCE_DIR}/cmake/template.cmake SHARED_STATIC_TEMPLATE)
 
     set(CONFIG_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${target})
