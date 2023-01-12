@@ -51,11 +51,11 @@ factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg, de
     std::size_t max_Mb = external_buffer ? max_compute_Mb : std::min(max_compute_Mb, max_slm_Mb);
     max_Mb = std::min(max_Mb, work_group_size_limit);
     std::size_t Mb = std::min(max_Mb, min_power_of_2_greater_equal(M));
-    std::size_t max_work_group_size = std::min(std::size_t(128), info.max_work_group_size);
-    std::size_t max_compute_Kb = std::max(std::size_t(1), max_work_group_size / (Mb * Nb));
+    std::size_t max_compute_Kb = std::max(std::size_t(1), info.max_work_group_size / (Mb * Nb));
     std::size_t max_slm_Kb = info.local_memory_size / (2 * Mb * N_slm * sizeof_real);
     std::size_t max_Kb = std::min(max_compute_Kb, max_slm_Kb);
-    std::size_t Kb = std::min(cfg.shape[2], max_power_of_2_less_equal(max_Kb));
+    std::size_t min_Kb = (sgs - 1) / (Mb * Nb) + 1;
+    std::size_t Kb = std::min(cfg.shape[2], std::min(min_Kb, max_Kb));
 
     bool inplace_unsupported = is_real && Mb < M;
 
