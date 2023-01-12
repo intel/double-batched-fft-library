@@ -389,7 +389,7 @@ void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {
     delete[] x_ref;
 }
 
-TEST_CASE_TEMPLATE("r2c 1d identity", T, TEST_PRECISIONS) {
+TEST_CASE_TEMPLATE("r2c 1d identity in-place", T, TEST_PRECISIONS) {
     auto KK = std::vector<std::size_t>{16};
     auto MM = std::vector<std::size_t>{1, 8};
     auto NN = std::vector<std::size_t>{8, 64, 212};
@@ -397,11 +397,21 @@ TEST_CASE_TEMPLATE("r2c 1d identity", T, TEST_PRECISIONS) {
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
 
-    SUBCASE("in-place") { identity_test<T, 1u, true>(M, {N}, K); }
-    SUBCASE("out-of-place") { identity_test<T, 1u, false>(M, {N}, K); }
+    identity_test<T, 1u, true>(M, {N}, K);
 }
 
-TEST_CASE_TEMPLATE("r2c 3d identity", T, TEST_PRECISIONS) {
+TEST_CASE_TEMPLATE("r2c 1d identity out-of-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{16};
+    auto MM = std::vector<std::size_t>{1, 8};
+    auto NN = std::vector<std::size_t>{8, 64, 212};
+
+    std::size_t M, N, K;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    identity_test<T, 1u, false>(M, {N}, K);
+}
+
+TEST_CASE_TEMPLATE("r2c 3d identity in-place", T, TEST_PRECISIONS) {
     auto KK = std::vector<std::size_t>{1, 11};
     auto MM = std::vector<std::size_t>{1, 7};
     auto NN = std::vector<std::array<std::size_t, 3u>>{{8, 8, 8}, {96, 96, 80}};
@@ -410,5 +420,5 @@ TEST_CASE_TEMPLATE("r2c 3d identity", T, TEST_PRECISIONS) {
     std::array<std::size_t, 3> N;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
 
-    SUBCASE("in-place") { identity_test<T, 3u, true>(M, N, K); }
+    identity_test<T, 3u, true>(M, N, K);
 }
