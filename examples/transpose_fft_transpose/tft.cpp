@@ -50,7 +50,7 @@ auto transpose_optimized(queue q, T const *x, T *xt, std::size_t K) {
     std::size_t Mb = (M - 1) / tile_size + 1;
     std::size_t Nb = (N - 1) / tile_size + 1;
     return q.submit([&](handler &h) {
-#if __INTEL_CLANG_COMPILER < 20230100
+#if __INTEL_CLANG_COMPILER < 20230000
         using local_accessor_t = accessor<T, 2, access::mode::read_write, access::target::local>;
 #else
         using local_accessor_t = local_accessor<T, 2>;
