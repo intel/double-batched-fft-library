@@ -6,6 +6,7 @@
 
 #include "clir/expr.hpp"
 
+#include <array>
 #include <cmath>
 #include <complex>
 #include <utility>
