@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.4] - 2022-01-17
+
+* Fix Ubuntu build
+
 ## [0.3.3] - 2022-01-16
 
 * Improve r2c performance in some cases
