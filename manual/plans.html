@@ -2,10 +2,10 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Understanding data layouts" href="data-layout.html" /><link rel="prev" title="Building and linking" href="build.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+    <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>Creating and using plans - Double-Batched FFT Library documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
@@ -253,39 +253,39 @@ Plan generation is unified in the Double-Batched FFT Library via the <a class="r
 Initializer-list syntax may be used to conveniently create configurations:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">configuration</span><span class="w"> </span><span class="n">cfg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w">              </span><span class="c1">// One dimensional</span>
 <span class="w">                     </span><span class="p">{</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">},</span><span class="w">      </span><span class="c1">// Tensor shape</span>
-<span class="w">                     </span><span class="n">direction</span><span class="p">,</span><span class="w">      </span><span class="c1">// Forward (-1) or backward (+1)</span>
 <span class="w">                     </span><span class="n">precision</span><span class="p">,</span><span class="w">      </span><span class="c1">// Single (f32) or double (f64)</span>
+<span class="w">                     </span><span class="n">direction</span><span class="p">,</span><span class="w">      </span><span class="c1">// Forward (-1) or backward (+1)</span>
 <span class="w">                     </span><span class="n">transform_type</span><span class="p">,</span><span class="w"> </span><span class="c1">// c2c, r2c, c2r</span>
 <span class="w">                     </span><span class="n">input_strides</span><span class="p">,</span><span class="w">  </span><span class="c1">// Strides of input tensor</span>
 <span class="w">                     </span><span class="n">output_strides</span><span class="w">  </span><span class="c1">// Strides of output tensor</span>
-<span class="w">                    </span><span class="p">};</span><span class="w"></span>
+<span class="w">                    </span><span class="p">};</span>
 </pre></div>
 </div>
 <p>Input and output strides are explained in more detail in <a class="reference internal" href="data-layout.html#data-layout"><span class="std std-ref">Understanding data layouts</span></a>.
 One may omit input_strides and output_strides.
 Then, the default layout for an in-place transform is set.
 In order to choose the default layout for an out-of-place transform, use</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">inplace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
-<span class="n">cfg</span><span class="p">.</span><span class="n">set_strides_default</span><span class="p">(</span><span class="n">inplace</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">inplace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="n">cfg</span><span class="p">.</span><span class="n">set_strides_default</span><span class="p">(</span><span class="n">inplace</span><span class="p">);</span>
 </pre></div>
 </div>
 <section id="sycl">
 <h3>SYCL<a class="headerlink" href="#sycl" title="Permalink to this heading">#</a></h3>
-<p>Using SYCL, the plan is created using the <code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">make_plan()</span></code> factory function as following:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/sycl/make_plan.hpp&quot;</span><span class="cp"></span>
+<p>Using SYCL, the plan is created using the <a class="reference internal" href="../api/plan.html#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueE" title="bbfft::make_plan"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">make_plan()</span></code></a> factory function as following:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/sycl/make_plan.hpp&quot;</span>
 
-<span class="k">auto</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="p">{</span><span class="n">sycl</span><span class="o">::</span><span class="n">gpu_selector_v</span><span class="p">};</span><span class="w"></span>
-<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">);</span><span class="w"></span>
+<span class="k">auto</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="p">{</span><span class="n">sycl</span><span class="o">::</span><span class="n">gpu_selector_v</span><span class="p">};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Plans are executed using</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plan</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span><span class="w"></span>
-<span class="n">event</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plan</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">);</span>
+<span class="n">event</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span>
 </pre></div>
 </div>
 <p>in out-of-place mode or using</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plan</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">inout</span><span class="p">);</span><span class="w"></span>
-<span class="n">event</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">event</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plan</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">inout</span><span class="p">);</span>
+<span class="n">event</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span>
 </pre></div>
 </div>
 <p>in in-place mode. Input, output, or inout are pointers to either device memory, shared memory, or host
@@ -293,13 +293,13 @@ memory, using one of the <code class="docutils literal notranslate"><span class=
 Note that in-place mode is also used if input = output.</p>
 <p>The data type of input and output depends on the transform type:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// c2c</span>
-<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="n">real_t</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">;</span><span class="w"></span>
+<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="n">real_t</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">;</span>
 <span class="c1">// r2c</span>
-<span class="n">real_t</span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="p">;</span><span class="w"></span>
-<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="n">real_t</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">output</span><span class="p">;</span><span class="w"></span>
+<span class="n">real_t</span><span class="o">*</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="n">real_t</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">output</span><span class="p">;</span>
 <span class="c1">// c2r</span>
-<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="n">real_t</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">input</span><span class="p">;</span><span class="w"></span>
-<span class="n">real_t</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">;</span><span class="w"></span>
+<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span><span class="n">real_t</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">input</span><span class="p">;</span>
+<span class="n">real_t</span><span class="o">*</span><span class="w"> </span><span class="n">output</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>where real_t=float for f32 precision and real_t=double for f64 precision.
@@ -309,10 +309,10 @@ The back-end can be selected at run-time by setting the SYCL_DEVICE_FILTER appro
 <section id="opencl">
 <h3>OpenCL<a class="headerlink" href="#opencl" title="Permalink to this heading">#</a></h3>
 <p>For OpenCL, use</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/cl/make_plan.hpp&quot;</span><span class="cp"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/cl/make_plan.hpp&quot;</span>
 
-<span class="n">cl_command_queue</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clCreateCommandQueueWithProperties</span><span class="p">(...);</span><span class="w"></span>
-<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">);</span><span class="w"></span>
+<span class="n">cl_command_queue</span><span class="w"> </span><span class="n">Q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clCreateCommandQueueWithProperties</span><span class="p">(...);</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Execute functions return a <code class="docutils literal notranslate"><span class="pre">cl_event</span></code> that shall be used for synchronization.
@@ -322,15 +322,15 @@ from the
 </section>
 <section id="level-zero">
 <h3>Level Zero<a class="headerlink" href="#level-zero" title="Permalink to this heading">#</a></h3>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/ze/make_plan.hpp&quot;</span><span class="cp"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/ze/make_plan.hpp&quot;</span>
 
-<span class="n">ze_context_handle_t</span><span class="p">;</span><span class="w"></span>
-<span class="n">ze_device_handle_t</span><span class="w"> </span><span class="n">device</span><span class="p">;</span><span class="w"></span>
-<span class="n">ze_command_list_handle_t</span><span class="w"> </span><span class="n">cmd_list</span><span class="p">;</span><span class="w"></span>
-<span class="n">zeContextCreate</span><span class="p">(...,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">context</span><span class="p">);</span><span class="w"></span>
-<span class="n">zeDeviceGet</span><span class="p">(..,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device</span><span class="p">);</span><span class="w"></span>
-<span class="n">zeCommandListCreateImmediate</span><span class="p">(...,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cmd_list</span><span class="p">);</span><span class="w"></span>
-<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">cmd_list</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span><span class="w"></span>
+<span class="n">ze_context_handle_t</span><span class="p">;</span>
+<span class="n">ze_device_handle_t</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+<span class="n">ze_command_list_handle_t</span><span class="w"> </span><span class="n">cmd_list</span><span class="p">;</span>
+<span class="n">zeContextCreate</span><span class="p">(...,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">context</span><span class="p">);</span>
+<span class="n">zeDeviceGet</span><span class="p">(..,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device</span><span class="p">);</span>
+<span class="n">zeCommandListCreateImmediate</span><span class="p">(...,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cmd_list</span><span class="p">);</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">cmd_list</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>Execute functions return a <code class="docutils literal notranslate"><span class="pre">ze_event_handle_t</span></code> that shall be used for synchronization.
@@ -344,8 +344,8 @@ where the FFT is taken over the N-modes.
 Everything works the same way as in the one-dimensional case, except that dimension, shape, and strides
 need to be adjusted.
 For example,</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span><span class="p">.</span><span class="n">dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w"></span>
-<span class="n">cfg</span><span class="p">.</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">N1</span><span class="p">,</span><span class="w"> </span><span class="n">N2</span><span class="p">,</span><span class="w"> </span><span class="n">N3</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">};</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">cfg</span><span class="p">.</span><span class="n">dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="n">cfg</span><span class="p">.</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="n">N1</span><span class="p">,</span><span class="w"> </span><span class="n">N2</span><span class="p">,</span><span class="w"> </span><span class="n">N3</span><span class="p">,</span><span class="w"> </span><span class="n">K</span><span class="p">};</span>
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -431,9 +431,6 @@ Do not expect that special data layouts beside the default data layout give the 
     </aside>
   </div>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>

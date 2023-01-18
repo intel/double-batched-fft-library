@@ -2,10 +2,10 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Offline generation" href="generator.html" /><link rel="prev" title="Configuration" href="configuration.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+    <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>Plans - Double-Batched FFT Library documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
@@ -214,13 +214,13 @@
 <span id="_CPPv3N5bbfft9make_planERK13configurationN4sycl5queueE"></span><span id="_CPPv2N5bbfft9make_planERK13configurationN4sycl5queueE"></span><span id="bbfft::make_plan__configurationCR.sycl::queue"></span><span class="target" id="namespacebbfft_1a331988c7717c7ae90fc702b308f091a8"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">make_plan</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">queue</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">queue</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN5bbfft4planE" title="bbfft::plan"><span class="n"><span class="pre">plan</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create a plan for the configuration. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cfg</strong> – configuration </p></li>
 <li><p><strong>queue</strong> – queue handle</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>plan </p>
 </dd>
 </dl>
@@ -231,7 +231,7 @@
 <span id="_CPPv3N5bbfft9make_planERK13configurationN4sycl5queueEN4sycl7contextEN4sycl6deviceE"></span><span id="_CPPv2N5bbfft9make_planERK13configurationN4sycl5queueEN4sycl7contextEN4sycl6deviceE"></span><span id="bbfft::make_plan__configurationCR.sycl::queue.sycl::context.sycl::device"></span><span class="target" id="namespacebbfft_1af9faedd2e2665aee5d08c3c9e8c22373"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">make_plan</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">queue</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">queue</span></span>, <span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">context</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">context</span></span>, <span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">device</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN5bbfft4planE" title="bbfft::plan"><span class="n"><span class="pre">plan</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueEN4sycl7contextEN4sycl6deviceE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create a plan for the configuration. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cfg</strong> – configuration </p></li>
 <li><p><strong>queue</strong> – queue handle </p></li>
@@ -239,7 +239,7 @@
 <li><p><strong>device</strong> – device handle</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>plan </p>
 </dd>
 </dl>
@@ -253,13 +253,13 @@
 <span id="_CPPv3N5bbfft9make_planERK13configuration16cl_command_queue"></span><span id="_CPPv2N5bbfft9make_planERK13configuration16cl_command_queue"></span><span id="bbfft::make_plan__configurationCR.cl_command_queue"></span><span class="target" id="namespacebbfft_1a7e5e730d109967ed115ac18412bdd3b6"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">make_plan</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="n"><span class="pre">cl_command_queue</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">queue</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN5bbfft4planE" title="bbfft::plan"><span class="n"><span class="pre">plan</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">cl_event</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft9make_planERK13configuration16cl_command_queue" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create a plan for the configuration. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cfg</strong> – configuration </p></li>
 <li><p><strong>queue</strong> – queue handle</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>plan </p>
 </dd>
 </dl>
@@ -270,7 +270,7 @@
 <span id="_CPPv3N5bbfft9make_planERK13configuration16cl_command_queue10cl_context12cl_device_id"></span><span id="_CPPv2N5bbfft9make_planERK13configuration16cl_command_queue10cl_context12cl_device_id"></span><span id="bbfft::make_plan__configurationCR.cl_command_queue.cl_context.cl_device_id"></span><span class="target" id="namespacebbfft_1adeb9e8dd411312a2d4817533c210b732"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">make_plan</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="n"><span class="pre">cl_command_queue</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">queue</span></span>, <span class="n"><span class="pre">cl_context</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">context</span></span>, <span class="n"><span class="pre">cl_device_id</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN5bbfft4planE" title="bbfft::plan"><span class="n"><span class="pre">plan</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">cl_event</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft9make_planERK13configuration16cl_command_queue10cl_context12cl_device_id" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create a plan for the configuration. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cfg</strong> – configuration </p></li>
 <li><p><strong>queue</strong> – queue handle </p></li>
@@ -278,7 +278,7 @@
 <li><p><strong>device</strong> – device handle</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>plan </p>
 </dd>
 </dl>
@@ -292,7 +292,7 @@
 <span id="_CPPv3N5bbfft9make_planERK13configuration24ze_command_list_handle_t19ze_context_handle_t18ze_device_handle_t"></span><span id="_CPPv2N5bbfft9make_planERK13configuration24ze_command_list_handle_t19ze_context_handle_t18ze_device_handle_t"></span><span id="bbfft::make_plan__configurationCR.ze_command_list_handle_t.ze_context_handle_t.ze_device_handle_t"></span><span class="target" id="namespacebbfft_1aa17e30ecbf361684df2b2c84442f17be"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">make_plan</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="n"><span class="pre">ze_command_list_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">queue</span></span>, <span class="n"><span class="pre">ze_context_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">context</span></span>, <span class="n"><span class="pre">ze_device_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0EN5bbfft4planE" title="bbfft::plan"><span class="n"><span class="pre">plan</span></span></a><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">ze_event_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4N5bbfft9make_planERK13configuration24ze_command_list_handle_t19ze_context_handle_t18ze_device_handle_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create a plan for the configuration. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cfg</strong> – configuration </p></li>
 <li><p><strong>queue</strong> – queue handle </p></li>
@@ -300,7 +300,7 @@
 <li><p><strong>device</strong> – device handle</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>plan </p>
 </dd>
 </dl>
@@ -316,7 +316,7 @@
 <p>FFT kernels are specialized for the required problem size. Plans store the best kernels for the requested problem size or problem configuration.</p>
 <p>Plan objects are not created directly but via <a class="reference internal" href="#namespacebbfft_1a7e5e730d109967ed115ac18412bdd3b6"><span class="std std-ref">make_plan</span></a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>EventT</strong> – event type of the compute runtime </p>
 </dd>
 </dl>
@@ -342,7 +342,7 @@
 <span id="_CPPv3NK5bbfft4plancvbEv"></span><span id="_CPPv2NK5bbfft4plancvbEv"></span><span id="bbfft::plan::castto-b-operatorC"></span><span class="target" id="classbbfft_1_1plan_1a8f286cd5194c82b03d143353ecaa3134"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">explicit</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK5bbfft4plancvbEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Check whether a plan is non-empty. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>True if plan is non-empty. </p>
 </dd>
 </dl>
@@ -354,7 +354,7 @@
 <dd><p>Construct plan from plan_impl. </p>
 <p>Use <a class="reference internal" href="#namespacebbfft_1a7e5e730d109967ed115ac18412bdd3b6"><span class="std std-ref">make_plan</span></a> instead of this constructor.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>impl</strong> – Implementation </p>
 </dd>
 </dl>
@@ -365,13 +365,13 @@
 <span id="_CPPv3N5bbfft4plan7executeEPKvPv"></span><span id="_CPPv2N5bbfft4plan7executeEPKvPv"></span><span id="bbfft::plan::execute__voidCP.voidP"></span><span class="target" id="classbbfft_1_1plan_1a113729034bde0c3a1522529a5cb5b4b4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">execute</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">in</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft4plan7executeEPKvPv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Execute plan (out-of-place) </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> – Pointer to input tensor </p></li>
 <li><p><strong>out</strong> – Pointer to output tensor</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Completion event </p>
 </dd>
 </dl>
@@ -382,14 +382,14 @@
 <span id="_CPPv3N5bbfft4plan7executeEPKvPv7event_t"></span><span id="_CPPv2N5bbfft4plan7executeEPKvPv7event_t"></span><span id="bbfft::plan::execute__voidCP.voidP.event_t"></span><span class="target" id="classbbfft_1_1plan_1a5d3f00d17c5ee295c572ce187d1fc4c2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">execute</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">in</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dep_event</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft4plan7executeEPKvPv7event_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Execute plan (out-of-place) </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> – Pointer to input tensor </p></li>
 <li><p><strong>out</strong> – Pointer to output tensor </p></li>
 <li><p><strong>dep_event</strong> – Event to wait on before launching</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Completion event </p>
 </dd>
 </dl>
@@ -400,14 +400,14 @@
 <span id="_CPPv3N5bbfft4plan7executeEPKvPvRKNSt6vectorI7event_tEE"></span><span id="_CPPv2N5bbfft4plan7executeEPKvPvRKNSt6vectorI7event_tEE"></span><span id="bbfft::plan::execute__voidCP.voidP.std::vector:event_t:CR"></span><span class="target" id="classbbfft_1_1plan_1aff0d5628cb7f90024bf5733a089bee5b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">execute</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">in</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">dep_events</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft4plan7executeEPKvPvRKNSt6vectorI7event_tEE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Execute plan (out-of-place) </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> – Pointer to input tensor </p></li>
 <li><p><strong>out</strong> – Pointer to output tensor </p></li>
 <li><p><strong>dep_events</strong> – Events to wait on before launching</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Completion event </p>
 </dd>
 </dl>
@@ -418,13 +418,13 @@
 <span id="_CPPv3N5bbfft4plan7executeEPv"></span><span id="_CPPv2N5bbfft4plan7executeEPv"></span><span id="bbfft::plan::execute__voidP"></span><span class="target" id="classbbfft_1_1plan_1a4199a98c4b7d479a5bb3bb54e4e4f37e"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">execute</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inout</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft4plan7executeEPv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Execute plan (in-place) </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> – Pointer to input tensor </p></li>
 <li><p><strong>out</strong> – Pointer to output tensor</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Completion event </p>
 </dd>
 </dl>
@@ -435,14 +435,14 @@
 <span id="_CPPv3N5bbfft4plan7executeEPKv7event_t"></span><span id="_CPPv2N5bbfft4plan7executeEPKv7event_t"></span><span id="bbfft::plan::execute__voidCP.event_t"></span><span class="target" id="classbbfft_1_1plan_1afb732c158515ff790ffb1273293accb8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">execute</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inout</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dep_event</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft4plan7executeEPKv7event_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Execute plan (in-place) </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> – Pointer to input tensor </p></li>
 <li><p><strong>out</strong> – Pointer to output tensor </p></li>
 <li><p><strong>dep_event</strong> – Event to wait on before launching</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Completion event </p>
 </dd>
 </dl>
@@ -453,14 +453,14 @@
 <span id="_CPPv3N5bbfft4plan7executeEPKvRKNSt6vectorI7event_tEE"></span><span id="_CPPv2N5bbfft4plan7executeEPKvRKNSt6vectorI7event_tEE"></span><span id="bbfft::plan::execute__voidCP.std::vector:event_t:CR"></span><span class="target" id="classbbfft_1_1plan_1a466fc8b5d868e66df57641921d9a0302"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">execute</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inout</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">dep_events</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft4plan7event_tE" title="bbfft::plan::event_t"><span class="n"><span class="pre">event_t</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft4plan7executeEPKvRKNSt6vectorI7event_tEE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Execute plan (in-place) </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>in</strong> – Pointer to input tensor </p></li>
 <li><p><strong>out</strong> – Pointer to output tensor </p></li>
 <li><p><strong>dep_events</strong> – Events to wait on before launching</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Completion event </p>
 </dd>
 </dl>
@@ -486,7 +486,7 @@
 <span id="_CPPv3N5bbfft17bad_configuration17bad_configurationENSt6stringE"></span><span id="_CPPv2N5bbfft17bad_configuration17bad_configurationENSt6stringE"></span><span id="bbfft::bad_configuration::bad_configuration__ss"></span><span class="target" id="classbbfft_1_1bad__configuration_1a40bbeb08ab4a3cec55e27d1bbda86b9e"></span><span class="sig-name descname"><span class="n"><span class="pre">bad_configuration</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">what</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft17bad_configuration17bad_configurationENSt6stringE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Constructor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>what</strong> – Explanatory string </p>
 </dd>
 </dl>
@@ -497,7 +497,7 @@
 <span id="_CPPv3N5bbfft17bad_configuration17bad_configurationEPKc"></span><span id="_CPPv2N5bbfft17bad_configuration17bad_configurationEPKc"></span><span id="bbfft::bad_configuration::bad_configuration__cCP"></span><span class="target" id="classbbfft_1_1bad__configuration_1af96ce6fd20fb0efe353692e7079f97c7"></span><span class="sig-name descname"><span class="n"><span class="pre">bad_configuration</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">what</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft17bad_configuration17bad_configurationEPKc" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Constructor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>what</strong> – Explanatory string </p>
 </dd>
 </dl>
@@ -508,7 +508,7 @@
 <span id="_CPPv3NK5bbfft17bad_configuration4whatEv"></span><span id="_CPPv2NK5bbfft17bad_configuration4whatEv"></span><span id="bbfft::bad_configuration::whatC"></span><span class="target" id="classbbfft_1_1bad__configuration_1aa81fae2e3b87357f0a9933f8031dc7f3"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">what</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5bbfft17bad_configuration4whatEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Explanation of exception. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Explanatory string </p>
 </dd>
 </dl>
@@ -525,7 +525,7 @@
 <span class="target" id="ze_2error_8hpp_1a919fc7572b981c5751e06aa3b7d0a9a4"></span><span class="sig-name descname"><span class="n"><span class="pre">ZE_CHECK</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">X</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.ZE_CHECK" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Checks Level Zero call for error and throws exception if call was not successful. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>X</strong> – Level Zero call or ze_result_t status code </p></li>
 </ul>
@@ -544,7 +544,7 @@
 <span id="_CPPv3N5bbfft2ze5error5errorENSt6stringE11ze_result_t"></span><span id="_CPPv2N5bbfft2ze5error5errorENSt6stringE11ze_result_t"></span><span id="bbfft::ze::error::error__ss.ze_result_t"></span><span class="target" id="classbbfft_1_1ze_1_1error_1a7dfab727c81bda19a0ebbc8fd9b98105"></span><span class="sig-name descname"><span class="n"><span class="pre">error</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">what</span></span>, <span class="n"><span class="pre">ze_result_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">status</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2ze5error5errorENSt6stringE11ze_result_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Constructor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>what</strong> – Explanatory string </p></li>
 <li><p><strong>status</strong> – Status code returned by Level Zero </p></li>
@@ -558,7 +558,7 @@
 <span id="_CPPv3N5bbfft2ze5error5errorEPKc11ze_result_t"></span><span id="_CPPv2N5bbfft2ze5error5errorEPKc11ze_result_t"></span><span id="bbfft::ze::error::error__cCP.ze_result_t"></span><span class="target" id="classbbfft_1_1ze_1_1error_1a4602326f659d71226e103bb1549e4828"></span><span class="sig-name descname"><span class="n"><span class="pre">error</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">what</span></span>, <span class="n"><span class="pre">ze_result_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">status</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2ze5error5errorEPKc11ze_result_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Constructor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>what</strong> – Explanatory string </p></li>
 <li><p><strong>status</strong> – Status code returned by Level Zero </p></li>
@@ -572,7 +572,7 @@
 <span id="_CPPv3NK5bbfft2ze5error4whatEv"></span><span id="_CPPv2NK5bbfft2ze5error4whatEv"></span><span id="bbfft::ze::error::whatC"></span><span class="target" id="classbbfft_1_1ze_1_1error_1a0c7a3232341ac1689e8ffee6f6acb516"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">what</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5bbfft2ze5error4whatEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Explanation. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Explanatory string </p>
 </dd>
 </dl>
@@ -583,7 +583,7 @@
 <span id="_CPPv3NK5bbfft2ze5error10error_codeEv"></span><span id="_CPPv2NK5bbfft2ze5error10error_codeEv"></span><span id="bbfft::ze::error::error_codeC"></span><span class="target" id="classbbfft_1_1ze_1_1error_1ac6b7e7535ff59664fce7903715eccd09"></span><span class="n"><span class="pre">ze_result_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">error_code</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK5bbfft2ze5error10error_codeEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Level Zero status code. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Status code </p>
 </dd>
 </dl>
@@ -600,7 +600,7 @@
 <span class="target" id="cl_2error_8hpp_1addba4fa283d7a69f620184e068c6e129"></span><span class="sig-name descname"><span class="n"><span class="pre">CL_CHECK</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">X</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.CL_CHECK" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Checks OpenCL call for error and throws exception if call was not successful. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>X</strong> – OpenCL call or cl_int status code </p></li>
 </ul>
@@ -619,7 +619,7 @@
 <span id="_CPPv3N5bbfft2cl5error5errorENSt6stringE6cl_int"></span><span id="_CPPv2N5bbfft2cl5error5errorENSt6stringE6cl_int"></span><span id="bbfft::cl::error::error__ss.cl_int"></span><span class="target" id="classbbfft_1_1cl_1_1error_1a610762211b3167a43e9f3d391e62e6ef"></span><span class="sig-name descname"><span class="n"><span class="pre">error</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">what</span></span>, <span class="n"><span class="pre">cl_int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">status</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2cl5error5errorENSt6stringE6cl_int" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Constructor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>what</strong> – Explanatory string </p></li>
 <li><p><strong>status</strong> – Status code returned by OpenCL </p></li>
@@ -633,7 +633,7 @@
 <span id="_CPPv3N5bbfft2cl5error5errorEPKc6cl_int"></span><span id="_CPPv2N5bbfft2cl5error5errorEPKc6cl_int"></span><span id="bbfft::cl::error::error__cCP.cl_int"></span><span class="target" id="classbbfft_1_1cl_1_1error_1a09f36c4e3807b561d7b97a63a4dca454"></span><span class="sig-name descname"><span class="n"><span class="pre">error</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">what</span></span>, <span class="n"><span class="pre">cl_int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">status</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2cl5error5errorEPKc6cl_int" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Constructor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>what</strong> – Explanatory string </p></li>
 <li><p><strong>status</strong> – Status code returned by OpenCL </p></li>
@@ -647,7 +647,7 @@
 <span id="_CPPv3NK5bbfft2cl5error4whatEv"></span><span id="_CPPv2NK5bbfft2cl5error4whatEv"></span><span id="bbfft::cl::error::whatC"></span><span class="target" id="classbbfft_1_1cl_1_1error_1ad7a1df0da29d10f812bc9d185254439b"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">what</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5bbfft2cl5error4whatEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Explanation. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Explanatory string </p>
 </dd>
 </dl>
@@ -658,7 +658,7 @@
 <span id="_CPPv3NK5bbfft2cl5error11status_codeEv"></span><span id="_CPPv2NK5bbfft2cl5error11status_codeEv"></span><span id="bbfft::cl::error::status_codeC"></span><span class="target" id="classbbfft_1_1cl_1_1error_1a22fbde2421e479dce29415605eb3889c"></span><span class="n"><span class="pre">cl_int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">status_code</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK5bbfft2cl5error11status_codeEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>OpenCL status code. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Status code </p>
 </dd>
 </dl>
@@ -752,9 +752,6 @@
     </aside>
   </div>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>

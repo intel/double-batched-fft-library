@@ -67,8 +67,8 @@ Initializer-list syntax may be used to conveniently create configurations:
 
    configuration cfg = {1,              // One dimensional
                         {M, N, K},      // Tensor shape
-                        direction,      // Forward (-1) or backward (+1)
                         precision,      // Single (f32) or double (f64)
+                        direction,      // Forward (-1) or backward (+1)
                         transform_type, // c2c, r2c, c2r
                         input_strides,  // Strides of input tensor
                         output_strides  // Strides of output tensor

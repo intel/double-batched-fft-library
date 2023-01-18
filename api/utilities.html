@@ -2,10 +2,10 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="Offline generation" href="generator.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+    <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>Utilities - Double-Batched FFT Library documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
@@ -212,7 +212,7 @@
 <span id="_CPPv3I0_j_6layoutEN5bbfft14tensor_indexerE"></span><span id="_CPPv2I0_j_6layoutEN5bbfft14tensor_indexerE"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IdxT</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">D</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft6layoutE" title="bbfft::layout"><span class="n"><span class="pre">layout</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">L</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft6layoutE" title="bbfft::layout"><span class="n"><span class="pre">layout</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft6layout9row_majorE" title="bbfft::layout::row_major"><span class="n"><span class="pre">row_major</span></span></a><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="classbbfft_1_1tensor__indexer"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tensor_indexer</span></span></span><a class="headerlink" href="#_CPPv4I0_j_6layoutEN5bbfft14tensor_indexerE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Utility class to compute addresses for multi-dimensional data. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>IdxT</strong> – Index type </p></li>
 <li><p><strong>D</strong> – Tensor dimension </p></li>
@@ -245,7 +245,7 @@
 <p>Row-major layout: <span class="math notranslate nohighlight">\(s = (N_{D-1}\cdot\ldots\cdot N_2, \dots, N_{D-1}, 1)\)</span></p>
 <p>Column-major layout: <span class="math notranslate nohighlight">\(s = (1, N_1, \dots, N_1\cdot\ldots\cdot N_{D-1})\)</span></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>shape</strong> – The numbers <span class="math notranslate nohighlight">\(N_1,\dots,N_D\)</span> </p>
 </dd>
 </dl>
@@ -256,7 +256,7 @@
 <span id="_CPPv3N5bbfft14tensor_indexer14tensor_indexerE11multi_idx_t11multi_idx_t"></span><span id="_CPPv2N5bbfft14tensor_indexer14tensor_indexerE11multi_idx_t11multi_idx_t"></span><span id="bbfft::tensor_indexer::tensor_indexer__multi_idx_t.multi_idx_t"></span><span class="target" id="classbbfft_1_1tensor__indexer_1a9f6db531eaeaf005f68fb448a66a3972"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tensor_indexer</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft14tensor_indexer11multi_idx_tE" title="bbfft::tensor_indexer::multi_idx_t"><span class="n"><span class="pre">multi_idx_t</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">shape</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft14tensor_indexer11multi_idx_tE" title="bbfft::tensor_indexer::multi_idx_t"><span class="n"><span class="pre">multi_idx_t</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">stride</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft14tensor_indexer14tensor_indexerE11multi_idx_t11multi_idx_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Construct indexer for <span class="math notranslate nohighlight">\(N_1\times\dots\times N_D\)</span> tensor with manual strides. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>shape</strong> – The numbers <span class="math notranslate nohighlight">\(N_1,\dots,N_D\)</span> </p></li>
 <li><p><strong>stride</strong> – Custom strides </p></li>
@@ -275,13 +275,13 @@
 </div>
  where <span class="math notranslate nohighlight">\(s_j\)</span> are the entries of the stride array.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>Indices</strong> – Index types of arguments </p>
 </dd>
-<dt class="field-even">Parameters</dt>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>...is</strong> – Indices</p>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Linear index </p>
 </dd>
 </dl>
@@ -292,10 +292,10 @@
 <span id="_CPPv3NK5bbfft14tensor_indexerclERK11multi_idx_t"></span><span id="_CPPv2NK5bbfft14tensor_indexerclERK11multi_idx_t"></span><span id="bbfft::tensor_indexer::call-operator__multi_idx_tCRC"></span><span class="target" id="classbbfft_1_1tensor__indexer_1a1fa3bba57fc1391b252c2020ba04cb50"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_j_6layoutEN5bbfft14tensor_indexerE" title="bbfft::tensor_indexer::IdxT"><span class="n"><span class="pre">IdxT</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft14tensor_indexer11multi_idx_tE" title="bbfft::tensor_indexer::multi_idx_t"><span class="n"><span class="pre">multi_idx_t</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">idx</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexerclERK11multi_idx_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Compute linear index. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>idx</strong> – Multi-index</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Linear index </p>
 </dd>
 </dl>
@@ -306,7 +306,7 @@
 <span id="_CPPv3NK5bbfft14tensor_indexer5shapeEv"></span><span id="_CPPv2NK5bbfft14tensor_indexer5shapeEv"></span><span id="bbfft::tensor_indexer::shapeC"></span><span class="target" id="classbbfft_1_1tensor__indexer_1ae60156037b9d866b8ac77eb65f0bd879"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexer5shapeEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Tensor shape. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Numbers <span class="math notranslate nohighlight">\(N_1,\dots,N_D\)</span> </p>
 </dd>
 </dl>
@@ -317,10 +317,10 @@
 <span id="_CPPv3NK5bbfft14tensor_indexer5shapeEj"></span><span id="_CPPv2NK5bbfft14tensor_indexer5shapeEj"></span><span id="bbfft::tensor_indexer::shape__unsigned-iC"></span><span class="target" id="classbbfft_1_1tensor__indexer_1a31654c82061169fc06eb47ea04ab53d5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexer5shapeEj" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Tensor shape. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> – mode</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Number <span class="math notranslate nohighlight">\(N_d\)</span> </p>
 </dd>
 </dl>
@@ -331,7 +331,7 @@
 <span id="_CPPv3NK5bbfft14tensor_indexer6strideEv"></span><span id="_CPPv2NK5bbfft14tensor_indexer6strideEv"></span><span id="bbfft::tensor_indexer::strideC"></span><span class="target" id="classbbfft_1_1tensor__indexer_1a1b8c10fa36eb8903850fbe02bf936ce6"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stride</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexer6strideEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Strides. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Stride array </p>
 </dd>
 </dl>
@@ -342,10 +342,10 @@
 <span id="_CPPv3NK5bbfft14tensor_indexer6strideEj"></span><span id="_CPPv2NK5bbfft14tensor_indexer6strideEj"></span><span id="bbfft::tensor_indexer::stride__unsigned-iC"></span><span class="target" id="classbbfft_1_1tensor__indexer_1ad185b5eb363ed08b581b777826d1227c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stride</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexer6strideEj" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Stride for d-th mode. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>d</strong> – mode</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Stride </p>
 </dd>
 </dl>
@@ -356,7 +356,7 @@
 <span id="_CPPv3NK5bbfft14tensor_indexer4sizeEv"></span><span id="_CPPv2NK5bbfft14tensor_indexer4sizeEv"></span><span id="bbfft::tensor_indexer::sizeC"></span><span class="target" id="classbbfft_1_1tensor__indexer_1af0e8d981cf5797132adab6dc80131110"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I0_j_6layoutEN5bbfft14tensor_indexerE" title="bbfft::tensor_indexer::IdxT"><span class="n"><span class="pre">IdxT</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexer4sizeEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Compute number of elements in tensor. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Size (multiply with element type to get number of bytes) </p>
 </dd>
 </dl>
@@ -367,7 +367,7 @@
 <span id="_CPPv3NK5bbfft14tensor_indexer3dimEv"></span><span id="_CPPv2NK5bbfft14tensor_indexer3dimEv"></span><span id="bbfft::tensor_indexer::dimCCE"></span><span class="target" id="classbbfft_1_1tensor__indexer_1a6415deae9af55dd6da8f977f5a1fc6da"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dim</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft14tensor_indexer3dimEv" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Dimension. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Dimension </p>
 </dd>
 </dl>
@@ -379,13 +379,13 @@
 <dd><p>Checks whether indices may be fused. </p>
 <p>“Fusing” means that one may treat 2 or more neighbouring indices as a single super-index. Modes may only be fused it they are packed in memory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>Dfrom</strong> – First fused mode </p></li>
 <li><p><strong>Dto</strong> – Last fused mode</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if modes may be fused </p>
 </dd>
 </dl>
@@ -401,13 +401,13 @@
 </div>
 </p>
 <dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>Dfrom</strong> – First fused mode </p></li>
 <li><p><strong>Dto</strong> – Last fused mode</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if modes may be fused </p>
 </dd>
 </dl>
@@ -448,20 +448,20 @@
 <span id="_CPPv3I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayERKNSt5arrayI4IdxT3DinEE4IdxT"></span><span id="_CPPv2I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayERKNSt5arrayI4IdxT3DinEE4IdxT"></span><span class="k"><span class="pre">template</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Dout</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">typename</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IdxT</span></span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Din</span></span></span><span class="p"><span class="pre">&gt;</span></span><br /><span class="target" id="namespacebbfft_1a176c1db3de753eccc520717064b19798"></span><span class="k"><span class="pre">constexpr</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">fit_array</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="#_CPPv4I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayEDaRKNSt5arrayI4IdxT3DinEE4IdxT" title="bbfft::fit_array::IdxT"><span class="n"><span class="pre">IdxT</span></span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayEDaRKNSt5arrayI4IdxT3DinEE4IdxT" title="bbfft::fit_array::Din"><span class="n"><span class="pre">Din</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">in</span></span>, <a class="reference internal" href="#_CPPv4I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayEDaRKNSt5arrayI4IdxT3DinEE4IdxT" title="bbfft::fit_array::IdxT"><span class="n"><span class="pre">IdxT</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">fill_value</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayEDaRKNSt5arrayI4IdxT3DinEE4IdxT" title="bbfft::fit_array::IdxT"><span class="n"><span class="pre">IdxT</span></span></a><span class="p"><span class="pre">(</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">)</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayEDaRKNSt5arrayI4IdxT3DinEE4IdxT" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Truncate or extend std::array. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Template Parameters</dt>
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>Dout</strong> – Length of output array </p></li>
 <li><p><strong>IdxT</strong> – Array value type </p></li>
 <li><p><strong>Din</strong> – Length of input array </p></li>
 </ul>
 </dd>
-<dt class="field-even">Parameters</dt>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>in</strong> – Input array </p></li>
 <li><p><strong>fill_value</strong> – Fill value if extension is needed</p></li>
 </ul>
 </dd>
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Truncated or extended array </p>
 </dd>
 </dl>
@@ -478,14 +478,14 @@
 <span id="_CPPv3N5bbfft2cl19build_kernel_bundleENSt6stringE10cl_context12cl_device_id"></span><span id="_CPPv2N5bbfft2cl19build_kernel_bundleENSt6stringE10cl_context12cl_device_id"></span><span id="bbfft::cl::build_kernel_bundle__ss.cl_context.cl_device_id"></span><span class="target" id="cl_2online__compiler_8hpp_1ab77fa30fb050e6d4fa527c5f67071495"></span><span class="n"><span class="pre">cl_program</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">cl</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">build_kernel_bundle</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">cl_context</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">context</span></span>, <span class="n"><span class="pre">cl_device_id</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2cl19build_kernel_bundleENSt6stringE10cl_context12cl_device_id" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Compile OpenCL-C code to an OpenCL program. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> – Source code </p></li>
 <li><p><strong>context</strong> – OpenCL context </p></li>
 <li><p><strong>device</strong> – OpenCL device</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>OpenCL program </p>
 </dd>
 </dl>
@@ -496,13 +496,13 @@
 <span id="_CPPv3N5bbfft2cl13create_kernelE10cl_programNSt6stringE"></span><span id="_CPPv2N5bbfft2cl13create_kernelE10cl_programNSt6stringE"></span><span id="bbfft::cl::create_kernel__cl_program.ss"></span><span class="target" id="cl_2online__compiler_8hpp_1a0e24def533ffc5439aed7d245dd4db9f"></span><span class="n"><span class="pre">cl_kernel</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">cl</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">create_kernel</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cl_program</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">prog</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2cl13create_kernelE10cl_programNSt6stringE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create kernel from program. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>prog</strong> – OpenCL program </p></li>
 <li><p><strong>name</strong> – Kernel name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>OpenCL kernel </p>
 </dd>
 </dl>
@@ -516,14 +516,14 @@
 <span id="_CPPv3N5bbfft2ze19build_kernel_bundleENSt6stringE19ze_context_handle_t18ze_device_handle_t"></span><span id="_CPPv2N5bbfft2ze19build_kernel_bundleENSt6stringE19ze_context_handle_t18ze_device_handle_t"></span><span id="bbfft::ze::build_kernel_bundle__ss.ze_context_handle_t.ze_device_handle_t"></span><span class="target" id="ze_2online__compiler_8hpp_1ad2f39f99b1670d9d44881250f8234ae1"></span><span class="n"><span class="pre">ze_module_handle_t</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ze</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">build_kernel_bundle</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">source</span></span>, <span class="n"><span class="pre">ze_context_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">context</span></span>, <span class="n"><span class="pre">ze_device_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2ze19build_kernel_bundleENSt6stringE19ze_context_handle_t18ze_device_handle_t" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Compile OpenCL-C code to a Level Zero module. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> – Source code </p></li>
 <li><p><strong>context</strong> – Level Zero context </p></li>
 <li><p><strong>device</strong> – Level Zero device</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Level Zero module </p>
 </dd>
 </dl>
@@ -534,13 +534,13 @@
 <span id="_CPPv3N5bbfft2ze13create_kernelE18ze_module_handle_tNSt6stringE"></span><span id="_CPPv2N5bbfft2ze13create_kernelE18ze_module_handle_tNSt6stringE"></span><span id="bbfft::ze::create_kernel__ze_module_handle_t.ss"></span><span class="target" id="ze_2online__compiler_8hpp_1a2f3478e218418092227ca8a9a74ca9e2"></span><span class="n"><span class="pre">ze_kernel_handle_t</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ze</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">create_kernel</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ze_module_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mod</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft2ze13create_kernelE18ze_module_handle_tNSt6stringE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Create kernel from module. </p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mod</strong> – Level Zero module </p></li>
 <li><p><strong>name</strong> – Kernel name</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Level Zero kernel </p>
 </dd>
 </dl>
@@ -618,9 +618,6 @@
     </aside>
   </div>
 </div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
