@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
-#include <numeric>
 #include <type_traits>
 #include <utility>
 
@@ -235,8 +234,10 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
         std::copy(stride_.begin(), stride_.begin() + Dfrom + 1, new_stride.begin());
         std::copy(shape_.begin() + Dto + 1, shape_.begin() + D, new_shape.begin() + Dfrom + 1);
         std::copy(stride_.begin() + Dto + 1, stride_.begin() + D, new_stride.begin() + Dfrom + 1);
-        auto N = std::reduce(shape_.begin() + Dfrom, shape_.begin() + Dto + 1, 1,
-                             std::multiplies<unsigned int>{});
+        IdxT N = static_cast<IdxT>(1);
+        for (unsigned int d = Dfrom; d <= Dto; ++d) {
+            N *= shape_[d];
+        }
         new_shape[Dfrom] = N;
         return tensor_indexer<IdxT, D - (Dto - Dfrom), L>(new_shape, new_stride);
     }

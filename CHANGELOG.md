@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.5] - 2022-01-25
+
+* Support gcc 8.5
+
 ## [0.3.4] - 2022-01-17
 
 * Fix Ubuntu build
