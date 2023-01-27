@@ -4,8 +4,6 @@
 #include "scrambler.hpp"
 
 #include "doctest/doctest.h"
-#include <functional>
-#include <numeric>
 #include <vector>
 
 using namespace bbfft;
@@ -49,7 +47,10 @@ TEST_CASE("scrambler") {
 
     SUBCASE("identity") {
         auto factorization = std::vector<int>{13, 5, 2, 7};
-        int N = std::reduce(factorization.begin(), factorization.end(), 1, std::multiplies<int>{});
+        int N = 1;
+        for (auto f : factorization) {
+            N *= f;
+        }
         auto p = scrambler(factorization);
         auto P = unscrambler(factorization);
         for (int i = 0; i < 2 * N; ++i) {

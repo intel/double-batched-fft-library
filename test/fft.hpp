@@ -9,9 +9,7 @@
 
 #include <cmath>
 #include <cstddef>
-#include <functional>
 #include <limits>
-#include <numeric>
 #include <string>
 
 constexpr double tau = 6.28318530717958647693;
@@ -21,7 +19,11 @@ template <typename T> double tol(std::size_t N) {
 }
 
 template <typename T, std::size_t D> double tol(std::array<std::size_t, D> N) {
-    return tol<T>(std::reduce(N.begin(), N.end(), 1, std::multiplies<std::size_t>{}));
+    std::size_t NN = 1;
+    for (auto n : N) {
+        NN *= n;
+    }
+    return tol<T>(NN);
 }
 
 template <typename T> T periodic_delta(long z, long N) { return z % N == 0 ? T(1.0) : T(0.0); }

@@ -15,7 +15,6 @@
 
 #include <complex>
 #include <cstddef>
-#include <numeric>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
@@ -23,6 +22,14 @@
 using namespace clir;
 
 namespace bbfft {
+
+int product(std::vector<int> const &factorization) {
+    int N = 1;
+    for (auto f : factorization) {
+        N *= f;
+    }
+    return N;
+}
 
 expr multiply_imaginary_unit(precision_helper fph, expr x, expr is_odd) {
     return select(intel_sub_group_shuffle_down(-x, -x, 1), intel_sub_group_shuffle_up(x, x, 1),
@@ -52,7 +59,7 @@ expr sub_group_xy(precision_helper fph, expr x, std::complex<double> y, expr &is
 void generate_fft::with_cse(block_builder &bb, precision fp, int direction,
                             std::vector<int> factorization, var &x, var &y, expr is_odd) {
     int L = factorization.size();
-    int N = std::reduce(factorization.begin(), factorization.end(), 1, std::multiplies<int>{});
+    int N = product(factorization);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
@@ -117,7 +124,7 @@ void generate_fft::basic(block_builder &bb, precision fp, int direction,
                          std::vector<int> factorization, var &x, var &y, expr is_odd,
                          expr twiddle) {
     int L = factorization.size();
-    int N = std::reduce(factorization.begin(), factorization.end(), 1, std::multiplies<int>{});
+    int N = product(factorization);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
@@ -178,7 +185,7 @@ void generate_fft::basic(block_builder &bb, precision fp, int direction,
 void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
                                  std::vector<int> factorization, var x, expr twiddle) {
     int L = factorization.size();
-    int N = std::reduce(factorization.begin(), factorization.end(), 1, std::multiplies<int>{});
+    int N = product(factorization);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
@@ -231,7 +238,7 @@ void generate_fft::basic_inplace_subgroup(block_builder &bb, precision fp, int d
                                           std::vector<int> factorization, var x, expr is_odd,
                                           expr twiddle) {
     int L = factorization.size();
-    int N = std::reduce(factorization.begin(), factorization.end(), 1, std::multiplies<int>{});
+    int N = product(factorization);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
