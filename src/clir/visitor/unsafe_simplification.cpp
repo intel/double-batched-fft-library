@@ -92,6 +92,19 @@ expr unsafe_simplification::operator()(internal::binary_op &e) {
     return nullptr;
 }
 
+expr unsafe_simplification::operator()(internal::ternary_op &e) {
+    if (auto t = visit(*this, *e.term0()); t) {
+        e.term0(std::move(t));
+    }
+    if (auto t = visit(*this, *e.term1()); t) {
+        e.term1(std::move(t));
+    }
+    if (auto t = visit(*this, *e.term2()); t) {
+        e.term2(std::move(t));
+    }
+    return nullptr;
+}
+
 expr unsafe_simplification::operator()(internal::access &e) {
     if (auto f = visit(*this, *e.field()); f) {
         e.field(std::move(f));

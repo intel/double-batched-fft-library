@@ -45,6 +45,7 @@ class CLIR_EXPORT codegen_opencl {
     void operator()(internal::string_imm &v);
     void operator()(internal::unary_op &e);
     void operator()(internal::binary_op &e);
+    void operator()(internal::ternary_op &e);
     void operator()(internal::access &e);
     void operator()(internal::call_builtin &fn);
     void operator()(internal::call_external &fn);

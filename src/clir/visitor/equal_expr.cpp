@@ -44,6 +44,10 @@ bool equal_expr::operator()(internal::unary_op &a, internal::unary_op &b) {
 bool equal_expr::operator()(internal::binary_op &a, internal::binary_op &b) {
     return a.op() == b.op() && visit(*this, *a.lhs(), *b.lhs()) && visit(*this, *a.rhs(), *b.rhs());
 }
+bool equal_expr::operator()(internal::ternary_op &a, internal::ternary_op &b) {
+    return a.op() == b.op() && visit(*this, *a.term0(), *b.term0()) &&
+           visit(*this, *a.term1(), *b.term1()) && visit(*this, *a.term2(), *b.term2());
+}
 bool equal_expr::operator()(internal::access &a, internal::access &b) {
     return visit(*this, *a.field(), *b.field()) && visit(*this, *a.address(), *b.address());
 }

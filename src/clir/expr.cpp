@@ -122,6 +122,12 @@ expr dereference(expr a) {
 
 expr address_of(expr a) { return make_unary_operation(unary_operation::address, std::move(a)); }
 
+expr ternary_conditional(expr condition, expr then, expr otherwise) {
+    return expr(std::make_shared<internal::ternary_op>(ternary_operation::conditional,
+                                                       std::move(condition), std::move(then),
+                                                       std::move(otherwise)));
+}
+
 expr make_unary_operation(unary_operation op, expr a) {
     return expr(std::make_shared<internal::unary_op>(op, std::move(a)));
 }

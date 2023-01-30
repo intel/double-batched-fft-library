@@ -51,6 +51,9 @@ TEST_CASE("Code generation") {
         CHECK(e2s(cast(pointer_to(generic_int()), p)[4]) == "((int*) p)[4]");
         CHECK(e2s(cast(generic_float(), cast(generic_int(), p))) == "(float) (int) p");
         CHECK(e2s(dereference(cast(pointer_to(generic_int()), p++))) == "*(int*) p++");
+
+        CHECK(e2s(ternary_conditional(a < b, a, b)) == "a < b ? a : b");
+        CHECK(e2s(5 + ternary_conditional(a < b, a + 3, b - 2)) == "5 + (a < b ? a + 3 : b - 2)");
     }
 
     SUBCASE("printf") { CHECK(e2s(printf({"%d %d\n", a, b})) == "printf(\"%d %d\\n\", a, b)"); }
@@ -94,6 +97,9 @@ TEST_CASE("Equal expression") {
     CHECK(!is_equivalent(global_int(), private_int()));
 
     CHECK(!is_equivalent(b, b2));
+
+    CHECK(is_equivalent(ternary_conditional(a + b, b, a), ternary_conditional(a + b, b, a)));
+    CHECK(!is_equivalent(ternary_conditional(a + b, b, a), ternary_conditional(a + b, b + a, a)));
 }
 
 TEST_CASE("Unsafe expression simplification") {
@@ -130,6 +136,8 @@ TEST_CASE("Unsafe expression simplification") {
     CHECK(is_equivalent(unsafe_simplify(a[b + 0]), a[b]));
     CHECK(is_equivalent(unsafe_simplify(a + (b + 0)), a + b));
     CHECK(is_equivalent(unsafe_simplify(a * (b * 1)), a * b));
+    CHECK(is_equivalent(unsafe_simplify(ternary_conditional(a < b + 0, a + 0, a * (b * 1))),
+                        ternary_conditional(a < b, a, a * b)));
 
     /* Builtin function test */
     CHECK(is_equivalent(unsafe_simplify(get_global_id(a + 0)), get_global_id(a)));

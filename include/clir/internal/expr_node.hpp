@@ -22,7 +22,7 @@ namespace clir::internal {
 class CLIR_EXPORT expr_node
     : public virtual_type_list<class variable, class int_imm, class uint_imm, class float_imm,
                                class cl_mem_fence_flags_imm, class string_imm, class unary_op,
-                               class binary_op, class access, class call_builtin,
+                               class binary_op, class ternary_op, class access, class call_builtin,
                                class call_external, class cast, class swizzle> {
   public:
     virtual unsigned precedence() const = 0;
@@ -150,6 +150,26 @@ class CLIR_EXPORT binary_op : public visitable<binary_op, expr_node> {
   private:
     binary_operation op_;
     expr lhs_, rhs_;
+};
+
+class CLIR_EXPORT ternary_op : public visitable<ternary_op, expr_node> {
+  public:
+    ternary_op(ternary_operation op, expr term0, expr term1, expr term2)
+        : op_(op), term0_(std::move(term0)), term1_(std::move(term1)), term2_(std::move(term2)) {}
+    unsigned precedence() const override { return operation_precedence(op_); }
+    associativity assoc() const override { return operation_associativity(op_); }
+
+    ternary_operation op() { return op_; }
+    expr &term0() { return term0_; }
+    expr &term1() { return term1_; }
+    expr &term2() { return term2_; }
+    void term0(expr e) { term0_ = std::move(e); }
+    void term1(expr e) { term1_ = std::move(e); }
+    void term2(expr e) { term2_ = std::move(e); }
+
+  private:
+    ternary_operation op_;
+    expr term0_, term1_, term2_;
 };
 
 class CLIR_EXPORT access : public visitable<access, expr_node> {

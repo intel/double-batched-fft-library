@@ -101,6 +101,14 @@ void codegen_opencl::operator()(internal::binary_op &e) {
     visit_check_parentheses(e, *e.rhs(), true);
 }
 
+void codegen_opencl::operator()(internal::ternary_op &e) {
+    visit_check_parentheses(e, *e.term0(), false);
+    os_ << " " << to_string(e.op(), 0) << " ";
+    visit_check_parentheses(e, *e.term1(), true);
+    os_ << " " << to_string(e.op(), 1) << " ";
+    visit_check_parentheses(e, *e.term2(), true);
+}
+
 void codegen_opencl::operator()(internal::access &e) {
     visit_check_parentheses(e, *e.field(), false);
     os_ << "[";

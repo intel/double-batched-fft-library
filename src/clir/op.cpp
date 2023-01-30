@@ -7,17 +7,29 @@
 
 namespace clir {
 
+static const std::array<const char *, 2> ternary_operator_strings[] = {{"?", ":"}};
+
 static const char *binary_operator_strings[] = {
     "+",  "-",  "*",  "/", "%",  ">",  "<",  ">=", "<=", "==",  "!=",  "&",  "|",  "^",  "&&",
     "||", "<<", ">>", "=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", "&=", "|=", "^=", ","};
 
 static const char *unary_operator_strings[] = {"-", "~", "!", "*", "&", "++", "--", "++", "--"};
 
+char const *to_string(ternary_operation op, short component) {
+    return ternary_operator_strings[static_cast<int>(op)][component];
+}
 char const *to_string(binary_operation op) { return binary_operator_strings[static_cast<int>(op)]; }
 char const *to_string(unary_operation op) { return unary_operator_strings[static_cast<int>(op)]; }
 std::ostream &operator<<(std::ostream &os, binary_operation op) { return os << to_string(op); }
 std::ostream &operator<<(std::ostream &os, unary_operation op) { return os << to_string(op); }
 
+unsigned operation_precedence(ternary_operation op) {
+    switch (op) {
+    case ternary_operation::conditional:
+        return 13;
+    }
+    return 16;
+}
 unsigned operation_precedence(binary_operation op) {
     switch (op) {
     case binary_operation::multiply:
@@ -80,6 +92,13 @@ unsigned operation_precedence(unary_operation op) {
         return 2;
     }
     return 3;
+}
+associativity operation_associativity(ternary_operation op) {
+    switch (op) {
+    case ternary_operation::conditional:
+        return associativity::right_to_left;
+    }
+    return associativity::right_to_left;
 }
 associativity operation_associativity(binary_operation op) {
     switch (op) {

@@ -29,6 +29,7 @@ class CLIR_EXPORT equal_expr {
     bool operator()(internal::cl_mem_fence_flags_imm &a, internal::cl_mem_fence_flags_imm &b);
     bool operator()(internal::unary_op &a, internal::unary_op &b);
     bool operator()(internal::binary_op &a, internal::binary_op &b);
+    bool operator()(internal::ternary_op &a, internal::ternary_op &b);
     bool operator()(internal::access &a, internal::access &b);
     bool operator()(internal::call_builtin &a, internal::call_builtin &b);
     bool operator()(internal::cast &a, internal::cast &b);

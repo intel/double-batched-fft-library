@@ -6,9 +6,12 @@
 
 #include "clir/export.hpp"
 
+#include <array>
 #include <iosfwd>
 
 namespace clir {
+
+enum class ternary_operation { conditional };
 
 enum class binary_operation {
     add,
@@ -57,14 +60,17 @@ enum class unary_operation {
 
 enum class associativity { left_to_right, right_to_left, none };
 
+CLIR_EXPORT char const *to_string(ternary_operation op, short component);
 CLIR_EXPORT char const *to_string(binary_operation op);
 CLIR_EXPORT char const *to_string(unary_operation op);
 CLIR_EXPORT std::ostream &operator<<(std::ostream &os, binary_operation op);
 CLIR_EXPORT std::ostream &operator<<(std::ostream &os, unary_operation op);
 
 // https://en.cppreference.com/w/c/language/operator_precedence
+CLIR_EXPORT unsigned operation_precedence(ternary_operation op);
 CLIR_EXPORT unsigned operation_precedence(binary_operation op);
 CLIR_EXPORT unsigned operation_precedence(unary_operation op);
+CLIR_EXPORT associativity operation_associativity(ternary_operation op);
 CLIR_EXPORT associativity operation_associativity(binary_operation op);
 CLIR_EXPORT associativity operation_associativity(unary_operation op);
 

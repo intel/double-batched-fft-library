@@ -52,6 +52,7 @@ CLIR_EXPORT stmt declaration_assignment(data_type ty, var v, expr b,
                                         std::vector<attr> attributes = {});
 CLIR_EXPORT expr dereference(expr a);
 CLIR_EXPORT expr address_of(expr a);
+CLIR_EXPORT expr ternary_conditional(expr condition, expr then, expr otherwise);
 CLIR_EXPORT expr make_unary_operation(unary_operation op, expr a);
 CLIR_EXPORT expr make_binary_operation(binary_operation op, expr a, expr b);
 
