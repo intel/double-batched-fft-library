@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "api.hpp"
+#include "bbfft/cl/device.hpp"
 
 #include <CL/cl_ext.h>
 
@@ -44,24 +45,18 @@ void api::operator=(api const &other) {
 }
 
 device_info api::info() {
-    auto info = device_info{};
-    CL_CHECK(clGetDeviceInfo(device_, CL_DEVICE_MAX_WORK_GROUP_SIZE,
-                             sizeof(info.max_work_group_size), &info.max_work_group_size, nullptr));
+    return get_device_info(device_);
+}
 
-    CL_CHECK(clGetDeviceInfo(device_, CL_DEVICE_SUB_GROUP_SIZES_INTEL, sizeof(info.subgroup_sizes),
-                             info.subgroup_sizes.data(), &info.num_subgroup_sizes));
-    info.num_subgroup_sizes /= sizeof(info.subgroup_sizes[0]);
-
-    cl_ulong local_mem_size;
-    CL_CHECK(clGetDeviceInfo(device_, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(local_mem_size),
-                             &local_mem_size, nullptr));
-    info.local_memory_size = local_mem_size;
-
-    return info;
+uint64_t api::device_id() {
+    return get_device_id(device_);
 }
 
 kernel_bundle api::build_kernel_bundle(std::string source) {
     return kernel_bundle(std::move(source), context_, device_);
+}
+kernel_bundle api::build_kernel_bundle(uint8_t const *binary, std::size_t binary_size) {
+    return kernel_bundle(binary, binary_size, context_, device_);
 }
 
 cl_mem api::create_device_buffer(std::size_t bytes) {

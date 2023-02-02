@@ -28,8 +28,10 @@ class api {
     api(::sycl::queue queue, ::sycl::context context, ::sycl::device device);
 
     device_info info();
+    uint64_t device_id();
 
     kernel_bundle build_kernel_bundle(std::string source);
+    kernel_bundle build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
     template <typename T>
     ::sycl::event launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_work_size,
                                 std::array<std::size_t, 3> local_work_size,

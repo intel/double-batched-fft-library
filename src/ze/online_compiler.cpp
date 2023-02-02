@@ -9,6 +9,20 @@
 
 namespace bbfft::ze {
 
+void check_build_status(ze_module_build_log_handle_t build_log, ze_result_t err) {
+    if (err != ZE_RESULT_SUCCESS) {
+        std::string log;
+        std::size_t log_size;
+        ZE_CHECK(zeModuleBuildLogGetString(build_log, &log_size, nullptr));
+        log.resize(log_size);
+        ZE_CHECK(zeModuleBuildLogGetString(build_log, &log_size, log.data()));
+        char what[256];
+        snprintf(what, sizeof(what), "zeModuleCreate returned %s (%d).\n",
+                 ze::ze_result_to_string(err), err);
+        throw ze::error(std::string(what) + log, err);
+    }
+}
+
 ze_module_handle_t build_kernel_bundle(std::string source, ze_context_handle_t context,
                                        ze_device_handle_t device) {
     unsigned int num_args = 7;
@@ -39,20 +53,30 @@ ze_module_handle_t build_kernel_bundle(std::string source, ze_context_handle_t c
     ze_result_t err;
     ze_module_build_log_handle_t build_log;
     err = zeModuleCreate(context, device, &module_desc, &mod, &build_log);
-    if (err != ZE_RESULT_SUCCESS) {
-        std::string log;
-        std::size_t log_size;
-        ZE_CHECK(zeModuleBuildLogGetString(build_log, &log_size, nullptr));
-        log.resize(log_size);
-        ZE_CHECK(zeModuleBuildLogGetString(build_log, &log_size, log.data()));
-        char what[256];
-        snprintf(what, sizeof(what), "zeModuleCreate returned %s (%d).\n",
-                 ze::ze_result_to_string(err), err);
-        throw ze::error(std::string(what) + log, err);
-    }
+    check_build_status(build_log, err);
     ZE_CHECK(zeModuleBuildLogDestroy(build_log));
 
     oclocFreeOutput(&num_outputs, &data_outputs, &len_outputs, &name_outputs);
+
+    return mod;
+}
+
+ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::size_t binary_size,
+                                       ze_context_handle_t context, ze_device_handle_t device) {
+    static_assert(sizeof(size_t) == sizeof(std::size_t));
+    ze_module_handle_t mod;
+    ze_module_desc_t module_desc = {ZE_STRUCTURE_TYPE_MODULE_DESC,
+                                    nullptr,
+                                    ZE_MODULE_FORMAT_NATIVE,
+                                    binary_size,
+                                    binary,
+                                    nullptr,
+                                    nullptr};
+    ze_result_t err;
+    ze_module_build_log_handle_t build_log;
+    err = zeModuleCreate(context, device, &module_desc, &mod, &build_log);
+    check_build_status(build_log, err);
+    ZE_CHECK(zeModuleBuildLogDestroy(build_log));
 
     return mod;
 }
@@ -63,6 +87,14 @@ ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string name) {
     ze_kernel_handle_t krnl;
     ZE_CHECK(zeKernelCreate(mod, &kernel_desc, &krnl));
     return krnl;
+}
+
+std::vector<uint8_t> get_native_binary(ze_module_handle_t mod) {
+    size_t size;
+    ZE_CHECK(zeModuleGetNativeBinary(mod, &size, nullptr));
+    auto result = std::vector<uint8_t>(size);
+    ZE_CHECK(zeModuleGetNativeBinary(mod, &size, result.data()));
+    return result;
 }
 
 } // namespace bbfft::ze

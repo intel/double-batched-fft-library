@@ -7,7 +7,9 @@
 #include "kernel.hpp"
 
 #include <CL/cl.h>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace bbfft::cl {
 
@@ -15,6 +17,8 @@ class kernel_bundle {
   public:
     kernel_bundle();
     kernel_bundle(std::string source, cl_context context, cl_device_id device);
+    kernel_bundle(uint8_t const *binary, std::size_t binary_size, cl_context context,
+                  cl_device_id device);
     ~kernel_bundle();
 
     kernel_bundle(kernel_bundle const &other);
@@ -23,8 +27,10 @@ class kernel_bundle {
     kernel create_kernel(std::string name);
 
     inline cl_program get_native() const { return program_; }
+    std::vector<uint8_t> get_binary() const;
 
   private:
+    cl_device_id device_;
     cl_program program_;
 };
 

@@ -8,18 +8,24 @@
 
 #include <CL/cl.h>
 #include <CL/sycl.hpp>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace bbfft::sycl {
 
 class cl_backend_bundle : public backend_bundle {
   public:
     cl_backend_bundle(std::string source, ::sycl::context context, ::sycl::device device);
+    cl_backend_bundle(uint8_t const *binary, std::size_t binary_size, ::sycl::context context,
+                      ::sycl::device device);
     ~cl_backend_bundle();
     ::sycl::kernel create_kernel(std::string name) override;
+    std::vector<uint8_t> get_binary() const override;
 
   private:
     ::sycl::context context_;
+    cl_device_id backend_device_;
     cl_program backend_program_;
 };
 

@@ -5,6 +5,7 @@
 #define SMALL_BATCH_FFT_20220413_HPP
 
 #include "bbfft/bad_configuration.hpp"
+#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
@@ -26,8 +27,8 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     using kernel_bundle = typename Api::kernel_bundle_type;
     using kernel = typename Api::kernel_type;
 
-    small_batch_fft(configuration const &cfg, Api api)
-        : api_(std::move(api)), p_(setup(cfg)), k_(p_.create_kernel("fft")) {}
+    small_batch_fft(configuration const &cfg, Api api, cache *ch)
+        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel("fft")) {}
 
     auto execute(void const *in, void *out, std::vector<event> const &dep_events)
         -> event override {
@@ -43,13 +44,12 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     }
 
   private:
-    kernel_bundle setup(configuration const &cfg) {
+    kernel_bundle setup(configuration const &cfg, cache *ch) {
         std::stringstream ss;
         if (cfg.callbacks) {
             ss << std::string_view(cfg.callbacks.data, cfg.callbacks.length) << std::endl;
         }
         auto sbc = configure_small_batch_fft(cfg, api_.info());
-        generate_small_batch_fft(ss, "fft", sbc);
 
         K_ = cfg.shape[2];
 
@@ -61,7 +61,30 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
         lws_ = std::array<std::size_t, 3>{sbc.Mb, sbc.Kb, 1};
         inplace_unsupported_ = sbc.inplace_unsupported;
 
-        return api_.build_kernel_bundle(ss.str());
+        auto const make_cache_key = [this](small_batch_configuration const &sbc) {
+            cache_key key = {};
+            static_assert(sizeof(key.cfg) >= sizeof(sbc));
+            std::memcpy(&key.cfg[0], &sbc, sizeof(sbc));
+            key.device_id = api_.device_id();
+            return key;
+        };
+
+        bool use_cache = ch && !cfg.callbacks;
+        if (use_cache) {
+            auto [ptr, size] = ch->get_binary(make_cache_key(sbc));
+            if (ptr && size > 0) {
+                return api_.build_kernel_bundle(ptr, size);
+            }
+        }
+
+        generate_small_batch_fft(ss, "fft", sbc);
+
+        auto bundle = api_.build_kernel_bundle(ss.str());
+        if (use_cache) {
+            ch->store_binary(make_cache_key(sbc), bundle.get_binary());
+        }
+
+        return bundle;
     }
 
     Api api_;

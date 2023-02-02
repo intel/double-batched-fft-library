@@ -98,6 +98,9 @@ BBFFT_EXPORT factor2_slm_configuration configure_factor2_slm_fft(configuration c
 BBFFT_EXPORT void generate_factor2_slm_fft(std::ostream &os, std::string name,
                                            factor2_slm_configuration const &cfg);
 
+inline constexpr std::size_t max_configuration_size =
+    std::max(sizeof(small_batch_configuration), sizeof(factor2_slm_configuration));
+
 } // namespace bbfft
 
 #endif // TFFT_20220407_HPP

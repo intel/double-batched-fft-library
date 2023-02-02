@@ -11,6 +11,7 @@ set(SOURCES_PRIVATE_TEST
 
 set(SOURCES
     bad_configuration.cpp
+    cache.cpp
     configuration.cpp
     device_info.cpp
     prime_factorization.cpp
@@ -23,6 +24,7 @@ set(SOURCES
     generator/utility.cpp
 )
 set(PUBLIC_HEADERS
+    cache.hpp
     generator.hpp
     configuration.hpp
     plan.hpp

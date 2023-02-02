@@ -10,6 +10,7 @@ if(BUILD_LEVEL_ZERO)
 
     set(SOURCES
         api.cpp
+        device.cpp
         error.cpp
         event_pool.cpp
         kernel.cpp
@@ -18,6 +19,7 @@ if(BUILD_LEVEL_ZERO)
         plan.cpp
     )
     set(PUBLIC_HEADERS
+        ze/device.hpp
         ze/error.hpp
         ze/make_plan.hpp
         ze/online_compiler.hpp

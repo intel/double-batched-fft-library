@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "api.hpp"
+#include "bbfft/ze/device.hpp"
 
 namespace bbfft::ze {
 
@@ -10,27 +11,15 @@ api::api(ze_command_list_handle_t command_list, ze_context_handle_t context,
     : command_list_(command_list), context_(context), device_(device),
       pool_(std::make_shared<event_pool>(context_)) {}
 
-device_info api::info() {
-    auto info = device_info{};
+device_info api::info() { return get_device_info(device_); }
 
-    ze_device_compute_properties_t p2;
-    ZE_CHECK(zeDeviceGetComputeProperties(device_, &p2));
-
-    info.max_work_group_size = p2.maxTotalGroupSize;
-
-    info.num_subgroup_sizes =
-        std::min(std::size_t(p2.numSubGroupSizes), info.subgroup_sizes.size());
-    for (uint32_t i = 0; i < info.num_subgroup_sizes; ++i) {
-        info.subgroup_sizes[i] = p2.subGroupSizes[i];
-    }
-
-    info.local_memory_size = p2.maxSharedLocalMemory;
-
-    return info;
-}
+uint64_t api::device_id() { return get_device_id(device_); }
 
 kernel_bundle api::build_kernel_bundle(std::string source) {
     return kernel_bundle(std::move(source), context_, device_);
+}
+kernel_bundle api::build_kernel_bundle(uint8_t const *binary, std::size_t binary_size) {
+    return kernel_bundle(binary, binary_size, context_, device_);
 }
 
 void *api::create_device_buffer(std::size_t bytes) {

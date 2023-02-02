@@ -7,8 +7,10 @@
 #include "backend_bundle.hpp"
 
 #include <CL/sycl.hpp>
+#include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace bbfft::sycl {
 
@@ -16,7 +18,10 @@ class kernel_bundle {
   public:
     kernel_bundle();
     kernel_bundle(std::string source, ::sycl::context context, ::sycl::device device);
+    kernel_bundle(uint8_t const *binary, std::size_t binary_size, ::sycl::context context,
+                  ::sycl::device device);
     ::sycl::kernel create_kernel(std::string name);
+    std::vector<uint8_t> get_binary() const;
 
   private:
     std::unique_ptr<backend_bundle> backend_bundle_;

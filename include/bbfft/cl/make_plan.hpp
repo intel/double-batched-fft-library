@@ -4,6 +4,7 @@
 #ifndef CL_MAKE_PLAN_20221205_HPP
 #define CL_MAKE_PLAN_20221205_HPP
 
+#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/export.hpp"
 #include "bbfft/plan.hpp"
@@ -17,10 +18,12 @@ namespace bbfft {
  *
  * @param cfg configuration
  * @param queue queue handle
+ * @param ch optional kernel cache
  *
  * @return plan
  */
-BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue) -> plan<cl_event>;
+BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue, cache *ch = nullptr)
+    -> plan<cl_event>;
 /**
  * @brief Create a plan for the configuration
  *
@@ -28,11 +31,12 @@ BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue) ->
  * @param queue queue handle
  * @param context context handle
  * @param device device handle
+ * @param ch optional kernel cache
  *
  * @return plan
  */
 BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue, cl_context context,
-                            cl_device_id device) -> plan<cl_event>;
+                            cl_device_id device, cache *ch = nullptr) -> plan<cl_event>;
 
 } // namespace bbfft
 

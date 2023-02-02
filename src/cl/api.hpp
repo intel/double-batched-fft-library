@@ -12,6 +12,7 @@
 
 #include <CL/cl.h>
 #include <array>
+#include <cstdint>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -33,8 +34,10 @@ class api {
     void operator=(api const &other);
 
     device_info info();
+    uint64_t device_id();
 
     kernel_bundle build_kernel_bundle(std::string source);
+    kernel_bundle build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
     template <typename T>
     cl_event launch_kernel(kernel &k, std::array<std::size_t, 3> global_work_size,
                            std::array<std::size_t, 3> local_work_size,

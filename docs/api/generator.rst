@@ -33,6 +33,11 @@ Two factor fft
 .. doxygenstruct:: bbfft::factor2_slm_configuration
    :members:
 
+Constants
+=========
+
+.. doxygenvariable:: bbfft::max_configuration_size
+
 Device info
 ===========
 

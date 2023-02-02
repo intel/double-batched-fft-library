@@ -31,8 +31,10 @@ class api {
     api(ze_command_list_handle_t, ze_context_handle_t context, ze_device_handle_t device);
 
     device_info info();
+    uint64_t device_id();
 
     kernel_bundle build_kernel_bundle(std::string source);
+    kernel_bundle build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
 
     template <typename T>
     ze_event_handle_t launch_kernel(kernel &k, std::array<std::size_t, 3> global_work_size,

@@ -7,6 +7,7 @@ if(BUILD_OPENCL)
 
     set(SOURCES
         api.cpp
+        device.cpp
         error.cpp
         kernel.cpp
         kernel_bundle.cpp
@@ -14,6 +15,7 @@ if(BUILD_OPENCL)
         plan.cpp
     )
     set(PUBLIC_HEADERS
+        cl/device.hpp
         cl/error.hpp
         cl/make_plan.hpp
         cl/online_compiler.hpp

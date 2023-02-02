@@ -5,6 +5,7 @@
 #define FACTOR2_SLM_FFT_20220413_HPP
 
 #include "bbfft/bad_configuration.hpp"
+#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
@@ -14,6 +15,7 @@
 #include <array>
 #include <complex>
 #include <cstddef>
+#include <cstring>
 #include <numeric>
 #include <sstream>
 #include <string_view>
@@ -28,8 +30,8 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
     using kernel_bundle = typename Api::kernel_bundle_type;
     using kernel = typename Api::kernel_type;
 
-    factor2_slm_fft(configuration const &cfg, Api api)
-        : api_(std::move(api)), p_(setup(cfg)), k_(p_.create_kernel("fft")) {}
+    factor2_slm_fft(configuration const &cfg, Api api, cache *ch)
+        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel("fft")) {}
 
     ~factor2_slm_fft() {
         if (X1_) {
@@ -69,14 +71,13 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
         twiddle_ = api_.create_twiddle_table(twiddle);
     }
 
-    kernel_bundle setup(configuration const &cfg) {
+    kernel_bundle setup(configuration const &cfg, cache *ch) {
         std::stringstream ss;
         if (cfg.callbacks) {
             ss << std::string_view(cfg.callbacks.data, cfg.callbacks.length) << std::endl;
         }
         bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
         auto f2c = configure_factor2_slm_fft(cfg, api_.info());
-        generate_factor2_slm_fft(ss, "fft", f2c);
 
         uint64_t M = cfg.shape[0];
         K_ = cfg.shape[2];
@@ -102,7 +103,30 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
         lws_ = std::array<std::size_t, 3>{f2c.Mb, f2c.Nb, f2c.Kb};
         inplace_unsupported_ = f2c.inplace_unsupported;
 
-        return api_.build_kernel_bundle(ss.str());
+        auto const make_cache_key = [this](factor2_slm_configuration const &f2c) {
+            cache_key key = {};
+            static_assert(sizeof(key.cfg) >= sizeof(f2c));
+            std::memcpy(&key.cfg[0], &f2c, sizeof(f2c));
+            key.device_id = api_.device_id();
+            return key;
+        };
+
+        bool use_cache = ch && !cfg.callbacks;
+        if (use_cache) {
+            auto [ptr, size] = ch->get_binary(make_cache_key(f2c));
+            if (ptr && size > 0) {
+                return api_.build_kernel_bundle(ptr, size);
+            }
+        }
+
+        generate_factor2_slm_fft(ss, "fft", f2c);
+
+        auto bundle = api_.build_kernel_bundle(ss.str());
+        if (use_cache) {
+            ch->store_binary(make_cache_key(f2c), bundle.get_binary());
+        }
+
+        return bundle;
     }
 
     Api api_;
