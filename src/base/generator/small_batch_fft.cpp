@@ -3,7 +3,7 @@
 
 #include "bbfft/bad_configuration.hpp"
 #include "bbfft/configuration.hpp"
-#include "bbfft/generator.hpp"
+#include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/tensor_indexer.hpp"
 #include "generator/utility.hpp"
 #include "math.hpp"
@@ -23,7 +23,9 @@
 #include "clir/visitor/unique_names.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
+#include <cmath>
 #include <functional>
+#include <sstream>
 #include <utility>
 
 using namespace clir;
@@ -83,6 +85,28 @@ small_batch_configuration configure_small_batch_fft(configuration const &cfg, de
         cfg.callbacks.load_function, // load_function
         cfg.callbacks.store_function // store_function
     };
+}
+
+std::string small_batch_configuration::identifier() const {
+    std::ostringstream oss;
+    oss << "sbfft_" << (direction < 0 ? 'm' : 'p') << std::abs(direction) << "_M" << M << "_Mb"
+        << Mb << "_N" << N << "_Kb" << Kb << "_sgs" << sgs << "_f" << static_cast<int>(fp) * 8
+        << '_' << to_string(type) << "_is";
+    for (auto const &is : istride) {
+        oss << is << "_";
+    }
+    oss << "os";
+    for (auto const &os : ostride) {
+        oss << os << "_";
+    }
+    oss << "in" << inplace_unsupported;
+    if (load_function) {
+        oss << "_" << load_function;
+    }
+    if (store_function) {
+        oss << "_" << store_function;
+    }
+    return oss.str();
 }
 
 void r2c_post(
@@ -245,8 +269,8 @@ void load_store_register(
     }
 }
 
-void generate_small_batch_fft(std::ostream &os, std::string name,
-                              small_batch_configuration const &cfg) {
+void generate_small_batch_fft(std::ostream &os, small_batch_configuration const &cfg,
+                              std::string_view name) {
     auto N = cfg.N;
     bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
     auto N_in = cfg.type == transform_type::c2r ? N / 2 + 1 : N;
@@ -268,7 +292,7 @@ void generate_small_batch_fft(std::ostream &os, std::string name,
     auto slm_out_ty = cfg.type == transform_type::c2r ? fph.type(address_space::local_t)
                                                       : fph.type(2, address_space::local_t);
 
-    auto fb = function_builder{std::move(name)};
+    auto fb = function_builder{name.empty() ? cfg.identifier() : std::string(name)};
     fb.argument(pointer_to(in_ty), in);
     fb.argument(pointer_to(out_ty), out);
     fb.argument(generic_ulong(), K);

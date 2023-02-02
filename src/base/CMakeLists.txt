@@ -14,10 +14,11 @@ set(SOURCES
     cache.cpp
     configuration.cpp
     device_info.cpp
-    prime_factorization.cpp
-    root_of_unity.cpp
+    generator.cpp
     math.cpp
     mixed_radix_fft.cpp
+    prime_factorization.cpp
+    root_of_unity.cpp
     user_module.cpp
     generator/factor2_slm_fft.cpp
     generator/small_batch_fft.cpp
@@ -32,6 +33,7 @@ set(PUBLIC_HEADERS
     device_info.hpp
     tensor_indexer.hpp
     user_module.hpp
+    detail/generator_impl.hpp
     detail/plan_impl.hpp
 )
 list(TRANSFORM PUBLIC_HEADERS PREPEND "${CMAKE_SOURCE_DIR}/include/bbfft/")
@@ -54,7 +56,8 @@ target_include_directories(bbfft-base PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
     "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>"
 )
-target_include_directories(bbfft-base PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(bbfft-base PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+                                              "${CMAKE_CURRENT_SOURCE_DIR}/../common")
 target_sources(bbfft-base PUBLIC FILE_SET HEADERS
     BASE_DIRS ${CMAKE_SOURCE_DIR}/include
               ${CMAKE_BINARY_DIR}/include

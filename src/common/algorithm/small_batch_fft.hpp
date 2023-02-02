@@ -28,7 +28,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     using kernel = typename Api::kernel_type;
 
     small_batch_fft(configuration const &cfg, Api api, cache *ch)
-        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel("fft")) {}
+        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel(identifier_)) {}
 
     auto execute(void const *in, void *out, std::vector<event> const &dep_events)
         -> event override {
@@ -60,6 +60,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
         gws_ = std::array<std::size_t, 3>{Mg * sbc.Mb, Kg * sbc.Kb, 1};
         lws_ = std::array<std::size_t, 3>{sbc.Mb, sbc.Kb, 1};
         inplace_unsupported_ = sbc.inplace_unsupported;
+        identifier_ = sbc.identifier();
 
         auto const make_cache_key = [this](small_batch_configuration const &sbc) {
             cache_key key = {};
@@ -77,7 +78,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
             }
         }
 
-        generate_small_batch_fft(ss, "fft", sbc);
+        generate_small_batch_fft(ss, sbc);
 
         auto bundle = api_.build_kernel_bundle(ss.str());
         if (use_cache) {
@@ -91,6 +92,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     std::array<std::size_t, 3> gws_;
     std::array<std::size_t, 3> lws_;
     bool inplace_unsupported_;
+    std::string identifier_;
     kernel_bundle p_;
     kernel k_;
     uint64_t K_;

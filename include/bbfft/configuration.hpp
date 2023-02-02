@@ -73,6 +73,7 @@ enum class transform_type : int {
     r2c, ///< real input, complex output
     c2r  ///< complex input, real input
 };
+BBFFT_EXPORT char const *to_string(transform_type type); ///< Convert transform type to string
 
 /**
  * @brief Maximum supported FFT dimension

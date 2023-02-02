@@ -1,6 +1,8 @@
 // Copyright (C) 2022 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "bbfft/configuration.hpp"
+#include "bbfft/detail/generator_impl.hpp"
 #include "scrambler.hpp"
 
 #include "doctest/doctest.h"
@@ -58,4 +60,30 @@ TEST_CASE("scrambler") {
             CHECK(P(p(i)) == i);
         }
     }
+}
+
+TEST_CASE("identifier") {
+    auto sbc = small_batch_configuration{
+        -1,         1,          1,    32,      2,      16, precision::f32, transform_type::c2c,
+        {1, 1, 32}, {1, 1, 33}, true, nullptr, nullptr};
+    CHECK(sbc.identifier() == "sbfft_m1_M1_Mb1_N32_Kb2_sgs16_f32_c2c_is1_1_32_os1_1_33_in1");
+
+    auto f2c = factor2_slm_configuration{+1,
+                                         1,
+                                         1,
+                                         16,
+                                         32,
+                                         16,
+                                         1,
+                                         16,
+                                         precision::f64,
+                                         transform_type::c2c,
+                                         {1, 1, 512},
+                                         {1, 1, 512},
+                                         false,
+                                         true,
+                                         nullptr,
+                                         nullptr};
+    CHECK(f2c.identifier() ==
+          "f2fft_p1_M1_Mb1_N116_N232_Nb16_Kb1_sgs16_f64_c2c_is1_1_512_os1_1_512_eb0_in1");
 }

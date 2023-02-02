@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/bad_configuration.hpp"
-#include "bbfft/generator.hpp"
+#include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/tensor_indexer.hpp"
 #include "generator/accessor.hpp"
 #include "math.hpp"
@@ -20,8 +20,10 @@
 #include "clir/visitor/unique_names.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
+#include <cmath>
 #include <functional>
 #include <memory>
+#include <sstream>
 #include <utility>
 
 using namespace clir;
@@ -81,6 +83,29 @@ factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg, de
         cfg.callbacks.load_function, // load_function
         cfg.callbacks.store_function // store_function
     };
+}
+
+std::string factor2_slm_configuration::identifier() const {
+    std::ostringstream oss;
+    oss << "f2fft_" << (direction < 0 ? 'm' : 'p') << std::abs(direction) << "_M" << M << "_Mb"
+        << Mb << "_N1" << N1 << "_N2" << N2 << "_Nb" << Nb << "_Kb" << Kb << "_sgs" << sgs << "_f"
+        << static_cast<int>(fp) * 8 << '_' << to_string(type) << "_is";
+    for (auto const &is : istride) {
+        oss << is << "_";
+    }
+    oss << "os";
+    for (auto const &os : ostride) {
+        oss << os << "_";
+    }
+    oss << "eb" << external_buffer;
+    oss << "_in" << inplace_unsupported;
+    if (load_function) {
+        oss << "_" << load_function;
+    }
+    if (store_function) {
+        oss << "_" << store_function;
+    }
+    return oss.str();
 }
 
 class global_tensor {
@@ -384,8 +409,8 @@ void c2r_pre_i(block_builder &bb, precision_helper fph, expr i, std::size_t N1, 
                .get_product());
 }
 
-void generate_factor2_slm_fft(std::ostream &os, std::string name,
-                              factor2_slm_configuration const &cfg) {
+void generate_factor2_slm_fft(std::ostream &os, factor2_slm_configuration const &cfg,
+                              std::string_view name) {
     std::size_t N1 = cfg.N1;
     std::size_t N2 = cfg.N2;
     bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
@@ -416,7 +441,7 @@ void generate_factor2_slm_fft(std::ostream &os, std::string name,
 
     auto fft_inplace = &generate_fft::basic_inplace;
 
-    auto fb = function_builder{std::move(name)};
+    auto fb = function_builder{name.empty() ? cfg.identifier() : std::string(name)};
     fb.argument(pointer_to(in_ty), in);
     fb.argument(pointer_to(out_ty), out);
     fb.argument(pointer_to(fph.type(2, address_space::constant_t)), twiddle);

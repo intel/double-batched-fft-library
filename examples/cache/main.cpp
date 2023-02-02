@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     auto q = sycl::queue{};
     std::cout << "This example measures plan creation time with and without cache." << std::endl;
 
-    auto cfg = configuration{1, {1, 32, 1}, precision::f32};
+    auto cfg = configuration{1, {1, 32, 2048}, precision::f32};
 
     auto const print_result = [](char const *description, auto result) {
         std::cout << description << ":" << std::endl;
@@ -45,6 +45,10 @@ int main(int argc, char **argv) {
     cache_all ch;
     auto t2 = bench([&]() { make_plan(cfg, q, &ch); });
     print_result("cache all", t2);
+
+    cfg.shape[2] = 4096;
+    auto t3 = bench([&]() { make_plan(cfg, q, &ch); });
+    print_result("cache all different batch size", t3);
 
     return 0;
 }

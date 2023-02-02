@@ -31,7 +31,7 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
     using kernel = typename Api::kernel_type;
 
     factor2_slm_fft(configuration const &cfg, Api api, cache *ch)
-        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel("fft")) {}
+        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel(identifier_)) {}
 
     ~factor2_slm_fft() {
         if (X1_) {
@@ -102,6 +102,7 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
         gws_ = std::array<std::size_t, 3>{Mg * f2c.Mb, f2c.Nb, Kg * f2c.Kb};
         lws_ = std::array<std::size_t, 3>{f2c.Mb, f2c.Nb, f2c.Kb};
         inplace_unsupported_ = f2c.inplace_unsupported;
+        identifier_ = f2c.identifier();
 
         auto const make_cache_key = [this](factor2_slm_configuration const &f2c) {
             cache_key key = {};
@@ -119,7 +120,7 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
             }
         }
 
-        generate_factor2_slm_fft(ss, "fft", f2c);
+        generate_factor2_slm_fft(ss, f2c);
 
         auto bundle = api_.build_kernel_bundle(ss.str());
         if (use_cache) {
@@ -133,6 +134,7 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
     std::array<std::size_t, 3> gws_;
     std::array<std::size_t, 3> lws_;
     bool inplace_unsupported_;
+    std::string identifier_;
     kernel_bundle p_;
     kernel k_;
     uint64_t K_;

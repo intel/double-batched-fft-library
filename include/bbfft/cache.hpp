@@ -4,12 +4,13 @@
 #ifndef CACHE_20230131_HPP
 #define CACHE_20230131_HPP
 
+#include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/export.hpp"
-#include "bbfft/generator.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <iosfwd>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -20,8 +21,8 @@ namespace bbfft {
  * @brief Unique identifier for fft kernel
  */
 struct BBFFT_EXPORT cache_key {
-    std::array<uint8_t, max_configuration_size> cfg = {};      //! Binary dump of configuration
-    uint64_t device_id = std::numeric_limits<uint64_t>::max(); //! Unique device identifier
+    std::array<uint8_t, max_configuration_size> cfg = {};      ///< Binary dump of configuration
+    uint64_t device_id = std::numeric_limits<uint64_t>::max(); ///< Unique device identifier
 
     bool operator==(cache_key const &other) const;
 };
@@ -63,6 +64,11 @@ class BBFFT_EXPORT cache_all : public cache {
      * @brief Constructor
      */
     cache_all();
+    /**
+     * @brief Destructor
+     *
+     * Note: necessary for forward declaration of impl with unique_ptr
+     */
     ~cache_all();
     /**
      * @copydoc cache::get_binary

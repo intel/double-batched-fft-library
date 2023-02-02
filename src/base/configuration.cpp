@@ -5,6 +5,18 @@
 
 namespace bbfft {
 
+char const *to_string(transform_type type) {
+    switch (type) {
+    case transform_type::c2c:
+        return "c2c";
+    case transform_type::r2c:
+        return "r2c";
+    case transform_type::c2r:
+        return "c2r";
+    };
+    return "unknown";
+}
+
 auto default_istride(unsigned dim, std::array<std::size_t, max_tensor_dim> const &shape,
                      transform_type type, bool inplace) -> std::array<std::size_t, max_tensor_dim> {
     std::size_t shape1 = shape[1];
