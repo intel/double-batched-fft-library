@@ -7,10 +7,10 @@
 #include "algorithm/factor2_slm_fft.hpp"
 #include "algorithm_1d.hpp"
 #include "bbfft/bad_configuration.hpp"
-#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
+#include "bbfft/jit_cache.hpp"
 
 #include <cstddef>
 #include <memory>
@@ -23,7 +23,7 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
     using event = typename Api::event_type;
     using buffer = typename Api::buffer_type;
 
-    nd_fft(configuration const &cfg, Api api, cache *ch) : api_(std::move(api)), dim_(cfg.dim) {
+    nd_fft(configuration const &cfg, Api api, jit_cache *cache) : api_(std::move(api)), dim_(cfg.dim) {
         if (cfg.callbacks) {
             throw bad_configuration("User modules are unsuported for FFT dimension > 1.");
         }
@@ -68,11 +68,11 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
             for (unsigned d = 0; d < dim_; ++d) {
                 auto &c = cfg1d[dim_ - 1 - d];
                 std::swap(c.istride, c.ostride);
-                plans_[d] = select_1d_fft_algorithm<Api>(c, api_, ch);
+                plans_[d] = select_1d_fft_algorithm<Api>(c, api_, cache);
             }
         } else {
             for (unsigned d = 0; d < dim_; ++d) {
-                plans_[d] = select_1d_fft_algorithm<Api>(cfg1d[d], api_, ch);
+                plans_[d] = select_1d_fft_algorithm<Api>(cfg1d[d], api_, cache);
             }
         }
     }

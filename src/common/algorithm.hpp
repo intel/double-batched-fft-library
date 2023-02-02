@@ -7,9 +7,9 @@
 #include "algorithm/nd_fft.hpp"
 #include "algorithm_1d.hpp"
 #include "bbfft/bad_configuration.hpp"
-#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/plan_impl.hpp"
+#include "bbfft/jit_cache.hpp"
 
 #include <memory>
 #include <string>
@@ -19,14 +19,14 @@ namespace bbfft {
 
 template <typename Api>
 std::shared_ptr<detail::plan_impl<typename Api::event_type>>
-select_fft_algorithm(configuration const &cfg, Api api, cache *ch) {
+select_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache) {
     if (cfg.dim < 1 || cfg.dim > max_fft_dim) {
         throw bad_configuration("Unsupported FFT dimension: " + std::to_string(cfg.dim));
     }
     if (cfg.dim == 1) {
-        return select_1d_fft_algorithm<Api>(cfg, std::move(api), ch);
+        return select_1d_fft_algorithm<Api>(cfg, std::move(api), cache);
     }
-    return std::make_shared<nd_fft<Api>>(cfg, std::move(api), ch);
+    return std::make_shared<nd_fft<Api>>(cfg, std::move(api), cache);
 }
 
 } // namespace bbfft

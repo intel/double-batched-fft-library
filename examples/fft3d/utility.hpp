@@ -23,8 +23,12 @@ struct is_complex
                     std::is_same_v<std::complex<long double>, typename std::remove_cv_t<T>>> {};
 template <class T> inline constexpr bool is_complex_v = is_complex<T>::value;
 
-template <typename T> struct real_type { using type = T; };
-template <typename T> struct real_type<std::complex<T>> { using type = T; };
+template <typename T> struct real_type {
+    using type = T;
+};
+template <typename T> struct real_type<std::complex<T>> {
+    using type = T;
+};
 template <typename T> using real_type_t = typename real_type<T>::type;
 
 constexpr double tau = 6.28318530717958647693;

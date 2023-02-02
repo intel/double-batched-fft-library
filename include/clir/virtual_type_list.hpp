@@ -24,7 +24,9 @@ template <std::size_t I, typename Head, typename... Tail> struct type_at<I, Head
     using type = typename type_at<I - 1, Tail...>::type;
 };
 
-template <typename Head, typename... Tail> struct type_at<0, Head, Tail...> { using type = Head; };
+template <typename Head, typename... Tail> struct type_at<0, Head, Tail...> {
+    using type = Head;
+};
 
 template <std::size_t I, typename... T> using type_at_t = typename type_at<I, T...>::type;
 

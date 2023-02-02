@@ -1,8 +1,8 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
+#include "bbfft/jit_cache.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
 #include <CL/sycl.hpp>
@@ -42,12 +42,12 @@ int main(int argc, char **argv) {
     auto t1 = bench([&]() { make_plan(cfg, q); });
     print_result("no cache", t1);
 
-    cache_all ch;
-    auto t2 = bench([&]() { make_plan(cfg, q, &ch); });
+    jit_cache_all cache;
+    auto t2 = bench([&]() { make_plan(cfg, q, &cache); });
     print_result("cache all", t2);
 
     cfg.shape[2] = 4096;
-    auto t3 = bench([&]() { make_plan(cfg, q, &ch); });
+    auto t3 = bench([&]() { make_plan(cfg, q, &cache); });
     print_result("cache all different batch size", t3);
 
     return 0;

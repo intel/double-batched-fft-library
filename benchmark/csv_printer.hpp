@@ -14,13 +14,13 @@ class csv_printer {
   public:
     csv_printer(std::ostream *out, std::initializer_list<std::string> names)
         : out_(out), col_(0), num_cols_(names.size()) {
-        for (auto const& name : names) {
+        for (auto const &name : names) {
             *this << name;
         }
     }
     csv_printer(std::ostream *out, std::vector<std::string> const &names)
         : out_(out), col_(0), num_cols_(names.size()) {
-        for (auto const& name : names) {
+        for (auto const &name : names) {
             *this << name;
         }
     }

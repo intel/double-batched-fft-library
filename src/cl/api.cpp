@@ -44,13 +44,9 @@ void api::operator=(api const &other) {
     clSetKernelArgMemPointerINTEL_ = other.clSetKernelArgMemPointerINTEL_;
 }
 
-device_info api::info() {
-    return get_device_info(device_);
-}
+device_info api::info() { return get_device_info(device_); }
 
-uint64_t api::device_id() {
-    return get_device_id(device_);
-}
+uint64_t api::device_id() { return get_device_id(device_); }
 
 kernel_bundle api::build_kernel_bundle(std::string source) {
     return kernel_bundle(std::move(source), context_, device_);

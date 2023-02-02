@@ -56,7 +56,7 @@ namespace clir {
 template <typename Visitor, typename... VTLs> auto visit(Visitor &&visitor, VTLs &...ts) {
     constexpr std::size_t table_size = (std::decay_t<VTLs>::number_of_types() * ...);
     return internal::compile_time_switch(
-        [&](auto index) -> auto {
+        [&](auto index) -> auto{
             return visitor(static_cast<internal::copy_cv_qualifiers_t<
                                VTLs, internal::dispatch_type_at<index, VTLs, VTLs...>> &>(ts)...);
         },

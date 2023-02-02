@@ -11,10 +11,10 @@ set(SOURCES_PRIVATE_TEST
 
 set(SOURCES
     bad_configuration.cpp
-    cache.cpp
     configuration.cpp
     device_info.cpp
     generator.cpp
+    jit_cache.cpp
     math.cpp
     mixed_radix_fft.cpp
     prime_factorization.cpp
@@ -25,12 +25,12 @@ set(SOURCES
     generator/utility.cpp
 )
 set(PUBLIC_HEADERS
-    cache.hpp
-    generator.hpp
-    configuration.hpp
-    plan.hpp
     bad_configuration.hpp
     device_info.hpp
+    configuration.hpp
+    jit_cache.hpp
+    generator.hpp
+    plan.hpp
     tensor_indexer.hpp
     user_module.hpp
     detail/generator_impl.hpp

@@ -5,11 +5,11 @@
 #define FACTOR2_SLM_FFT_20220413_HPP
 
 #include "bbfft/bad_configuration.hpp"
-#include "bbfft/cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/generator.hpp"
+#include "bbfft/jit_cache.hpp"
 
 #include <algorithm>
 #include <array>
@@ -30,8 +30,8 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
     using kernel_bundle = typename Api::kernel_bundle_type;
     using kernel = typename Api::kernel_type;
 
-    factor2_slm_fft(configuration const &cfg, Api api, cache *ch)
-        : api_(std::move(api)), p_(setup(cfg, ch)), k_(p_.create_kernel(identifier_)) {}
+    factor2_slm_fft(configuration const &cfg, Api api, jit_cache *cache)
+        : api_(std::move(api)), p_(setup(cfg, cache)), k_(p_.create_kernel(identifier_)) {}
 
     ~factor2_slm_fft() {
         if (X1_) {
@@ -71,7 +71,7 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
         twiddle_ = api_.create_twiddle_table(twiddle);
     }
 
-    kernel_bundle setup(configuration const &cfg, cache *ch) {
+    kernel_bundle setup(configuration const &cfg, jit_cache *cache) {
         std::stringstream ss;
         if (cfg.callbacks) {
             ss << std::string_view(cfg.callbacks.data, cfg.callbacks.length) << std::endl;
@@ -105,16 +105,16 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
         identifier_ = f2c.identifier();
 
         auto const make_cache_key = [this](factor2_slm_configuration const &f2c) {
-            cache_key key = {};
+            jit_cache_key key = {};
             static_assert(sizeof(key.cfg) >= sizeof(f2c));
             std::memcpy(&key.cfg[0], &f2c, sizeof(f2c));
             key.device_id = api_.device_id();
             return key;
         };
 
-        bool use_cache = ch && !cfg.callbacks;
+        bool use_cache = cache && !cfg.callbacks;
         if (use_cache) {
-            auto [ptr, size] = ch->get_binary(make_cache_key(f2c));
+            auto [ptr, size] = cache->get_binary(make_cache_key(f2c));
             if (ptr && size > 0) {
                 return api_.build_kernel_bundle(ptr, size);
             }
@@ -124,7 +124,7 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
 
         auto bundle = api_.build_kernel_bundle(ss.str());
         if (use_cache) {
-            ch->store_binary(make_cache_key(f2c), bundle.get_binary());
+            cache->store_binary(make_cache_key(f2c), bundle.get_binary());
         }
 
         return bundle;
