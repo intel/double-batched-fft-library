@@ -9,6 +9,7 @@
 #include "bbfft/export.hpp"
 
 #include <iosfwd>
+#include <string>
 #include <vector>
 
 namespace bbfft {
@@ -19,9 +20,11 @@ namespace bbfft {
  * @param os Output stream (e.g. std::cout)
  * @param cfgs configurations
  * @param info Properties of target device
+ *
+ * @return kernel names
  */
-BBFFT_EXPORT void generate_fft_kernels(std::ostream &os, std::vector<configuration> const &cfgs,
-                                       device_info info);
+BBFFT_EXPORT std::vector<std::string>
+generate_fft_kernels(std::ostream &os, std::vector<configuration> const &cfgs, device_info info);
 
 } // namespace bbfft
 

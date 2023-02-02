@@ -62,17 +62,13 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
         inplace_unsupported_ = sbc.inplace_unsupported;
         identifier_ = sbc.identifier();
 
-        auto const make_cache_key = [this](small_batch_configuration const &sbc) {
-            jit_cache_key key = {};
-            static_assert(sizeof(key.cfg) >= sizeof(sbc));
-            std::memcpy(&key.cfg[0], &sbc, sizeof(sbc));
-            key.device_id = api_.device_id();
-            return key;
+        auto const make_cache_key = [this]() {
+            return jit_cache_key{identifier_, api_.device_id()};
         };
 
         bool use_cache = cache && !cfg.callbacks;
         if (use_cache) {
-            auto [ptr, size] = cache->get_binary(make_cache_key(sbc));
+            auto [ptr, size] = cache->get_binary(make_cache_key());
             if (ptr && size > 0) {
                 return api_.build_kernel_bundle(ptr, size);
             }
@@ -82,7 +78,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
 
         auto bundle = api_.build_kernel_bundle(ss.str());
         if (use_cache) {
-            cache->store_binary(make_cache_key(sbc), bundle.get_binary());
+            cache->store_binary(make_cache_key(), bundle.get_binary());
         }
 
         return bundle;

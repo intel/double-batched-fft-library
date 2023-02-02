@@ -10,19 +10,15 @@
 namespace bbfft {
 
 bool jit_cache_key::operator==(jit_cache_key const &other) const {
-    return cfg == other.cfg && device_id == other.device_id;
+    return kernel_name == other.kernel_name && device_id == other.device_id;
 }
 
-struct jit_cache_key_hash {
-    std::size_t operator()(jit_cache_key const &key) const noexcept {
-        std::size_t hash = std::hash<uint64_t>()(key.device_id);
-        std::hash<uint8_t> hasher;
-        for (auto c : key.cfg) {
-            hash ^= hasher(c) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        }
-        return hash;
-    }
-};
+std::size_t jit_cache_key_hash::operator()(jit_cache_key const &key) const noexcept {
+    std::size_t hash = std::hash<std::string>()(key.kernel_name);
+    std::size_t hash2 = std::hash<uint64_t>()(key.device_id);
+    hash ^= hash2 + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    return hash;
+}
 
 jit_cache::~jit_cache() {}
 
@@ -37,6 +33,13 @@ class jit_cache_all::impl {
     }
     void store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) {
         binary_[key] = binary;
+    }
+    auto kernel_names() const {
+        auto result = std::vector<std::string>{};
+        for (auto const &[key, value] : binary_) {
+            result.push_back(key.kernel_name);
+        }
+        return result;
     }
 
   private:
@@ -53,5 +56,7 @@ auto jit_cache_all::get_binary(jit_cache_key const &key) const
 void jit_cache_all::store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) {
     pimpl_->store_binary(key, std::move(binary));
 }
+
+std::vector<std::string> jit_cache_all::kernel_names() const { return pimpl_->kernel_names(); }
 
 } // namespace bbfft

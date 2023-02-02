@@ -13,6 +13,7 @@
 #include <iosfwd>
 #include <limits>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace bbfft {
@@ -21,10 +22,23 @@ namespace bbfft {
  * @brief Unique identifier for fft kernel
  */
 struct BBFFT_EXPORT jit_cache_key {
-    std::array<uint8_t, max_configuration_size> cfg = {};      ///< Binary dump of configuration
+    std::string kernel_name = {};                              ///< Name of the OpenCL kernel
     uint64_t device_id = std::numeric_limits<uint64_t>::max(); ///< Unique device identifier
 
     bool operator==(jit_cache_key const &other) const;
+};
+/**
+ * @brief Hash function for jit_cache_key
+ */
+struct jit_cache_key_hash {
+    /**
+     * @brief Compute hash
+     *
+     * @param key cache key
+     *
+     * @return hash
+     */
+    std::size_t operator()(jit_cache_key const &key) const noexcept;
 };
 
 /**
@@ -79,6 +93,8 @@ class BBFFT_EXPORT jit_cache_all : public jit_cache {
      * @copydoc cache::store_binary
      */
     void store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) override;
+
+    std::vector<std::string> kernel_names() const;
 
   private:
     class impl;
