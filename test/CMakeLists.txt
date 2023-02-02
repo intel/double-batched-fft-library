@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 include(CTest)
-include(${CMAKE_SOURCE_DIR}/external/doctest/cmake/doctest.cmake)
+include(${PROJECT_SOURCE_DIR}/external/doctest/cmake/doctest.cmake)
 
 add_library(test-lib STATIC main.cpp)
-target_include_directories(test-lib PUBLIC ${CMAKE_SOURCE_DIR}/external)
+target_include_directories(test-lib PUBLIC ${PROJECT_SOURCE_DIR}/external)
 target_compile_features(test-lib PUBLIC cxx_std_17)
 if(ENABLE_WARNINGS)
     target_compile_options(test-lib PUBLIC -Wall -Wextra -Wpedantic -Wundefined-func-template)

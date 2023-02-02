@@ -17,7 +17,7 @@ if(BUILD_SYCL)
     set(PUBLIC_HEADERS
         sycl/make_plan.hpp
     )
-    list(TRANSFORM PUBLIC_HEADERS PREPEND "${CMAKE_SOURCE_DIR}/include/bbfft/")
+    list(TRANSFORM PUBLIC_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/include/bbfft/")
 
     add_library(bbfft-sycl ${SOURCES})
     add_library(bbfft::bbfft-sycl ALIAS bbfft-sycl)
@@ -28,7 +28,7 @@ if(BUILD_SYCL)
     target_link_libraries(bbfft-sycl PRIVATE bbfft-opencl bbfft-level-zero)
     target_include_directories(bbfft-sycl PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../common")
     target_sources(bbfft-sycl PUBLIC FILE_SET HEADERS
-        BASE_DIRS ${CMAKE_SOURCE_DIR}/include
+        BASE_DIRS ${PROJECT_SOURCE_DIR}/include
         FILES ${PUBLIC_HEADERS})
 
     install_lib(bbfft-sycl bbfft)
