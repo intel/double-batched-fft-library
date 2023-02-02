@@ -32,7 +32,7 @@ set(PUBLIC_HEADERS
     user_module.hpp
     detail/plan_impl.hpp
 )
-list(TRANSFORM PUBLIC_HEADERS PREPEND "${CMAKE_SOURCE_DIR}/include/bbfft/")
+list(TRANSFORM PUBLIC_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/include/bbfft/")
 
 add_library(bbfft-private-test OBJECT ${SOURCES_PRIVATE_TEST})
 target_include_directories(bbfft-private-test PUBLIC
@@ -43,19 +43,19 @@ add_library(bbfft-base ${SOURCES} $<TARGET_OBJECTS:bbfft-private-test>)
 add_library(bbfft::bbfft-base ALIAS bbfft-base)
 set_common_options(bbfft-base)
 target_link_libraries(bbfft-base PRIVATE clir::clir)
-set(bbfft_export_header "${CMAKE_BINARY_DIR}/include/bbfft/export.hpp")
+set(bbfft_export_header "${PROJECT_BINARY_DIR}/include/bbfft/export.hpp")
 generate_export_header(bbfft-base BASE_NAME BBFFT
     EXPORT_FILE_NAME "${bbfft_export_header}")
 target_compile_definitions(bbfft-base PUBLIC
     "$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:BBFFT_STATIC_DEFINE>")
 target_include_directories(bbfft-base PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>"
-    "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>"
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
 )
 target_include_directories(bbfft-base PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_sources(bbfft-base PUBLIC FILE_SET HEADERS
-    BASE_DIRS ${CMAKE_SOURCE_DIR}/include
-              ${CMAKE_BINARY_DIR}/include
+    BASE_DIRS ${PROJECT_SOURCE_DIR}/include
+              ${PROJECT_BINARY_DIR}/include
     FILES ${PUBLIC_HEADERS}
           "${bbfft_export_header}")
 install_lib(bbfft-base bbfft)

@@ -22,7 +22,7 @@ if(BUILD_LEVEL_ZERO)
         ze/make_plan.hpp
         ze/online_compiler.hpp
     )
-    list(TRANSFORM PUBLIC_HEADERS PREPEND "${CMAKE_SOURCE_DIR}/include/bbfft/")
+    list(TRANSFORM PUBLIC_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/include/bbfft/")
 
     add_library(bbfft-level-zero ${SOURCES})
     add_library(bbfft::bbfft-level-zero ALIAS bbfft-level-zero)
@@ -33,7 +33,7 @@ if(BUILD_LEVEL_ZERO)
     target_include_directories(bbfft-level-zero PRIVATE ${ocloc_INCLUDE_DIR}
         "${CMAKE_CURRENT_SOURCE_DIR}/../common")
     target_sources(bbfft-level-zero PUBLIC FILE_SET HEADERS
-        BASE_DIRS ${CMAKE_SOURCE_DIR}/include
+        BASE_DIRS ${PROJECT_SOURCE_DIR}/include
         FILES ${PUBLIC_HEADERS})
 
     install_lib(bbfft-level-zero bbfft)
