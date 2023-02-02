@@ -11,7 +11,6 @@ if(BUILD_SYCL)
         api.cpp
         cl_backend_bundle.cpp
         device.cpp
-        kernel_bundle.cpp
         plan.cpp
         ze_backend_bundle.cpp
     )

@@ -28,7 +28,11 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     using kernel = typename Api::kernel_type;
 
     small_batch_fft(configuration const &cfg, Api api, jit_cache *cache)
-        : api_(std::move(api)), p_(setup(cfg, cache)), k_(p_.create_kernel(identifier_)) {}
+        : api_(std::move(api)), p_(setup(cfg, cache)), k_(api_.create_kernel(p_, identifier_)) {}
+    ~small_batch_fft() {
+        api_.release_kernel(k_);
+        api_.release_kernel_bundle(p_);
+    }
 
     auto execute(void const *in, void *out, std::vector<event> const &dep_events)
         -> event override {
@@ -78,7 +82,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
 
         auto bundle = api_.build_kernel_bundle(ss.str());
         if (use_cache) {
-            cache->store_binary(make_cache_key(), bundle.get_binary());
+            cache->store_binary(make_cache_key(), api_.get_native_binary(bundle));
         }
 
         return bundle;

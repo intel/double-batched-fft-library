@@ -7,8 +7,6 @@
 #include "argument_handler.hpp"
 #include "bbfft/cl/error.hpp"
 #include "bbfft/device_info.hpp"
-#include "kernel.hpp"
-#include "kernel_bundle.hpp"
 
 #include <CL/cl.h>
 #include <array>
@@ -23,8 +21,8 @@ class api {
   public:
     using event_type = cl_event;
     using buffer_type = cl_mem;
-    using kernel_bundle_type = kernel_bundle;
-    using kernel_type = kernel;
+    using kernel_bundle_type = cl_program;
+    using kernel_type = cl_kernel;
 
     api(cl_command_queue queue);
     api(cl_command_queue queue, cl_context context, cl_device_id device);
@@ -36,17 +34,19 @@ class api {
     device_info info();
     uint64_t device_id();
 
-    kernel_bundle build_kernel_bundle(std::string source);
-    kernel_bundle build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
+    kernel_bundle_type build_kernel_bundle(std::string const &source);
+    kernel_bundle_type build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
+    kernel_type create_kernel(kernel_bundle_type p, std::string const &name);
+    std::vector<uint8_t> get_native_binary(kernel_bundle_type b);
+
     template <typename T>
-    cl_event launch_kernel(kernel &k, std::array<std::size_t, 3> global_work_size,
+    cl_event launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
                            std::array<std::size_t, 3> local_work_size,
                            std::vector<cl_event> const &dep_events, T set_args) {
-        auto k_native = k.get_native();
-        auto handler = argument_handler(k_native, clSetKernelArgMemPointerINTEL_);
+        auto handler = argument_handler(k, clSetKernelArgMemPointerINTEL_);
         set_args(handler);
         cl_event evt;
-        CL_CHECK(clEnqueueNDRangeKernel(queue_, k_native, 3, nullptr, global_work_size.data(),
+        CL_CHECK(clEnqueueNDRangeKernel(queue_, k, 3, nullptr, global_work_size.data(),
                                         local_work_size.data(), dep_events.size(),
                                         dep_events.data(), &evt));
         return evt;
@@ -65,8 +65,10 @@ class api {
         return tw;
     }
 
-    static void release_event(cl_event e) { clReleaseEvent(e); }
-    static void release_buffer(cl_mem b) { clReleaseMemObject(b); }
+    inline void release_event(event_type e) { clReleaseEvent(e); }
+    inline void release_buffer(buffer_type b) { clReleaseMemObject(b); }
+    inline void release_kernel_bundle(kernel_bundle_type b) { clReleaseProgram(b); }
+    inline void release_kernel(kernel_type k) { clReleaseKernel(k); }
 
   private:
     void setup_extensions();

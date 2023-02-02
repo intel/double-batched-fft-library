@@ -23,18 +23,8 @@ namespace bbfft::ze {
  *
  * @return Level Zero module
  */
-BBFFT_EXPORT ze_module_handle_t build_spirv(std::string source);
-
-/**
- * @brief Compile OpenCL-C code to a Level Zero module
- *
- * @param source Source code
- * @param context Level Zero context
- * @param device Level Zero device
- *
- * @return Level Zero module
- */
-BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(std::string source, ze_context_handle_t context,
+BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(std::string const &source,
+                                                    ze_context_handle_t context,
                                                     ze_device_handle_t device);
 
 /**
@@ -59,7 +49,7 @@ BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::
  *
  * @return Level Zero kernel
  */
-BBFFT_EXPORT ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string name);
+BBFFT_EXPORT ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name);
 
 /**
  * @brief Returns binary blob of program

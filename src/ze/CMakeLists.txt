@@ -13,8 +13,6 @@ if(BUILD_LEVEL_ZERO)
         device.cpp
         error.cpp
         event_pool.cpp
-        kernel.cpp
-        kernel_bundle.cpp
         online_compiler.cpp
         plan.cpp
     )

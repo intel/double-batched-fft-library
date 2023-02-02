@@ -14,7 +14,7 @@ namespace bbfft::sycl {
 class backend_bundle {
   public:
     virtual ~backend_bundle() {}
-    virtual ::sycl::kernel create_kernel(std::string name) = 0;
+    virtual ::sycl::kernel create_kernel(std::string const &name) = 0;
     virtual std::vector<uint8_t> get_binary() const = 0;
 };
 

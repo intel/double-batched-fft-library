@@ -22,7 +22,7 @@ namespace bbfft::cl {
  *
  * @return OpenCL program
  */
-BBFFT_EXPORT cl_program build_kernel_bundle(std::string source, cl_context context,
+BBFFT_EXPORT cl_program build_kernel_bundle(std::string const &source, cl_context context,
                                             cl_device_id device);
 
 /**
@@ -46,7 +46,7 @@ BBFFT_EXPORT cl_program build_kernel_bundle(uint8_t const *binary, std::size_t b
  *
  * @return OpenCL kernel
  */
-BBFFT_EXPORT cl_kernel create_kernel(cl_program prog, std::string name);
+BBFFT_EXPORT cl_kernel create_kernel(cl_program prog, std::string const &name);
 
 /**
  * @brief Returns binary blob of program

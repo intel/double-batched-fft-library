@@ -4,8 +4,9 @@
 #ifndef SYCL_API_20220413_HPP
 #define SYCL_API_20220413_HPP
 
+#include "backend_bundle.hpp"
+
 #include "bbfft/device_info.hpp"
-#include "kernel_bundle.hpp"
 
 #include <CL/sycl.hpp>
 #include <array>
@@ -21,7 +22,7 @@ class api {
   public:
     using event_type = ::sycl::event;
     using buffer_type = void *;
-    using kernel_bundle_type = kernel_bundle;
+    using kernel_bundle_type = std::shared_ptr<backend_bundle>;
     using kernel_type = ::sycl::kernel;
 
     api(::sycl::queue queue);
@@ -30,8 +31,11 @@ class api {
     device_info info();
     uint64_t device_id();
 
-    kernel_bundle build_kernel_bundle(std::string source);
-    kernel_bundle build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
+    kernel_bundle_type build_kernel_bundle(std::string const &source);
+    kernel_bundle_type build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
+    kernel_type create_kernel(kernel_bundle_type p, std::string const &name);
+    std::vector<uint8_t> get_native_binary(kernel_bundle_type b);
+
     template <typename T>
     ::sycl::event launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_work_size,
                                 std::array<std::size_t, 3> local_work_size,
@@ -58,8 +62,10 @@ class api {
         return create_twiddle_table(twiddle_table.data(), twiddle_table.size() * sizeof(T));
     }
 
-    static void release_event(::sycl::event) {}
-    inline void release_buffer(void *ptr) { free(ptr, context_); }
+    inline void release_event(event_type) {}
+    inline void release_buffer(buffer_type ptr) { free(ptr, context_); }
+    inline void release_kernel_bundle(kernel_bundle_type) {}
+    inline void release_kernel(kernel_type) {}
 
   private:
     ::sycl::queue queue_;

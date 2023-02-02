@@ -9,12 +9,12 @@
 
 namespace bbfft::sycl {
 
-cl_backend_bundle::cl_backend_bundle(std::string source, ::sycl::context context,
+cl_backend_bundle::cl_backend_bundle(std::string const &source, ::sycl::context context,
                                      ::sycl::device device)
     : context_(context) {
     auto native_context = ::sycl::get_native<::sycl::backend::opencl, ::sycl::context>(context);
     backend_device_ = ::sycl::get_native<::sycl::backend::opencl, ::sycl::device>(device);
-    backend_program_ = cl::build_kernel_bundle(std::move(source), native_context, backend_device_);
+    backend_program_ = cl::build_kernel_bundle(source, native_context, backend_device_);
 }
 cl_backend_bundle::cl_backend_bundle(uint8_t const *binary, std::size_t binary_size,
                                      ::sycl::context context, ::sycl::device device)
@@ -27,8 +27,8 @@ cl_backend_bundle::cl_backend_bundle(uint8_t const *binary, std::size_t binary_s
 
 cl_backend_bundle::~cl_backend_bundle() { clReleaseProgram(backend_program_); }
 
-::sycl::kernel cl_backend_bundle::create_kernel(std::string name) {
-    auto k = cl::create_kernel(backend_program_, std::move(name));
+::sycl::kernel cl_backend_bundle::create_kernel(std::string const &name) {
+    auto k = cl::create_kernel(backend_program_, name);
     auto result = ::sycl::make_kernel<::sycl::backend::opencl>(k, context_);
     CL_CHECK(clReleaseKernel(k));
     return result;

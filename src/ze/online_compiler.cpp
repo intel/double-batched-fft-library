@@ -23,7 +23,7 @@ void check_build_status(ze_module_build_log_handle_t build_log, ze_result_t err)
     }
 }
 
-ze_module_handle_t build_kernel_bundle(std::string source, ze_context_handle_t context,
+ze_module_handle_t build_kernel_bundle(std::string const &source, ze_context_handle_t context,
                                        ze_device_handle_t device) {
     unsigned int num_args = 7;
     char const *argv[] = {
@@ -81,7 +81,7 @@ ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::size_t binary
     return mod;
 }
 
-ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string name) {
+ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name) {
     char const *c_name = name.c_str();
     ze_kernel_desc_t kernel_desc = {ZE_STRUCTURE_TYPE_KERNEL_DESC, nullptr, 0, c_name};
     ze_kernel_handle_t krnl;

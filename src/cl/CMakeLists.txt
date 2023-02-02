@@ -9,8 +9,6 @@ if(BUILD_OPENCL)
         api.cpp
         device.cpp
         error.cpp
-        kernel.cpp
-        kernel_bundle.cpp
         online_compiler.cpp
         plan.cpp
     )

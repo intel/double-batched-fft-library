@@ -24,7 +24,7 @@ void check_build_status(cl_program p, cl_int err, cl_device_id device) {
     }
 }
 
-cl_program build_kernel_bundle(std::string source, cl_context context, cl_device_id device) {
+cl_program build_kernel_bundle(std::string const &source, cl_context context, cl_device_id device) {
     char const *c_source = source.c_str();
     cl_int err;
     cl_program p = clCreateProgramWithSource(context, 1, &c_source, nullptr, &err);
@@ -48,7 +48,7 @@ cl_program build_kernel_bundle(uint8_t const *binary, std::size_t binary_size, c
     return p;
 }
 
-cl_kernel create_kernel(cl_program prog, std::string name) {
+cl_kernel create_kernel(cl_program prog, std::string const &name) {
     cl_int err;
     cl_kernel k = clCreateKernel(prog, name.c_str(), &err);
     CL_CHECK(err);
