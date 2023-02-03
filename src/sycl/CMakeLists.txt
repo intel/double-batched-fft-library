@@ -9,14 +9,14 @@ if(BUILD_SYCL)
 
     set(SOURCES
         api.cpp
-        cl_backend_bundle.cpp
         device.cpp
+        online_compiler.cpp
         plan.cpp
-        ze_backend_bundle.cpp
     )
     set(PUBLIC_HEADERS
         sycl/device.hpp
         sycl/make_plan.hpp
+        sycl/online_compiler.hpp
     )
     list(TRANSFORM PUBLIC_HEADERS PREPEND "${CMAKE_SOURCE_DIR}/include/bbfft/")
 

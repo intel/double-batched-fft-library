@@ -4,8 +4,6 @@
 #ifndef SYCL_API_20220413_HPP
 #define SYCL_API_20220413_HPP
 
-#include "backend_bundle.hpp"
-
 #include "bbfft/device_info.hpp"
 
 #include <CL/sycl.hpp>
@@ -22,7 +20,7 @@ class api {
   public:
     using event_type = ::sycl::event;
     using buffer_type = void *;
-    using kernel_bundle_type = std::shared_ptr<backend_bundle>;
+    using kernel_bundle_type = ::sycl::kernel_bundle<::sycl::bundle_state::executable>;
     using kernel_type = ::sycl::kernel;
 
     api(::sycl::queue queue);
@@ -31,10 +29,10 @@ class api {
     device_info info();
     uint64_t device_id();
 
-    kernel_bundle_type build_kernel_bundle(std::string const &source);
-    kernel_bundle_type build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
-    kernel_type create_kernel(kernel_bundle_type p, std::string const &name);
-    std::vector<uint8_t> get_native_binary(kernel_bundle_type b);
+    auto build_kernel_bundle(std::string const &source) -> kernel_bundle_type;
+    auto build_kernel_bundle(uint8_t const *binary, std::size_t binary_size) -> kernel_bundle_type;
+    auto create_kernel(kernel_bundle_type p, std::string const &name) -> kernel_type;
+    auto get_native_binary(kernel_bundle_type b) -> std::vector<uint8_t>;
 
     template <typename T>
     ::sycl::event launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_work_size,

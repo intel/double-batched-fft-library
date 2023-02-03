@@ -80,6 +80,9 @@ std::vector<uint8_t> get_native_binary(cl_program p, cl_device_id device) {
     auto binaries = std::vector<unsigned char *>(num_devices);
     CL_CHECK(::clGetProgramInfo(p, CL_PROGRAM_BINARIES, num_devices * sizeof(unsigned char *),
                                 binaries.data(), nullptr));
+    if (binaries[num] == nullptr) {
+        throw std::runtime_error("get_native_binary: CL_PROGRAM_BINARIES returned nullptr");
+    }
 
     return std::vector<uint8_t>(binaries[num], binaries[num] + sizes[num]);
 }

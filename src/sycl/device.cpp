@@ -3,7 +3,10 @@
 
 #include "bbfft/sycl/device.hpp"
 #include "bbfft/cl/device.hpp"
+#include "bbfft/cl/error.hpp"
 #include "bbfft/ze/device.hpp"
+
+#include <CL/cl.h>
 
 namespace bbfft {
 
@@ -28,7 +31,10 @@ auto get_device_id(::sycl::device device) -> uint64_t {
         return get_device_id(
             ::sycl::get_native<::sycl::backend::ext_oneapi_level_zero, ::sycl::device>(device));
     }
-    return get_device_id(::sycl::get_native<::sycl::backend::opencl, ::sycl::device>(device));
+    auto native_device = ::sycl::get_native<::sycl::backend::opencl, ::sycl::device>(device);
+    auto result = get_device_id(native_device);
+    CL_CHECK(clReleaseDevice(native_device));
+    return result;
 }
 
 } // namespace bbfft

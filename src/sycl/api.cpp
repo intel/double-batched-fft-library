@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "api.hpp"
-#include "cl_backend_bundle.hpp"
-#include "ze_backend_bundle.hpp"
 
 #include "bbfft/sycl/device.hpp"
+#include "bbfft/sycl/online_compiler.hpp"
 
 namespace bbfft::sycl {
 
@@ -19,23 +18,19 @@ device_info api::info() { return get_device_info(device_); }
 
 uint64_t api::device_id() { return get_device_id(device_); }
 
-api::kernel_bundle_type api::build_kernel_bundle(std::string const &source) {
-    if (context_.get_backend() == ::sycl::backend::ext_oneapi_level_zero) {
-        return std::make_shared<ze_backend_bundle>(source, context_, device_);
-    }
-    return std::make_shared<cl_backend_bundle>(source, context_, device_);
+auto api::build_kernel_bundle(std::string const &source) -> kernel_bundle_type {
+    return ::bbfft::sycl::build_kernel_bundle(source, context_, device_);
 }
-api::kernel_bundle_type api::build_kernel_bundle(uint8_t const *binary, std::size_t binary_size) {
-    if (context_.get_backend() == ::sycl::backend::ext_oneapi_level_zero) {
-        return std::make_shared<ze_backend_bundle>(binary, binary_size, context_, device_);
-    }
-    return std::make_shared<cl_backend_bundle>(binary, binary_size, context_, device_);
+auto api::build_kernel_bundle(uint8_t const *binary, std::size_t binary_size)
+    -> kernel_bundle_type {
+    return ::bbfft::sycl::build_kernel_bundle(binary, binary_size, context_, device_);
 }
-api::kernel_type api::create_kernel(kernel_bundle_type p, std::string const &name) {
-    return p->create_kernel(name);
+auto api::create_kernel(kernel_bundle_type p, std::string const &name) -> kernel_type {
+    return ::bbfft::sycl::create_kernel(std::move(p), name);
 }
-
-std::vector<uint8_t> api::get_native_binary(kernel_bundle_type b) { return b->get_binary(); }
+auto api::get_native_binary(kernel_bundle_type b) -> std::vector<uint8_t> {
+    return ::bbfft::sycl::get_native_binary(std::move(b), device_);
+}
 
 void *api::create_device_buffer(std::size_t bytes) {
     return malloc_device(bytes, device_, context_);
