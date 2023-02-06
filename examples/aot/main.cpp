@@ -9,6 +9,7 @@
 #include <CL/sycl.hpp>
 
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 
 using namespace std::chrono;
@@ -28,12 +29,18 @@ template <typename F> auto bench(F &&f) {
 
 int main(int argc, char **argv) {
     auto q = sycl::queue{};
+
     std::cout
         << "This example measures plan creation time with and without ahead-of-time compilation."
         << std::endl;
 
+    std::size_t N = 32;
+    if (argc >= 2) {
+        N = static_cast<std::size_t>(std::atol(argv[1]));
+    }
+
     auto cfg =
-        configuration{1, {1, 128, 12893}, precision::f32, direction::forward, transform_type::r2c};
+        configuration{1, {1, N, 12893}, precision::f32, direction::forward, transform_type::r2c};
 
     auto const print_result = [](char const *description, auto result) {
         std::cout << description << ":" << std::endl;
