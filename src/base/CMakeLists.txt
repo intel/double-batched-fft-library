@@ -15,6 +15,7 @@ set(SOURCES
     device_info.cpp
     generator.cpp
     jit_cache.cpp
+    jit_cache_all.cpp
     math.cpp
     mixed_radix_fft.cpp
     prime_factorization.cpp
@@ -29,9 +30,11 @@ set(PUBLIC_HEADERS
     device_info.hpp
     configuration.hpp
     jit_cache.hpp
+    jit_cache_all.hpp
     generator.hpp
     plan.hpp
     tensor_indexer.hpp
+    shared_handle.hpp
     user_module.hpp
     detail/generator_impl.hpp
     detail/plan_impl.hpp

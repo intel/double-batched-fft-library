@@ -22,41 +22,4 @@ std::size_t jit_cache_key_hash::operator()(jit_cache_key const &key) const noexc
 
 jit_cache::~jit_cache() {}
 
-class jit_cache_all::impl {
-  public:
-    ~impl() = default;
-    auto get_binary(jit_cache_key const &key) const -> std::pair<uint8_t const *, std::size_t> {
-        if (auto it = binary_.find(key); it != binary_.end()) {
-            return {it->second.data(), it->second.size()};
-        }
-        return {nullptr, 0};
-    }
-    void store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) {
-        binary_[key] = binary;
-    }
-    auto kernel_names() const {
-        auto result = std::vector<std::string>{};
-        for (auto const &[key, value] : binary_) {
-            result.push_back(key.kernel_name);
-        }
-        return result;
-    }
-
-  private:
-    std::unordered_map<jit_cache_key, std::vector<uint8_t>, jit_cache_key_hash> binary_;
-};
-
-jit_cache_all::jit_cache_all() : pimpl_(std::make_unique<impl>()) {}
-jit_cache_all::~jit_cache_all() {}
-
-auto jit_cache_all::get_binary(jit_cache_key const &key) const
-    -> std::pair<uint8_t const *, std::size_t> {
-    return pimpl_->get_binary(key);
-}
-void jit_cache_all::store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) {
-    pimpl_->store_binary(key, std::move(binary));
-}
-
-std::vector<std::string> jit_cache_all::kernel_names() const { return pimpl_->kernel_names(); }
-
 } // namespace bbfft

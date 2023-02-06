@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 if(BUILD_SYCL)
+    add_subdirectory(aot)
     add_subdirectory(cache)
 endif()
 add_subdirectory(fft3d)

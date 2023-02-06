@@ -5,9 +5,12 @@
 #define ZE_API_20220413_HPP
 
 #include "argument_handler.hpp"
-#include "bbfft/device_info.hpp"
-#include "bbfft/ze/error.hpp"
 #include "event_pool.hpp"
+
+#include "bbfft/device_info.hpp"
+#include "bbfft/jit_cache.hpp"
+#include "bbfft/shared_handle.hpp"
+#include "bbfft/ze/error.hpp"
 
 #include <array>
 #include <cstdint>
@@ -31,10 +34,9 @@ class api {
     device_info info();
     uint64_t device_id();
 
-    kernel_bundle_type build_kernel_bundle(std::string const &source);
-    kernel_bundle_type build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
-    kernel_type create_kernel(kernel_bundle_type p, std::string const &name);
-    std::vector<uint8_t> get_native_binary(kernel_bundle_type b);
+    auto build_module(std::string const &source) -> shared_handle<module_handle_t>;
+    auto make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type;
+    auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
     template <typename T>
     ze_event_handle_t launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
@@ -66,7 +68,6 @@ class api {
 
     inline void release_event(event_type e) { zeEventDestroy(e); }
     inline void release_buffer(buffer_type ptr) { zeMemFree(context_, ptr); }
-    inline void release_kernel_bundle(kernel_bundle_type b) { zeModuleDestroy(b); }
     inline void release_kernel(kernel_type k) { zeKernelDestroy(k); }
 
   private:

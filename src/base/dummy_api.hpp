@@ -27,15 +27,14 @@ class dummy_api {
     inline device_info info() { return info_; }
     inline uint64_t device_id() { return 0; }
 
-    kernel_bundle_type build_kernel_bundle(std::string const &source) {
+    inline auto build_module(std::string const &source) -> shared_handle<module_handle_t> {
         if (os_) {
             *os_ << source;
         }
         return {};
     }
-    inline kernel_bundle_type build_kernel_bundle(uint8_t const *, std::size_t) { return {}; }
-    inline kernel_type create_kernel(kernel_bundle_type, std::string const &) { return {}; }
-    inline std::vector<uint8_t> get_native_binary(kernel_bundle_type) { return {0}; }
+    inline auto make_kernel_bundle(module_handle_t) -> kernel_bundle_type { return {}; };
+    inline auto create_kernel(kernel_bundle_type, std::string const &) -> kernel_type { return {}; }
     template <typename T>
     event_type launch_kernel(kernel_type &, std::array<std::size_t, 3>, std::array<std::size_t, 3>,
                              std::vector<event_type> const &, T) {
@@ -53,7 +52,6 @@ class dummy_api {
 
     inline static void release_event(event_type) {}
     inline static void release_buffer(buffer_type) {}
-    inline static void release_kernel_bundle(kernel_bundle_type) {}
     inline static void release_kernel(kernel_type) {}
 
   private:

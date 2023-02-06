@@ -6,10 +6,11 @@
 
 #include "bbfft/bad_configuration.hpp"
 #include "bbfft/configuration.hpp"
+#include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
-#include "bbfft/generator.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/shared_handle.hpp"
 
 #include <algorithm>
 #include <array>
@@ -28,11 +29,10 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     using kernel = typename Api::kernel_type;
 
     small_batch_fft(configuration const &cfg, Api api, jit_cache *cache)
-        : api_(std::move(api)), p_(setup(cfg, cache)), k_(api_.create_kernel(p_, identifier_)) {}
-    ~small_batch_fft() {
-        api_.release_kernel(k_);
-        api_.release_kernel_bundle(p_);
-    }
+        : api_(std::move(api)), module_(setup(cfg, cache)),
+          bundle_(api_.make_kernel_bundle(module_.get())),
+          k_(api_.create_kernel(bundle_, identifier_)) {}
+    ~small_batch_fft() { api_.release_kernel(k_); }
 
     auto execute(void const *in, void *out, std::vector<event> const &dep_events)
         -> event override {
@@ -48,7 +48,7 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     }
 
   private:
-    kernel_bundle setup(configuration const &cfg, jit_cache *cache) {
+    auto setup(configuration const &cfg, jit_cache *cache) -> shared_handle<module_handle_t> {
         std::stringstream ss;
         if (cfg.callbacks) {
             ss << std::string_view(cfg.callbacks.data, cfg.callbacks.length) << std::endl;
@@ -70,22 +70,21 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
             return jit_cache_key{identifier_, api_.device_id()};
         };
 
-        bool use_cache = cache && !cfg.callbacks;
-        if (use_cache) {
-            auto [ptr, size] = cache->get_binary(make_cache_key());
-            if (ptr && size > 0) {
-                return api_.build_kernel_bundle(ptr, size);
+        if (cache) {
+            auto bundle = cache->get(make_cache_key());
+            if (bundle) {
+                return bundle;
             }
         }
 
         generate_small_batch_fft(ss, sbc);
 
-        auto bundle = api_.build_kernel_bundle(ss.str());
-        if (use_cache) {
-            cache->store_binary(make_cache_key(), api_.get_native_binary(bundle));
+        auto mod = api_.build_module(ss.str());
+        if (cache) {
+            cache->store(make_cache_key(), mod);
         }
 
-        return bundle;
+        return mod;
     }
 
     Api api_;
@@ -93,7 +92,8 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     std::array<std::size_t, 3> lws_;
     bool inplace_unsupported_;
     std::string identifier_;
-    kernel_bundle p_;
+    shared_handle<module_handle_t> module_;
+    kernel_bundle bundle_;
     kernel k_;
     uint64_t K_;
 }; // namespace bbfft

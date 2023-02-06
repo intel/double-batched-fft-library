@@ -2,9 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "api.hpp"
+#include "build_wrapper.hpp"
 
 #include "bbfft/sycl/device.hpp"
 #include "bbfft/sycl/online_compiler.hpp"
+
+#include <CL/cl.h>
+#include <level_zero/ze_api.h>
+
+using ::sycl::backend;
 
 namespace bbfft::sycl {
 
@@ -18,18 +24,14 @@ device_info api::info() { return get_device_info(device_); }
 
 uint64_t api::device_id() { return get_device_id(device_); }
 
-auto api::build_kernel_bundle(std::string const &source) -> kernel_bundle_type {
-    return ::bbfft::sycl::build_kernel_bundle(source, context_, device_);
+auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
+    return ::bbfft::sycl::build_native_module(source, context_, device_);
 }
-auto api::build_kernel_bundle(uint8_t const *binary, std::size_t binary_size)
-    -> kernel_bundle_type {
-    return ::bbfft::sycl::build_kernel_bundle(binary, binary_size, context_, device_);
+auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {
+    return ::bbfft::sycl::make_kernel_bundle(mod, true, context_);
 }
-auto api::create_kernel(kernel_bundle_type p, std::string const &name) -> kernel_type {
-    return ::bbfft::sycl::create_kernel(std::move(p), name);
-}
-auto api::get_native_binary(kernel_bundle_type b) -> std::vector<uint8_t> {
-    return ::bbfft::sycl::get_native_binary(std::move(b), device_);
+auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type {
+    return ::bbfft::sycl::create_kernel(std::move(b), name);
 }
 
 void *api::create_device_buffer(std::size_t bytes) {

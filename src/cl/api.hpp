@@ -5,8 +5,11 @@
 #define CL_API_20220413_HPP
 
 #include "argument_handler.hpp"
+
 #include "bbfft/cl/error.hpp"
 #include "bbfft/device_info.hpp"
+#include "bbfft/jit_cache.hpp"
+#include "bbfft/shared_handle.hpp"
 
 #include <CL/cl.h>
 #include <array>
@@ -34,10 +37,9 @@ class api {
     device_info info();
     uint64_t device_id();
 
-    kernel_bundle_type build_kernel_bundle(std::string const &source);
-    kernel_bundle_type build_kernel_bundle(uint8_t const *binary, std::size_t binary_size);
-    kernel_type create_kernel(kernel_bundle_type p, std::string const &name);
-    std::vector<uint8_t> get_native_binary(kernel_bundle_type b);
+    auto build_module(std::string const &source) -> shared_handle<module_handle_t>;
+    auto make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type;
+    auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
     template <typename T>
     cl_event launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
@@ -67,7 +69,6 @@ class api {
 
     inline void release_event(event_type e) { clReleaseEvent(e); }
     inline void release_buffer(buffer_type b) { clReleaseMemObject(b); }
-    inline void release_kernel_bundle(kernel_bundle_type b) { clReleaseProgram(b); }
     inline void release_kernel(kernel_type k) { clReleaseKernel(k); }
 
   private:

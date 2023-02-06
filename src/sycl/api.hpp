@@ -5,6 +5,8 @@
 #define SYCL_API_20220413_HPP
 
 #include "bbfft/device_info.hpp"
+#include "bbfft/jit_cache.hpp"
+#include "bbfft/shared_handle.hpp"
 
 #include <CL/sycl.hpp>
 #include <array>
@@ -29,10 +31,9 @@ class api {
     device_info info();
     uint64_t device_id();
 
-    auto build_kernel_bundle(std::string const &source) -> kernel_bundle_type;
-    auto build_kernel_bundle(uint8_t const *binary, std::size_t binary_size) -> kernel_bundle_type;
-    auto create_kernel(kernel_bundle_type p, std::string const &name) -> kernel_type;
-    auto get_native_binary(kernel_bundle_type b) -> std::vector<uint8_t>;
+    auto build_module(std::string const &source) -> shared_handle<module_handle_t>;
+    auto make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type;
+    auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
     template <typename T>
     ::sycl::event launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_work_size,
@@ -62,7 +63,6 @@ class api {
 
     inline void release_event(event_type) {}
     inline void release_buffer(buffer_type ptr) { free(ptr, context_); }
-    inline void release_kernel_bundle(kernel_bundle_type) {}
     inline void release_kernel(kernel_type) {}
 
   private:

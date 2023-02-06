@@ -49,17 +49,17 @@ device_info api::info() { return get_device_info(device_); }
 
 uint64_t api::device_id() { return get_device_id(device_); }
 
-api::kernel_bundle_type api::build_kernel_bundle(std::string const &source) {
-    return ::bbfft::cl::build_kernel_bundle(source, context_, device_);
+auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
+    cl_program mod = ::bbfft::cl::build_kernel_bundle(source, context_, device_);
+    return shared_handle<module_handle_t>(cast<module_handle_t>(mod), [](module_handle_t mod) {
+        clReleaseProgram(cast<cl_program>(mod));
+    });
 }
-api::kernel_bundle_type api::build_kernel_bundle(uint8_t const *binary, std::size_t binary_size) {
-    return ::bbfft::cl::build_kernel_bundle(binary, binary_size, context_, device_);
+auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {
+    return cast<kernel_bundle_type>(mod);
 }
-api::kernel_type api::create_kernel(kernel_bundle_type b, std::string const &name) {
+auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type {
     return ::bbfft::cl::create_kernel(b, name);
-}
-std::vector<uint8_t> api::get_native_binary(kernel_bundle_type b) {
-    return ::bbfft::cl::get_native_binary(b, device_);
 }
 
 cl_mem api::create_device_buffer(std::size_t bytes) {

@@ -10,7 +10,6 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 
 namespace bbfft::ze {
 
@@ -50,15 +49,6 @@ BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::
  * @return Level Zero kernel
  */
 BBFFT_EXPORT ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name);
-
-/**
- * @brief Returns binary blob of program
- *
- * @param mod module
- *
- * @return Vector of bytes
- */
-BBFFT_EXPORT std::vector<uint8_t> get_native_binary(ze_module_handle_t mod);
 
 } // namespace bbfft::ze
 

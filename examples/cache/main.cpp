@@ -3,6 +3,7 @@
 
 #include "bbfft/configuration.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/jit_cache_all.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
 #include <CL/sycl.hpp>
@@ -14,8 +15,8 @@ using namespace std::chrono;
 using namespace bbfft;
 
 template <typename F> auto bench(F &&f) {
-    std::array<double, 3> result;
-    for (int i = 0; i < 3; ++i) {
+    std::array<double, 5> result;
+    for (int i = 0; i < result.size(); ++i) {
         auto start = high_resolution_clock::now();
         f();
         auto end = high_resolution_clock::now();

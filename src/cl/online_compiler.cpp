@@ -55,36 +55,4 @@ cl_kernel create_kernel(cl_program prog, std::string const &name) {
     return k;
 }
 
-std::vector<uint8_t> get_native_binary(cl_program p, cl_device_id device) {
-    cl_int clGetProgramInfo(cl_program program, cl_program_info param_name, size_t param_value_size,
-                            void *param_value, size_t *param_value_size_ret);
-    cl_uint num_devices;
-    CL_CHECK(
-        ::clGetProgramInfo(p, CL_PROGRAM_NUM_DEVICES, sizeof(num_devices), &num_devices, nullptr));
-
-    auto devices = std::vector<cl_device_id>(num_devices);
-    CL_CHECK(::clGetProgramInfo(p, CL_PROGRAM_DEVICES, num_devices * sizeof(cl_device_id),
-                                devices.data(), nullptr));
-
-    std::size_t num = 0;
-    for (; num < devices.size() && devices[num] != device; ++num) {
-    }
-    if (num >= devices.size()) {
-        throw std::runtime_error("get_native_binary: device not linked to OpenCL program");
-    }
-
-    auto sizes = std::vector<size_t>(num_devices);
-    CL_CHECK(::clGetProgramInfo(p, CL_PROGRAM_BINARY_SIZES, num_devices * sizeof(size_t),
-                                sizes.data(), nullptr));
-
-    auto binaries = std::vector<unsigned char *>(num_devices);
-    CL_CHECK(::clGetProgramInfo(p, CL_PROGRAM_BINARIES, num_devices * sizeof(unsigned char *),
-                                binaries.data(), nullptr));
-    if (binaries[num] == nullptr) {
-        throw std::runtime_error("get_native_binary: CL_PROGRAM_BINARIES returned nullptr");
-    }
-
-    return std::vector<uint8_t>(binaries[num], binaries[num] + sizes[num]);
-}
-
 } // namespace bbfft::cl

@@ -23,7 +23,8 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
     using event = typename Api::event_type;
     using buffer = typename Api::buffer_type;
 
-    nd_fft(configuration const &cfg, Api api, jit_cache *cache) : api_(std::move(api)), dim_(cfg.dim) {
+    nd_fft(configuration const &cfg, Api api, jit_cache *cache)
+        : api_(std::move(api)), dim_(cfg.dim) {
         if (cfg.callbacks) {
             throw bad_configuration("User modules are unsuported for FFT dimension > 1.");
         }

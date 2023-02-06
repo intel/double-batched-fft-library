@@ -89,12 +89,4 @@ ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name
     return krnl;
 }
 
-std::vector<uint8_t> get_native_binary(ze_module_handle_t mod) {
-    size_t size;
-    ZE_CHECK(zeModuleGetNativeBinary(mod, &size, nullptr));
-    auto result = std::vector<uint8_t>(size);
-    ZE_CHECK(zeModuleGetNativeBinary(mod, &size, result.data()));
-    return result;
-}
-
 } // namespace bbfft::ze

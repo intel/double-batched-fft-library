@@ -4,26 +4,31 @@
 #ifndef JIT_CACHE_20230202_HPP
 #define JIT_CACHE_20230202_HPP
 
-#include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/export.hpp"
+#include "bbfft/shared_handle.hpp"
 
-#include <algorithm>
-#include <array>
 #include <cstdint>
-#include <iosfwd>
 #include <limits>
-#include <memory>
 #include <string>
-#include <vector>
 
 namespace bbfft {
+
+using device_handle_t = uintptr_t;
+using module_handle_t = uintptr_t;
+
+template <class To, class From> To cast(From v);
+template <class To, class From> To cast(From v) {
+    static_assert(sizeof(To) == sizeof(From));
+    static_assert(alignof(To) == alignof(From));
+    return reinterpret_cast<To>(v);
+}
 
 /**
  * @brief Unique identifier for fft kernel
  */
 struct BBFFT_EXPORT jit_cache_key {
     std::string kernel_name = {};                              ///< Name of the OpenCL kernel
-    uint64_t device_id = std::numeric_limits<uint64_t>::max(); ///< Unique device identifier
+    uint64_t device_id = std::numeric_limits<uint64_t>::max(); ///< Unique device id
 
     bool operator==(jit_cache_key const &other) const;
 };
@@ -43,6 +48,8 @@ struct jit_cache_key_hash {
 
 /**
  * @brief Interface for jit_caches
+ *
+ * @tparam backend-specific kernel bundle type
  */
 class BBFFT_EXPORT jit_cache {
   public:
@@ -51,54 +58,20 @@ class BBFFT_EXPORT jit_cache {
      */
     virtual ~jit_cache();
     /**
-     * @brief Get binary FFT kernel
+     * @brief Get FFT kernel bundle
      *
      * @param key FFT kernel identifier
      *
-     * @return Pointer to native binary blob and size of binary blob
+     * @return kernel bundle
      */
-    virtual auto get_binary(jit_cache_key const &key) const
-        -> std::pair<uint8_t const *, std::size_t> = 0;
+    virtual auto get(jit_cache_key const &key) const -> shared_handle<module_handle_t> = 0;
     /**
-     * @brief Store binary FFT kernel
+     * @brief Store  FFT kernel bundle
      *
      * @param key FFT kernel identifier
-     * @param binary Pointer to native binary blob
-     * @param binary_size Size of binary blob
+     * @param module kernel bundle
      */
-    virtual void store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) = 0;
-};
-
-/**
- * @brief Cache that stores all kernels
- */
-class BBFFT_EXPORT jit_cache_all : public jit_cache {
-  public:
-    /**
-     * @brief Constructor
-     */
-    jit_cache_all();
-    /**
-     * @brief Destructor
-     *
-     * Note: necessary for forward declaration of impl with unique_ptr
-     */
-    ~jit_cache_all();
-    /**
-     * @copydoc jit_cache::get_binary
-     */
-    auto get_binary(jit_cache_key const &key) const
-        -> std::pair<uint8_t const *, std::size_t> override;
-    /**
-     * @copydoc cache::store_binary
-     */
-    void store_binary(jit_cache_key const &key, std::vector<uint8_t> binary) override;
-
-    std::vector<std::string> kernel_names() const;
-
-  private:
-    class impl;
-    std::unique_ptr<impl> pimpl_;
+    virtual void store(jit_cache_key const &key, shared_handle<module_handle_t> module) = 0;
 };
 
 } // namespace bbfft
