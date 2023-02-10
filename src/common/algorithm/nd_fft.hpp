@@ -30,7 +30,7 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
         auto compare_strides = [](std::array<std::size_t, max_tensor_dim> const &s1,
                                   std::array<std::size_t, max_tensor_dim> const &s2, unsigned dim) {
             bool equal = true;
-            for (unsigned d = 0; d < dim; ++d) {
+            for (unsigned d = 0; d < dim + 2; ++d) {
                 equal = equal && (s1[d] == s2[d]);
             }
             return equal;
