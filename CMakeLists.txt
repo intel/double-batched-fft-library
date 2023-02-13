@@ -7,6 +7,8 @@ project(double_batched_fft_library VERSION 0.3.5 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+set(BBFFT_SOURCE_DIR "${PROJECT_SOURCE_DIR}")
+
 include(CMakeDependentOption)
 option(NO_DOUBLE_PRECISION "Disable double precision benchmark and tests" OFF)
 option(USE_CUDA "Compile CUDA tests" OFF)
