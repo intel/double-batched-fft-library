@@ -12,10 +12,12 @@ aot_cache::aot_cache(::sycl::queue q) {
     extern const uint8_t _binary_kernels_XE_HPC_COREpvc_bin_start,
         _binary_kernels_XE_HPC_COREpvc_bin_end;
 
-    module_ = bbfft::sycl::build_native_module(&_binary_kernels_XE_HPC_COREpvc_bin_start,
-                                               &_binary_kernels_XE_HPC_COREpvc_bin_end -
-                                                   &_binary_kernels_XE_HPC_COREpvc_bin_start,
-                                               q.get_context(), q.get_device());
+    auto handle = bbfft::sycl::build_native_module(&_binary_kernels_XE_HPC_COREpvc_bin_start,
+                                                   &_binary_kernels_XE_HPC_COREpvc_bin_end -
+                                                       &_binary_kernels_XE_HPC_COREpvc_bin_start,
+                                                   q.get_context(), q.get_device());
+    module_ = bbfft::sycl::make_shared_handle(handle, q.get_backend());
+    ;
 }
 
 auto aot_cache::get(jit_cache_key const &key) const -> shared_handle<module_handle_t> {

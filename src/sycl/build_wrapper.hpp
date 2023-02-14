@@ -29,13 +29,13 @@ template <> struct build_wrapper<::sycl::backend::ext_oneapi_level_zero> {
         : native_context(::sycl::get_native<be_t, ::sycl::context>(c)),
           native_device(::sycl::get_native<be_t, ::sycl::device>(d)) {}
 
-    template <typename... Args>
-    auto build_module(Args &&...args) -> shared_handle<module_handle_t> {
-        auto mod =
-            ze::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device);
-        return shared_handle<module_handle_t>(cast<module_handle_t>(mod), [](module_handle_t mod) {
-            zeModuleDestroy(cast<ze_module_handle_t>(mod));
-        });
+    template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
+        return cast<module_handle_t>(
+            ze::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
+    }
+    static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
+        return shared_handle<module_handle_t>(
+            mod, [](module_handle_t mod) { zeModuleDestroy(cast<ze_module_handle_t>(mod)); });
     }
     static auto make_kernel_bundle(module_handle_t mod, bool keep_ownership, ::sycl::context c)
         -> bundle_t {
@@ -67,13 +67,13 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
         CL_CHECK(clReleaseDevice(native_device));
     }
 
-    template <typename... Args>
-    auto build_module(Args &&...args) -> shared_handle<module_handle_t> {
-        auto mod =
-            cl::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device);
-        return shared_handle<module_handle_t>(cast<module_handle_t>(mod), [](module_handle_t mod) {
-            clReleaseProgram(cast<cl_program>(mod));
-        });
+    template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
+        return cast<module_handle_t>(
+            cl::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
+    }
+    static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
+        return shared_handle<module_handle_t>(
+            mod, [](module_handle_t mod) { clReleaseProgram(cast<cl_program>(mod)); });
     }
     static auto make_kernel_bundle(module_handle_t mod, bool keep_ownership, ::sycl::context c)
         -> bundle_t {

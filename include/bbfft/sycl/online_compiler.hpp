@@ -24,7 +24,7 @@ namespace bbfft::sycl {
  * @return Handle
  */
 BBFFT_EXPORT auto build_native_module(std::string const &source, ::sycl::context context,
-                                      ::sycl::device device) -> shared_handle<module_handle_t>;
+                                      ::sycl::device device) -> module_handle_t;
 
 /**
  * @brief Build native module of SYCL back-end from native binary
@@ -38,6 +38,17 @@ BBFFT_EXPORT auto build_native_module(std::string const &source, ::sycl::context
  */
 BBFFT_EXPORT auto build_native_module(uint8_t const *binary, std::size_t binary_size,
                                       ::sycl::context context, ::sycl::device device)
+    -> module_handle_t;
+
+/**
+ * @brief Make shared handle from native handle
+ *
+ * @param mod native handle
+ * @param be backend
+ *
+ * @return Shared native handle
+ */
+BBFFT_EXPORT auto make_shared_handle(module_handle_t mod, ::sycl::backend be)
     -> shared_handle<module_handle_t>;
 
 /**

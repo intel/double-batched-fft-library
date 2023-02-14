@@ -6,6 +6,7 @@
 
 #include "bbfft/configuration.hpp"
 #include "bbfft/device_info.hpp"
+#include "bbfft/generator.hpp"
 #include "bbfft/jit_cache_all.hpp"
 
 #include <ostream>

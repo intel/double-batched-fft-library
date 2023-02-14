@@ -45,8 +45,7 @@ auto dispatch(backend b, Fun &&f, TL<Bs...>) {
     return dispatch_impl(b, std::forward<Fun>(f), Bs{}...);
 }
 
-auto build_native_module(std::string const &source, context c, device d)
-    -> shared_handle<module_handle_t> {
+auto build_native_module(std::string const &source, context c, device d) -> module_handle_t {
     auto const f = [&](auto b) {
         return build_wrapper<decltype(b)::value>(c, d).build_module(source);
     };
@@ -54,11 +53,18 @@ auto build_native_module(std::string const &source, context c, device d)
 }
 
 auto build_native_module(uint8_t const *binary, std::size_t binary_size, context c, device d)
-    -> shared_handle<module_handle_t> {
+    -> module_handle_t {
     auto const f = [&](auto b) {
         return build_wrapper<decltype(b)::value>(c, d).build_module(binary, binary_size);
     };
     return dispatch(c.get_backend(), f, supported_backends{});
+}
+
+auto make_shared_handle(module_handle_t mod, ::sycl::backend be) -> shared_handle<module_handle_t> {
+    auto const f = [&](auto b) {
+        return build_wrapper<decltype(b)::value>::make_shared_handle(mod);
+    };
+    return dispatch(be, f, supported_backends{});
 }
 
 auto make_kernel_bundle(module_handle_t mod, bool keep_ownership, context c)
