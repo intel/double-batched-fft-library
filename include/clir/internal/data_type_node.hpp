@@ -47,12 +47,15 @@ class CLIR_EXPORT vector_data_type : public visitable<vector_data_type, data_typ
 
 class CLIR_EXPORT pointer : public visitable<pointer, data_type_node> {
   public:
-    pointer(data_type ty) : ty_(std::move(ty)) {}
+    pointer(data_type ty, address_space space = address_space::generic_t)
+        : ty_(std::move(ty)), space_(space) {}
 
     data_type &ty() { return ty_; }
+    address_space space() { return space_; }
 
   private:
     data_type ty_;
+    address_space space_;
 };
 
 class CLIR_EXPORT array : public visitable<array, data_type_node> {

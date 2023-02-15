@@ -19,6 +19,7 @@
 
 namespace clir {
 
+class data_type;
 class kernel;
 class stmt;
 
@@ -92,6 +93,7 @@ class CLIR_EXPORT codegen_opencl {
 CLIR_EXPORT void generate_opencl(std::ostream &os, kernel k);
 CLIR_EXPORT void generate_opencl(std::ostream &os, stmt s);
 CLIR_EXPORT void generate_opencl(std::ostream &os, expr e);
+CLIR_EXPORT void generate_opencl(std::ostream &os, data_type d);
 
 } // namespace clir
 

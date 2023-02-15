@@ -14,8 +14,8 @@ data_type::data_type(builtin_type basic_data_type, address_space as)
 data_type::data_type(builtin_type basic_data_type, short size, address_space as)
     : handle(std::make_shared<internal::vector_data_type>(basic_data_type, size, as)) {}
 
-data_type pointer_to(data_type ty) {
-    return data_type(std::make_shared<internal::pointer>(std::move(ty)));
+data_type pointer_to(data_type ty, address_space as) {
+    return data_type(std::make_shared<internal::pointer>(std::move(ty), as));
 }
 
 data_type array_of(data_type ty, std::size_t size) {

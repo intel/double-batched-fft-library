@@ -91,7 +91,7 @@ class CLIR_EXPORT data_type : public handle<internal::data_type_node> {
               address_space as = address_space::generic_t);
 };
 
-CLIR_EXPORT data_type pointer_to(data_type ty);
+CLIR_EXPORT data_type pointer_to(data_type ty, address_space as = address_space::generic_t);
 CLIR_EXPORT data_type array_of(data_type ty, std::size_t size);
 
 CLIR_MAKE_DATA_TYPE_SHORTCUTS(bool)

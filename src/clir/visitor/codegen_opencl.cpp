@@ -50,6 +50,9 @@ void codegen_opencl::operator()(internal::vector_data_type &v) {
 }
 void codegen_opencl::operator()(internal::pointer &v) {
     visit(*this, *v.ty());
+    if (v.space() != address_space::generic_t) {
+        os_ << " " << v.space();
+    }
     os_ << "*";
 }
 void codegen_opencl::operator()(internal::array &a) {
@@ -305,5 +308,6 @@ void codegen_opencl::print_declaration(internal::declaration &d) {
 void generate_opencl(std::ostream &os, kernel k) { visit(codegen_opencl(os), *k); }
 void generate_opencl(std::ostream &os, stmt s) { visit(codegen_opencl(os), *s); }
 void generate_opencl(std::ostream &os, expr e) { visit(codegen_opencl(os), *e); }
+void generate_opencl(std::ostream &os, data_type d) { visit(codegen_opencl(os), *d); }
 
 } // namespace clir

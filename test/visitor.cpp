@@ -78,6 +78,13 @@ TEST_CASE("Code generation") {
         CHECK(e2s(a.s(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)) ==
               "a.sfedcba9876543210");
     }
+
+    SUBCASE("data type") {
+        CHECK(e2s(pointer_to(global_float())) == "global float*");
+        CHECK(e2s(pointer_to(pointer_to(global_float()))) == "global float**");
+        CHECK(e2s(pointer_to(pointer_to(global_float()), address_space::global_t)) ==
+              "global float* global*");
+    }
 }
 
 TEST_CASE("Equal expression") {
