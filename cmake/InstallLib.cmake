@@ -14,7 +14,7 @@ function(install_lib target namespace)
     set_target_properties(${target} PROPERTIES INSTALL_RPATH "\$ORIGIN")
     set_target_properties(${target} PROPERTIES INSTALL_RPATH_USE_LINK_PATH True)
 
-    file(READ ${CMAKE_SOURCE_DIR}/cmake/template.cmake SHARED_STATIC_TEMPLATE)
+    file(READ ${PROJECT_SOURCE_DIR}/cmake/template.cmake SHARED_STATIC_TEMPLATE)
 
     set(CONFIG_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${target})
 
@@ -36,7 +36,7 @@ function(install_lib target namespace)
     )
 
     configure_package_config_file(
-        "${CMAKE_SOURCE_DIR}/cmake/${target}-config.cmake"
+        "${PROJECT_SOURCE_DIR}/cmake/${target}-config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/cmake/${target}-config.cmake"
         INSTALL_DESTINATION ${CONFIG_DESTINATION}
     )

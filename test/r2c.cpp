@@ -203,6 +203,18 @@ TEST_CASE_TEMPLATE("r2c 1d in-place", T, TEST_PRECISIONS) {
     r2c_forward<T, 1u, true>(M, {N}, K);
 }
 
+TEST_CASE_TEMPLATE("r2c 2d in-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{1, 33};
+    auto MM = std::vector<std::size_t>{1, 3};
+    auto NN = std::vector<std::array<std::size_t, 2u>>{{4, 8}, {8, 5}};
+
+    std::size_t M, K;
+    std::array<std::size_t, 2> N;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    r2c_forward<T, 2u, true>(M, N, K);
+}
+
 TEST_CASE_TEMPLATE("r2c 3d in-place", T, TEST_PRECISIONS) {
     auto KK = std::vector<std::size_t>{1, 33};
     auto MM = std::vector<std::size_t>{1, 3};
@@ -213,6 +225,30 @@ TEST_CASE_TEMPLATE("r2c 3d in-place", T, TEST_PRECISIONS) {
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
 
     r2c_forward<T, 3u, true>(M, N, K);
+}
+
+TEST_CASE_TEMPLATE("r2c 2d out-of-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{1, 65};
+    auto MM = std::vector<std::size_t>{1, 7};
+    auto NN = std::vector<std::array<std::size_t, 2u>>{{5, 4}, {10, 3}};
+
+    std::size_t M, K;
+    std::array<std::size_t, 2> N;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    r2c_forward<T, 2u, false>(M, N, K);
+}
+
+TEST_CASE_TEMPLATE("r2c 3d out-of-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{1, 65};
+    auto MM = std::vector<std::size_t>{1, 7};
+    auto NN = std::vector<std::array<std::size_t, 3u>>{{5, 4, 6}, {10, 286, 3}};
+
+    std::size_t M, K;
+    std::array<std::size_t, 3> N;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    r2c_forward<T, 3u, false>(M, N, K);
 }
 
 template <typename T, std::size_t D, bool Inplace = false>
@@ -287,6 +323,18 @@ TEST_CASE_TEMPLATE("c2r 1d in-place polluted 0", T, TEST_PRECISIONS) {
     c2r_backward<T, 1u, true>(M, {N}, K, true);
 }
 
+TEST_CASE_TEMPLATE("c2r 2d in-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{1, 54};
+    auto MM = std::vector<std::size_t>{1, 3};
+    auto NN = std::vector<std::array<std::size_t, 2u>>{{4, 2}, {96, 96}};
+
+    std::size_t M, K;
+    std::array<std::size_t, 2> N;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    c2r_backward<T, 2u, true>(M, N, K);
+}
+
 TEST_CASE_TEMPLATE("c2r 3d in-place", T, TEST_PRECISIONS) {
     auto KK = std::vector<std::size_t>{1, 54};
     auto MM = std::vector<std::size_t>{1, 3};
@@ -298,6 +346,31 @@ TEST_CASE_TEMPLATE("c2r 3d in-place", T, TEST_PRECISIONS) {
 
     c2r_backward<T, 3u, true>(M, N, K);
 }
+
+TEST_CASE_TEMPLATE("c2r 2d out-of-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{1, 65};
+    auto MM = std::vector<std::size_t>{1, 7};
+    auto NN = std::vector<std::array<std::size_t, 2u>>{{5, 4}, {10, 3}};
+
+    std::size_t M, K;
+    std::array<std::size_t, 2> N;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    c2r_backward<T, 2u, false>(M, N, K);
+}
+
+TEST_CASE_TEMPLATE("c2r 3d out-of-place", T, TEST_PRECISIONS) {
+    auto KK = std::vector<std::size_t>{1, 65};
+    auto MM = std::vector<std::size_t>{1, 7};
+    auto NN = std::vector<std::array<std::size_t, 3u>>{{5, 4, 6}, {10, 286, 3}};
+
+    std::size_t M, K;
+    std::array<std::size_t, 3> N;
+    DOCTEST_TENSOR3_TEST(MM, NN, KK);
+
+    c2r_backward<T, 3u, false>(M, N, K);
+}
+
 
 template <typename T, std::size_t D, bool Inplace = false>
 void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {

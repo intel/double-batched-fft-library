@@ -29,12 +29,32 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
             throw bad_configuration("User modules are unsuported for FFT dimension > 1.");
         }
 
+        auto compare_strides = [](std::array<std::size_t, max_tensor_dim> const &s1,
+                                  std::array<std::size_t, max_tensor_dim> const &s2, unsigned dim) {
+            bool equal = true;
+            for (unsigned d = 0; d < dim + 2; ++d) {
+                equal = equal && (s1[d] == s2[d]);
+            }
+            return equal;
+        };
+        auto is_default_stride = [&compare_strides](configuration const &cfg, bool inplace) {
+            auto const def_istride = default_istride(cfg.dim, cfg.shape, cfg.type, inplace);
+            auto const def_ostride = default_ostride(cfg.dim, cfg.shape, cfg.type, inplace);
+            return compare_strides(cfg.istride, def_istride, cfg.dim) &&
+                   compare_strides(cfg.ostride, def_ostride, cfg.dim);
+        };
+        if (!is_default_stride(cfg, false) && !is_default_stride(cfg, true)) {
+            throw bad_configuration("Only default tensor layouts are supported for the nd_fft.");
+        }
+        bool inplace_layout = is_default_stride(cfg, true);
+
         bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
         auto Nd_complex = [&](unsigned d) {
             return d == 0 && is_real ? cfg.shape[1] / 2 + 1 : cfg.shape[d + 1];
         };
         auto Nd_real = [&](unsigned d) {
-            return d == 0 && is_real ? 2 * (cfg.shape[1] / 2 + 1) : cfg.shape[d + 1];
+            return d == 0 && is_real && inplace_layout ? 2 * (cfg.shape[1] / 2 + 1)
+                                                       : cfg.shape[d + 1];
         };
 
         std::size_t N = 1;
@@ -76,26 +96,45 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
                 plans_[d] = select_1d_fft_algorithm<Api>(cfg1d[d], api_, cache);
             }
         }
+
+        std::size_t bytes_per_real = static_cast<std::size_t>(cfg.fp);
+        std::size_t bytes_per_complex = 2 * bytes_per_real;
+        auto ibytes = cfg.type == transform_type::r2c ? bytes_per_real : bytes_per_complex;
+        auto obytes = cfg.type == transform_type::c2r ? bytes_per_real : bytes_per_complex;
+        auto isize = cfg.istride[dim_ + 1] * cfg.shape[dim_ + 1] * ibytes;
+        auto osize = cfg.ostride[dim_ + 1] * cfg.shape[dim_ + 1] * obytes;
+        // if the input buffer is larger than the output buffer than temporaries are larger than the
+        // output buffer and we cannot reuse the output buffer for temporaries
+        if (isize > osize) {
+            tmp_ = api_.create_device_buffer(isize);
+        }
+    }
+
+    ~nd_fft() {
+        if (tmp_) {
+            api_.release_buffer(tmp_);
+        }
     }
 
     auto execute(void const *in, void *out, std::vector<event> const &dep_events)
         -> event override {
-        if (in != out) {
-            throw bad_configuration("Out-of-place is unsupported for FFT dimension > 1.");
-        }
-        event e = plans_[0]->execute(in, out, dep_events);
-        for (unsigned d = 1; d < dim_; ++d) {
-            auto next_e = plans_[d]->execute(out, out, std::vector<event>{e});
+        auto tmp = tmp_ ? tmp_ : out;
+        event e = plans_[0]->execute(in, tmp, dep_events);
+        for (unsigned d = 1; d < dim_ - 1; ++d) {
+            auto next_e = plans_[d]->execute(tmp, tmp, std::vector<event>{e});
             api_.release_event(e);
             e = next_e;
         }
-        return e;
+        auto last_e = plans_[dim_ - 1]->execute(tmp, out, std::vector<event>{e});
+        api_.release_event(e);
+        return last_e;
     }
 
   private:
     Api api_;
     unsigned dim_;
     std::array<std::shared_ptr<detail::plan_impl<event>>, max_fft_dim> plans_;
+    buffer tmp_ = nullptr;
 };
 
 } // namespace bbfft

@@ -1,8 +1,6 @@
 # Copyright (C) 2022 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
-project(clir VERSION 0.3.0 LANGUAGES CXX)
-
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
@@ -50,7 +48,7 @@ set(PUBLIC_HEADERS
     data_type.hpp
     expr.hpp
 )
-list(TRANSFORM PUBLIC_HEADERS PREPEND "${CMAKE_SOURCE_DIR}/include/clir/")
+list(TRANSFORM PUBLIC_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/include/clir/")
 
 add_library(clir ${SOURCES})
 add_library(clir::clir ALIAS clir)
@@ -58,19 +56,19 @@ set_target_properties(clir PROPERTIES
                       VERSION ${clir_VERSION}
                       SOVERSION ${clir_VERSION_MAJOR})
 target_include_directories(clir PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
 target_compile_features(clir PRIVATE cxx_std_17)
 target_compile_options(clir PRIVATE -Wall -Wextra -Wpedantic)
-set(clir_export_header "${CMAKE_BINARY_DIR}/include/clir/export.hpp")
+set(clir_export_header "${CMAKE_CURRENT_BINARY_DIR}/include/clir/export.hpp")
 generate_export_header(clir EXPORT_FILE_NAME "${clir_export_header}")
 target_compile_definitions(clir PUBLIC
     "$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:CLIR_STATIC_DEFINE>")
 target_include_directories(clir PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>"
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>"
 )
 target_sources(clir PUBLIC FILE_SET HEADERS
-    BASE_DIRS ${CMAKE_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/include
+    BASE_DIRS ${PROJECT_SOURCE_DIR}/include ${CMAKE_CURRENT_BINARY_DIR}/include
     FILES ${PUBLIC_HEADERS} ${clir_export_header})
 
 # installation
@@ -102,7 +100,7 @@ write_basic_package_version_file(
 )
 
 configure_package_config_file(
-    "${CMAKE_SOURCE_DIR}/cmake/clir-config.cmake"
+    "${PROJECT_SOURCE_DIR}/cmake/clir-config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/clir-config.cmake"
     INSTALL_DESTINATION ${CONFIG_DESTINATION}
 )

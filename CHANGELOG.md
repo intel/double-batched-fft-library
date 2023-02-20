@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.6] - 2023-02-10
+
+* Moved clir to top-level; clir is now a self-contained project
+* Support out-of-place nd-fft; throw bad\_configuration if stride is unsupported (nd-fft only works for default tensor layouts)
+
 ## [0.3.5] - 2022-01-25
 
 * Support gcc 8.5

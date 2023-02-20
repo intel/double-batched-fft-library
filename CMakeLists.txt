@@ -47,6 +47,7 @@ if(BUILD_DOCUMENTATION)
     add_subdirectory(docs)
 endif()
 add_subdirectory(src)
+add_subdirectory(clir)
 
 enable_testing()
 if(BUILD_TESTING)
