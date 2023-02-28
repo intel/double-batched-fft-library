@@ -22,6 +22,15 @@ auto get_device_info(cl_device_id device) -> device_info {
                              &local_mem_size, nullptr));
     info.local_memory_size = local_mem_size;
 
+    cl_device_type type;
+    CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_TYPE, sizeof(type), &type, nullptr));
+    info.type = device_type::custom;
+    if (type == CL_DEVICE_TYPE_CPU) {
+        info.type = device_type::cpu;
+    } else if (type == CL_DEVICE_TYPE_GPU) {
+        info.type = device_type::gpu;
+    }
+
     return info;
 }
 auto get_device_id(cl_device_id device) -> uint64_t {

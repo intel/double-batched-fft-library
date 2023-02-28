@@ -23,6 +23,14 @@ auto get_device_info(::sycl::device device) -> device_info {
 
     info.local_memory_size = device.get_info<::sycl::info::device::local_mem_size>();
 
+    auto type = device.get_info<::sycl::info::device::device_type>();
+    info.type = device_type::custom;
+    if (type == ::sycl::info::device_type::cpu) {
+        info.type = device_type::cpu;
+    } else if (type == ::sycl::info::device_type::gpu) {
+        info.type = device_type::gpu;
+    }
+
     return info;
 }
 auto get_device_id(::sycl::device device) -> uint64_t {

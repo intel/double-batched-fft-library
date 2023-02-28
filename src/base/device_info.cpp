@@ -4,6 +4,7 @@
 #include "bbfft/device_info.hpp"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace bbfft {
 
@@ -28,13 +29,27 @@ std::size_t device_info::max_subgroup_size() {
 }
 
 std::size_t device_info::register_space() {
-    constexpr std::size_t bytes_per_reg = 32u; // Number of bytes per register
-    constexpr std::size_t num_regs = 256u;     // Number of registers (with large GRF)
+    switch (type) {
+    case device_type::cpu: {
+        // Assume AVX512 for now
+        constexpr std::size_t num_zmm = 32;
+        constexpr std::size_t zmm_bytes = 64;
+        return num_zmm * zmm_bytes;
+    }
+    case device_type::gpu: {
+        constexpr std::size_t bytes_per_reg = 32u; // Number of bytes per register
+        constexpr std::size_t num_regs = 256u;     // Number of registers (with large GRF)
 
-    std::size_t sgs = min_subgroup_size();
-    std::size_t scale_bytes_per_reg = std::max(
-        std::size_t(1), sgs / 8u); // Assume that register width scales with minimum sub-group size
-    return scale_bytes_per_reg * bytes_per_reg * num_regs;
+        std::size_t sgs = min_subgroup_size();
+        std::size_t scale_bytes_per_reg =
+            std::max(std::size_t(1),
+                     sgs / 8u); // Assume that register width scales with minimum sub-group size
+        return scale_bytes_per_reg * bytes_per_reg * num_regs;
+    }
+    case device_type::custom:
+        throw std::runtime_error("register_space unknown for custom device");
+    }
+    return 0;
 }
 
 } // namespace bbfft

@@ -9,6 +9,9 @@ namespace bbfft {
 auto get_device_info(ze_device_handle_t device) -> device_info {
     auto info = device_info{};
 
+    ze_device_properties_t p;
+    ZE_CHECK(zeDeviceGetProperties(device, &p));
+
     ze_device_compute_properties_t p2;
     ZE_CHECK(zeDeviceGetComputeProperties(device, &p2));
 
@@ -21,6 +24,13 @@ auto get_device_info(ze_device_handle_t device) -> device_info {
     }
 
     info.local_memory_size = p2.maxSharedLocalMemory;
+
+    info.type = device_type::custom;
+    if (p.type == ZE_DEVICE_TYPE_CPU) {
+        info.type = device_type::cpu;
+    } else if (p.type == ZE_DEVICE_TYPE_GPU) {
+        info.type = device_type::gpu;
+    }
 
     return info;
 }
