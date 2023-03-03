@@ -32,12 +32,7 @@ result test_body(sycl::queue Q, unsigned int M, unsigned int N, unsigned int K =
     initialize_input_tensors(Q, x_ref, X_ref, inverse);
 
     // Initialize FFT descriptor
-    auto plan = mkl_descriptor<T>::make(M, N, K);
-    if constexpr (Inplace) {
-        plan->set_value(oneapi::mkl::dft::config_param::PLACEMENT, DFTI_INPLACE);
-    } else {
-        plan->set_value(oneapi::mkl::dft::config_param::PLACEMENT, DFTI_NOT_INPLACE);
-    }
+    auto plan = mkl_descriptor<T>::make(M, N, K, Inplace);
     plan->commit(Q);
 
     auto const compute_fwd = [&]() {
