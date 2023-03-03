@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace bbfft::ze {
 
@@ -49,6 +50,27 @@ BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::
  * @return Level Zero kernel
  */
 BBFFT_EXPORT ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name);
+
+/**
+ * @brief Takes OpenCL-C code and outputs SPIR-V
+ *
+ * @param source OpenCL-C source code
+ *
+ * @return binary
+ */
+BBFFT_EXPORT std::vector<uint8_t> compile_to_spirv(std::string const &source);
+/**
+ * @brief Takes OpenCL-C code and outputs the native device binary
+ *
+ * This function is a thin wrapper around ocloc
+ *
+ * @param source OpenCL-C source code
+ * @param device_type Target device type; see ocloc compile --help for possible targets
+ *
+ * @return binary
+ */
+BBFFT_EXPORT std::vector<uint8_t> compile_to_native(std::string const &source,
+                                                    std::string const &device_type);
 
 } // namespace bbfft::ze
 

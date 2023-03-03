@@ -6,6 +6,9 @@
 
 #include "ocloc_api.h"
 #include <cstdio>
+#include <cstring>
+#include <limits>
+#include <stdexcept>
 
 namespace bbfft::ze {
 
@@ -87,6 +90,82 @@ ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name
     ze_kernel_handle_t krnl;
     ZE_CHECK(zeKernelCreate(mod, &kernel_desc, &krnl));
     return krnl;
+}
+
+std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
+                                                std::string const &device_type) {
+    bool spv_only = device_type.empty();
+    unsigned int num_args = 4;
+    constexpr unsigned int max_num_args = 8;
+    char const *argv[max_num_args] = {"ocloc", "compile", "-internal_options",
+                                      "-cl-ext=+cl_khr_fp64"};
+    if (spv_only) {
+        argv[num_args++] = "-spv_only";
+    } else {
+        argv[num_args++] = "-device";
+        argv[num_args++] = device_type.c_str();
+    }
+    argv[num_args++] = "-file";
+    argv[num_args++] = "fft.cl";
+    const uint32_t num_sources = 1;
+    const uint8_t *data_sources = reinterpret_cast<const uint8_t *>(source.c_str());
+    const uint64_t len_sources = source.size() + 1;
+    char const *name_sources = argv[num_args - 1];
+    uint32_t num_input_headers = 0;
+    uint32_t num_outputs = 0;
+    uint8_t **data_outputs = nullptr;
+    uint64_t *len_outputs = nullptr;
+    char **name_outputs = nullptr;
+    oclocInvoke(num_args, argv, num_sources, &data_sources, &len_sources, &name_sources,
+                num_input_headers, nullptr, nullptr, nullptr, &num_outputs, &data_outputs,
+                &len_outputs, &name_outputs);
+
+    auto const ends_with = [](char const *str, char const *ending) {
+        auto lstr = strlen(str);
+        auto lend = strlen(ending);
+        if (lend > lstr) {
+            return false;
+        }
+        return strncmp(str + (lstr - lend), ending, lend) == 0;
+    };
+
+    constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
+    uint32_t log_file = invalid_index;
+    uint32_t bin_file = invalid_index;
+    for (uint32_t o = 0; o < num_outputs; ++o) {
+        if (strcmp(name_outputs[o], "stdout.log") == 0) {
+            log_file = o;
+        } else if (spv_only && ends_with(name_outputs[o], ".spv")) {
+            bin_file = o;
+        } else if (!spv_only &&
+                   (ends_with(name_outputs[o], ".bin") || ends_with(name_outputs[o], ".ar"))) {
+            bin_file = o;
+        }
+    }
+    if (bin_file == invalid_index) {
+        if (log_file != invalid_index) {
+            char *log_ptr = reinterpret_cast<char *>(data_outputs[log_file]);
+            auto log = std::string(log_ptr, len_outputs[log_file]);
+            throw std::runtime_error("source compilation failed\n" + log);
+        }
+        throw std::runtime_error("source compilation failed (no log available)");
+    }
+
+    auto result = std::vector<uint8_t>(data_outputs[bin_file],
+                                       data_outputs[bin_file] + len_outputs[bin_file]);
+    oclocFreeOutput(&num_outputs, &data_outputs, &len_outputs, &name_outputs);
+    return result;
+}
+
+std::vector<uint8_t> compile_to_spirv(std::string const &source) {
+    return compile_to_spirv_or_native(source, "");
+}
+
+std::vector<uint8_t> compile_to_native(std::string const &source, std::string const &device_type) {
+    if (device_type.empty()) {
+        throw std::logic_error("compile_to_native: device_type must not be empty");
+    }
+    return compile_to_spirv_or_native(source, device_type);
 }
 
 } // namespace bbfft::ze
