@@ -5,22 +5,23 @@ AOT compilation is useful if the plan creation overhead becomes significant and
 the set of required FFT plans is known at compile-time.
 
 We need a three-step compilation process: First, we compile a generator that uses
-the double batched FFT library to generate the FFT kernels (that is, OpenCL source code).
-In the second step, the source code is compiled to a native binary.
-The third step is to compile the main example where we link the native binary that we generated
-in the second step.
+the double batched FFT library to generate the FFT kernels (that is, OpenCL source code) and
+compiles the source code to the native device binary.
+In the second step, the linker is used to create an object from the native device binary.
+The third step is to compile the main example where we link the object that included the native binary
+that we generated in the second step.
 
 ## 1. Generator (generate.cpp)
 
 The source code for the FFT kernels is generated using `generate_fft_kernels` from `bbfft/generator.hpp`:
 
 ```c++
-    auto kernel_file = std::ofstream(argv[1]);
+    std::ostringstream oss;
     device_info info = {1024, {16, 32}, 2, 128 * 1024};
-    auto kernel_names = generate_fft_kernels(kernel_file, configurations(), info);
+    auto kernel_names = generate_fft_kernels(oss, configurations(), info);
 ```
 
-The source code for the configurations given by `configuration()` is written to `kernel_file`.
+The source code for the configurations given by `configuration()` is written to a stringstream.
 The code is specialized for a device with properties given by `device_info`.
 (Refer to the API documentation for the meaning of the numbers in `device_info`.)
 
@@ -30,25 +31,27 @@ We generate a cpp file that contains that list in the global variable
 std::unordered_set<std::string> aot_compiled_kernels;
 ```
 
-## 2. Ahead-of-time compilation (CMakeLists.txt)
+Finally, the source code is compiled for "pvc" and the binary is saved in `kernel_file`.
+```c++
+    auto bin = ze::compile_to_native(oss.str(), "pvc");
+    kernel_file.write(reinterpret_cast<char *>(bin.data()), bin.size());
+```
 
-We compile the OpenCL source code by adding a custom command in our `CMakeLists.txt`:
+## 2. Object file creation (CMakeLists.txt)
+
+We create an object file from the native binary by adding a custom command in our `CMakeLists.txt`:
 
 ```cmake
 add_custom_command(
     ...
-    COMMAND aot-generate ${SRC_FILE} ${NAMES_FILE}
-    COMMAND ${OCLOC} compile -file ${SRC_FILE} -device pvc -internal_options "-cl-ext=+cl_khr_fp64"
+    COMMAND aot-generate ${BIN_FILE} ${NAMES_FILE}    
     COMMAND ${CMAKE_LINKER} -r -b binary -o ${OBJ_FILE} ${BIN_FILE}
     ...
 )
 ```
 
 The first command calls our generator (generate.cpp).
-Then, we compile the OpenCL source code using the `ocloc` command, which is part of the
-[Intel(R) Graphics Compute Runtime for oneAPI Level Zero and OpenCL(TM) Driver](https://github.com/intel/compute-runtime).
-Here, "PVC" is the target device.
-Lastly, we link the binary blob created by ocloc into an object file using the binary input format (`-b binary`).
+In the second command, we link the binary blob created by the generator into an object file using the binary input format (`-b binary`).
 
 ## 3. Main example
 
@@ -57,27 +60,26 @@ The file looks something like the following:
 
 ```bash
 $ nm -a build/examples/aot/kernels.o
-0000000000143d48 D _binary_kernels_XE_HPC_COREpvc_bin_end
-0000000000143d48 A _binary_kernels_XE_HPC_COREpvc_bin_size
-0000000000000000 D _binary_kernels_XE_HPC_COREpvc_bin_start
+0000000000142770 D _binary_kernels_bin_end
+0000000000142770 A _binary_kernels_bin_size
+0000000000000000 D _binary_kernels_bin_start
 0000000000000000 d .data
 ```
 
-Here, we have the symbols `_binary_kernels_XE_HPC_COREpvc_bin_start` and `_binary_kernels_XE_HPC_COREpvc_bin_start` that indicate the
+Here, we have the symbols `_binary_kernels_bin_start` and `_binary_kernels_bin_end` that indicate the
 start and end of the ahead-of-time compiled binary blob.
-We create dervice the class `aot_cache` from the base class `jit_cache`. The constructor of `aot_cache`
-loads the binary blob and stores it in either a `cl_program` or a
+We create the class `aot_cache` that derives from `jit_cache`.
+The constructor of `aot_cache` loads the binary blob and stores it in either a `cl_program` or a
 `ze_module_handle_t`, depending on the back-end selected in the SYCL queue.
 
 ```c++
 aot_cache::aot_cache(::sycl::queue q) {
-    extern const uint8_t _binary_kernels_XE_HPC_COREpvc_bin_start,
-        _binary_kernels_XE_HPC_COREpvc_bin_end;
+    extern const uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
 
-    module_ = bbfft::sycl::build_native_module(&_binary_kernels_XE_HPC_COREpvc_bin_start,
-                                               &_binary_kernels_XE_HPC_COREpvc_bin_end -
-                                                   &_binary_kernels_XE_HPC_COREpvc_bin_start,
-                                               q.get_context(), q.get_device());
+    auto handle = bbfft::sycl::build_native_module(
+        &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
+        q.get_context(), q.get_device());
+    module_ = bbfft::sycl::make_shared_handle(handle, q.get_backend());
 }
 ```
 
