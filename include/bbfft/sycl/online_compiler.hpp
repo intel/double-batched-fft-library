@@ -6,6 +6,7 @@
 
 #include "bbfft/export.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/module_format.hpp"
 #include "bbfft/shared_handle.hpp"
 
 #include <CL/sycl.hpp>
@@ -31,14 +32,15 @@ BBFFT_EXPORT auto build_native_module(std::string const &source, ::sycl::context
  *
  * @param binary Pointer to binary blob
  * @param binary_size Size of binary blob
+ * @param format Binary format
  * @param context context
  * @param device device
  *
  * @return Handle
  */
 BBFFT_EXPORT auto build_native_module(uint8_t const *binary, std::size_t binary_size,
-                                      ::sycl::context context, ::sycl::device device)
-    -> module_handle_t;
+                                      module_format format, ::sycl::context context,
+                                      ::sycl::device device) -> module_handle_t;
 
 /**
  * @brief Make shared handle from native handle

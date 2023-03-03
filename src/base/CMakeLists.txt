@@ -32,6 +32,7 @@ set(PUBLIC_HEADERS
     jit_cache.hpp
     jit_cache_all.hpp
     generator.hpp
+    module_format.hpp
     plan.hpp
     tensor_indexer.hpp
     shared_handle.hpp

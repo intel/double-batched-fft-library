@@ -5,6 +5,7 @@
 #define ZE_ONLINE_COMPILER_20221129_HPP
 
 #include "bbfft/export.hpp"
+#include "bbfft/module_format.hpp"
 
 #include <level_zero/ze_api.h>
 
@@ -32,12 +33,14 @@ BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(std::string const &source,
  *
  * @param binary Pointer to binary blob
  * @param binary_size Size of binary blob
+ * @param format Binary format
  * @param context Level Zero context
  * @param device Level Zero device
  *
  * @return Level Zero module
  */
 BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::size_t binary_size,
+                                                    module_format format,
                                                     ze_context_handle_t context,
                                                     ze_device_handle_t device);
 

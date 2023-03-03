@@ -4,6 +4,7 @@
 #include "aot_cache.hpp"
 #include "aot_compiled_kernels.hpp"
 
+#include <bbfft/module_format.hpp>
 #include <bbfft/sycl/online_compiler.hpp>
 
 using namespace bbfft;
@@ -13,7 +14,7 @@ aot_cache::aot_cache(::sycl::queue q) {
 
     auto handle = bbfft::sycl::build_native_module(
         &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
-        q.get_context(), q.get_device());
+        module_format::native, q.get_context(), q.get_device());
     module_ = bbfft::sycl::make_shared_handle(handle, q.get_backend());
 }
 

@@ -5,6 +5,7 @@
 #define CL_ONLINE_COMPILER_20221206_HPP
 
 #include "bbfft/export.hpp"
+#include "bbfft/module_format.hpp"
 
 #include <CL/cl.h>
 #include <cstdint>
@@ -29,13 +30,15 @@ BBFFT_EXPORT cl_program build_kernel_bundle(std::string const &source, cl_contex
  *
  * @param binary Pointer to binary blob
  * @param binary_size Size of binary blob
+ * @param format Binary format
  * @param context OpenCL context
  * @param device OpenCL device
  *
  * @return OpenCL program
  */
 BBFFT_EXPORT cl_program build_kernel_bundle(uint8_t const *binary, std::size_t binary_size,
-                                            cl_context context, cl_device_id device);
+                                            module_format format, cl_context context,
+                                            cl_device_id device);
 
 /**
  * @brief Create kernel from program

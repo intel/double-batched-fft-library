@@ -35,15 +35,24 @@ cl_program build_kernel_bundle(std::string const &source, cl_context context, cl
     return p;
 }
 
-cl_program build_kernel_bundle(uint8_t const *binary, std::size_t binary_size, cl_context context,
-                               cl_device_id device) {
+cl_program build_kernel_bundle(uint8_t const *binary, std::size_t binary_size, module_format format,
+                               cl_context context, cl_device_id device) {
     static_assert(sizeof(unsigned char) == sizeof(uint8_t));
     static_assert(sizeof(size_t) == sizeof(std::size_t));
     cl_int err;
-    cl_program p =
-        clCreateProgramWithBinary(context, 1, &device, &binary_size, &binary, nullptr, &err);
+    cl_program p;
+    switch (format) {
+    case module_format::spirv:
+        p = clCreateProgramWithIL(context, binary, binary_size, &err);
+        break;
+    case module_format::native:
+        p = clCreateProgramWithBinary(context, 1, &device, &binary_size, &binary, nullptr, &err);
+        break;
+    default:
+        throw std::runtime_error("Unknown module format");
+    }
     CL_CHECK(err);
-    err = clBuildProgram(p, 0, nullptr, "-cl-mad-enable", nullptr, nullptr);
+    err = clBuildProgram(p, 1, &device, "-cl-mad-enable", nullptr, nullptr);
     check_build_status(p, err, device);
     return p;
 }

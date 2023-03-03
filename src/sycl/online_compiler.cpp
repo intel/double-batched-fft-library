@@ -52,10 +52,10 @@ auto build_native_module(std::string const &source, context c, device d) -> modu
     return dispatch(c.get_backend(), f, supported_backends{});
 }
 
-auto build_native_module(uint8_t const *binary, std::size_t binary_size, context c, device d)
-    -> module_handle_t {
+auto build_native_module(uint8_t const *binary, std::size_t binary_size, module_format format,
+                         context c, device d) -> module_handle_t {
     auto const f = [&](auto b) {
-        return build_wrapper<decltype(b)::value>(c, d).build_module(binary, binary_size);
+        return build_wrapper<decltype(b)::value>(c, d).build_module(binary, binary_size, format);
     };
     return dispatch(c.get_backend(), f, supported_backends{});
 }

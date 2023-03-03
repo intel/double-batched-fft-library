@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     }
 
     auto kernel_file = std::ofstream(argv[1], std::ios::binary);
-    auto identifier_file = std::ofstream(argv[1]);
+    auto identifier_file = std::ofstream(argv[2]);
 
     device_info info = {1024, {16, 32}, 2, 128 * 1024};
     std::ostringstream oss;
