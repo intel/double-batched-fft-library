@@ -441,7 +441,7 @@ void generate_factor2_slm_fft(std::ostream &os, factor2_slm_configuration const 
 
     auto fft_inplace = &generate_fft::basic_inplace;
 
-    auto fb = function_builder{name.empty() ? cfg.identifier() : std::string(name)};
+    auto fb = kernel_builder{name.empty() ? cfg.identifier() : std::string(name)};
     fb.argument(pointer_to(in_ty), in);
     fb.argument(pointer_to(out_ty), out);
     fb.argument(pointer_to(fph.type(2, address_space::constant_t)), twiddle);

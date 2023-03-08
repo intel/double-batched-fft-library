@@ -3,7 +3,7 @@
 
 #include "clir/builder.hpp"
 #include "clir/data_type.hpp"
-#include "clir/kernel.hpp"
+#include "clir/func.hpp"
 #include "clir/var.hpp"
 
 #include <optional>
@@ -98,17 +98,25 @@ if_selection_builder &if_selection_builder::otherwise(stmt other) {
 function_builder::function_builder(std::string name)
     : proto_(std::make_shared<internal::prototype>(std::move(name))), body_(nullptr) {}
 
-kernel function_builder::get_product() {
+func function_builder::get_product() {
     if (!body_.get()) {
         body_ = stmt(std::make_shared<internal::block>());
     }
-    return kernel(std::make_shared<internal::function>(kernel(proto_), body_));
+    return func(std::make_shared<internal::function>(func(proto_), body_));
 }
 
 void function_builder::argument(data_type ty, var v) {
     proto_->args().emplace_back(std::move(ty), std::move(v));
 }
 
+void function_builder::qualifier(function_qualifier q) {
+    proto_->qualifiers(proto_->qualifiers() | q);
+}
+
 void function_builder::attribute(attr a) { proto_->attributes().emplace_back(std::move(a)); }
+
+kernel_builder::kernel_builder(std::string name) : function_builder(std::move(name)) {
+    this->qualifier(function_qualifier::kernel_t);
+}
 
 } // namespace clir

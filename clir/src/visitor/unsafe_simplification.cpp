@@ -3,7 +3,7 @@
 
 #include "clir/visitor/unsafe_simplification.hpp"
 #include "clir/builtin_function.hpp"
-#include "clir/kernel.hpp"
+#include "clir/func.hpp"
 #include "clir/op.hpp"
 #include "clir/stmt.hpp"
 #include "clir/visit.hpp"
@@ -202,6 +202,6 @@ expr unsafe_simplify(expr e) {
     return f ? f : e;
 }
 void unsafe_simplify(stmt s) { visit(unsafe_simplification{}, *s); }
-void unsafe_simplify(kernel k) { visit(unsafe_simplification{}, *k); }
+void unsafe_simplify(func k) { visit(unsafe_simplification{}, *k); }
 
 } // namespace clir

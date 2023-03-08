@@ -5,7 +5,7 @@
 #define UNIQUE_NAMES_20220405_HPP
 
 #include "clir/export.hpp"
-#include "clir/internal/kernel_node.hpp"
+#include "clir/internal/function_node.hpp"
 #include "clir/internal/stmt_node.hpp"
 
 #include <cstdint>
@@ -20,7 +20,7 @@ namespace internal {
 class expr_node;
 }
 
-class kernel;
+class func;
 class stmt;
 
 class CLIR_EXPORT unique_names {
@@ -48,7 +48,7 @@ class CLIR_EXPORT unique_names {
     std::vector<std::unordered_map<std::string, unsigned long>> name_counters_;
 };
 
-CLIR_EXPORT void make_names_unique(kernel k);
+CLIR_EXPORT void make_names_unique(func k);
 CLIR_EXPORT void make_names_unique(stmt s);
 
 } // namespace clir

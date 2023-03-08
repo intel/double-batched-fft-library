@@ -5,9 +5,10 @@
 #define BUILDER_20220405_HPP
 
 #include "clir/attr.hpp"
+#include "clir/builtin_type.hpp"
 #include "clir/export.hpp"
 #include "clir/expr.hpp"
-#include "clir/internal/kernel_node.hpp"
+#include "clir/internal/function_node.hpp"
 #include "clir/internal/stmt_node.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
@@ -19,7 +20,7 @@
 namespace clir {
 
 class data_type;
-class kernel;
+class func;
 class var;
 
 class CLIR_EXPORT block_builder {
@@ -101,9 +102,10 @@ class CLIR_EXPORT function_builder {
   public:
     function_builder(std::string name);
 
-    kernel get_product();
+    func get_product();
 
     void argument(data_type ty, var v);
+    void qualifier(function_qualifier q);
     void attribute(attr a);
     template <typename F> void body(F &&f) {
         auto bb = block_builder{};
@@ -114,6 +116,11 @@ class CLIR_EXPORT function_builder {
   private:
     std::shared_ptr<internal::prototype> proto_;
     stmt body_;
+};
+
+class CLIR_EXPORT kernel_builder : public function_builder {
+  public:
+    kernel_builder(std::string name);
 };
 
 } // namespace clir

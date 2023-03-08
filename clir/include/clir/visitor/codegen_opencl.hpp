@@ -9,7 +9,7 @@
 #include "clir/internal/attr_node.hpp"
 #include "clir/internal/data_type_node.hpp"
 #include "clir/internal/expr_node.hpp"
-#include "clir/internal/kernel_node.hpp"
+#include "clir/internal/function_node.hpp"
 #include "clir/internal/stmt_node.hpp"
 
 #include <iosfwd>
@@ -20,7 +20,7 @@
 namespace clir {
 
 class data_type;
-class kernel;
+class func;
 class stmt;
 
 class CLIR_EXPORT codegen_opencl {
@@ -90,7 +90,7 @@ class CLIR_EXPORT codegen_opencl {
     bool block_endl_ = true;
 };
 
-CLIR_EXPORT void generate_opencl(std::ostream &os, kernel k);
+CLIR_EXPORT void generate_opencl(std::ostream &os, func k);
 CLIR_EXPORT void generate_opencl(std::ostream &os, stmt s);
 CLIR_EXPORT void generate_opencl(std::ostream &os, expr e);
 CLIR_EXPORT void generate_opencl(std::ostream &os, data_type d);

@@ -3,8 +3,8 @@
 
 #include "clir/visitor/unique_names.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/internal/expr_node.hpp"
-#include "clir/kernel.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 #include "clir/visit.hpp"
@@ -104,7 +104,7 @@ void unique_names::pop_scope() {
     name_counters_.pop_back();
 }
 
-void make_names_unique(kernel k) { visit(unique_names{}, *k); }
+void make_names_unique(func k) { visit(unique_names{}, *k); }
 void make_names_unique(stmt s) { visit(unique_names{}, *s); }
 
 } // namespace clir

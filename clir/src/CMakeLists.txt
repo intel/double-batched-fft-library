@@ -22,7 +22,7 @@ set(SOURCES
 )
 set(PUBLIC_HEADERS
     internal/data_type_node.hpp
-    internal/kernel_node.hpp
+    internal/function_node.hpp
     internal/macro_helper.hpp
     internal/stmt_node.hpp
     internal/args_impl.hpp
@@ -38,7 +38,7 @@ set(PUBLIC_HEADERS
     builtin_function.hpp
     builtin_type.hpp
     handle.hpp
-    kernel.hpp
+    func.hpp
     op.hpp
     stmt.hpp
     string_util.hpp

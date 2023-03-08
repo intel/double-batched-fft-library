@@ -7,8 +7,8 @@
 #include "clir/builtin_type.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/handle.hpp"
-#include "clir/kernel.hpp"
 #include "clir/op.hpp"
 #include "clir/stmt.hpp"
 #include "clir/string_util.hpp"
@@ -239,7 +239,9 @@ void codegen_opencl::operator()(internal::if_selection &is) {
 
 /* Kernel nodes */
 void codegen_opencl::operator()(internal::prototype &proto) {
-    os_ << "kernel" << std::endl;
+    if (test(proto.qualifiers())) {
+        os_ << proto.qualifiers() << std::endl;
+    }
     for (auto &a : proto.attributes()) {
         visit(*this, *a);
         os_ << std::endl << indent();
@@ -305,7 +307,7 @@ void codegen_opencl::print_declaration(internal::declaration &d) {
     }
 }
 
-void generate_opencl(std::ostream &os, kernel k) { visit(codegen_opencl(os), *k); }
+void generate_opencl(std::ostream &os, func k) { visit(codegen_opencl(os), *k); }
 void generate_opencl(std::ostream &os, stmt s) { visit(codegen_opencl(os), *s); }
 void generate_opencl(std::ostream &os, expr e) { visit(codegen_opencl(os), *e); }
 void generate_opencl(std::ostream &os, data_type d) { visit(codegen_opencl(os), *d); }

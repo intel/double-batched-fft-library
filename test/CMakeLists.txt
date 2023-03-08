@@ -14,16 +14,6 @@ if (NO_DOUBLE_PRECISION)
     target_compile_definitions(test-lib PUBLIC NO_DOUBLE_PRECISION)
 endif()
 
-# clir tests
-
-add_executable(test-util util.cpp)
-target_link_libraries(test-util PRIVATE test-lib clir::clir)
-doctest_discover_tests(test-util)
-
-add_executable(test-visitor visitor.cpp)
-target_link_libraries(test-visitor PRIVATE test-lib clir::clir)
-doctest_discover_tests(test-visitor)
-
 # fft tests
 
 add_executable(test-codegen codegen.cpp)

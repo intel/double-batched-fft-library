@@ -292,7 +292,7 @@ void generate_small_batch_fft(std::ostream &os, small_batch_configuration const 
     auto slm_out_ty = cfg.type == transform_type::c2r ? fph.type(address_space::local_t)
                                                       : fph.type(2, address_space::local_t);
 
-    auto fb = function_builder{name.empty() ? cfg.identifier() : std::string(name)};
+    auto fb = kernel_builder{name.empty() ? cfg.identifier() : std::string(name)};
     fb.argument(pointer_to(in_ty), in);
     fb.argument(pointer_to(out_ty), out);
     fb.argument(generic_ulong(), K);

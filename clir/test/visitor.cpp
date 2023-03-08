@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "clir/builtin_function.hpp"
+#include "clir/builtin_type.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
-#include "clir/var.hpp"
+#include "clir/func.hpp"
+#include "clir/internal/function_node.hpp"
 #include "clir/visit.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/equal_expr.hpp"
@@ -26,6 +28,21 @@ TEST_CASE("Code generation") {
         generate_opencl(s, e);
         return s.str();
     };
+
+    SUBCASE("Function qualifier") {
+        CHECK(to_string(function_qualifier::none) == "");
+        CHECK(to_string(function_qualifier::extern_t) == "extern");
+        CHECK(to_string(function_qualifier::inline_t) == "inline");
+        CHECK(to_string(function_qualifier::kernel_t) == "kernel");
+        CHECK(to_string(function_qualifier::extern_t | function_qualifier::inline_t) ==
+              "extern inline");
+        CHECK(to_string(function_qualifier::extern_t | function_qualifier::kernel_t) ==
+              "extern kernel");
+        CHECK(to_string(function_qualifier::inline_t | function_qualifier::kernel_t) ==
+              "inline kernel");
+        CHECK(to_string(function_qualifier::extern_t | function_qualifier::inline_t |
+                        function_qualifier::kernel_t) == "extern inline kernel");
+    }
 
     SUBCASE("Operator precedence and associativity") {
         CHECK(e2s(++a) == "++a");
@@ -84,6 +101,15 @@ TEST_CASE("Code generation") {
         CHECK(e2s(pointer_to(pointer_to(global_float()))) == "global float**");
         CHECK(e2s(pointer_to(pointer_to(global_float()), address_space::global_t)) ==
               "global float* global*");
+    }
+
+    SUBCASE("prototype") {
+        CHECK(e2s(func(std::make_shared<internal::prototype>("test"))) == "void test() ");
+        auto p2 = std::make_shared<internal::prototype>("test");
+        p2->qualifiers(function_qualifier::kernel_t);
+        std::stringstream oss;
+        oss << "kernel" << std::endl << "void test() ";
+        CHECK(e2s(func(p2)) == oss.str());
     }
 }
 
