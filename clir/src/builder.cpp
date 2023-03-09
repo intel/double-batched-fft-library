@@ -11,6 +11,36 @@
 
 namespace clir {
 
+/* declaration builder */
+
+void internal::declaration_builder::declare(data_type ty, var v, std::vector<attr> attributes) {
+    auto node =
+        std::make_shared<internal::declaration>(std::move(ty), std::move(v), std::move(attributes));
+    add(std::move(node));
+}
+
+var internal::declaration_builder::declare(data_type ty, std::string prefix,
+                                           std::vector<attr> attributes) {
+    auto v = var(std::move(prefix));
+    declare(std::move(ty), v, std::move(attributes));
+    return v;
+}
+
+void internal::declaration_builder::declare_assign(data_type ty, var v, expr b,
+                                                   std::vector<attr> attributes) {
+    auto decl =
+        std::make_shared<internal::declaration>(std::move(ty), std::move(v), std::move(attributes));
+    auto node = std::make_shared<internal::declaration_assignment>(std::move(decl), std::move(b));
+    add(std::move(node));
+}
+
+var internal::declaration_builder::declare_assign(data_type ty, std::string prefix, expr b,
+                                                  std::vector<attr> attributes) {
+    auto v = var(std::move(prefix));
+    declare_assign(std::move(ty), v, std::move(b), std::move(attributes));
+    return v;
+}
+
 /* block builder */
 block_builder::block_builder() : block_(std::make_shared<internal::block>()) {}
 block_builder::block_builder(std::shared_ptr<internal::block> block) : block_(std::move(block)) {}
@@ -23,34 +53,12 @@ void block_builder::add(expr e) {
 }
 
 void block_builder::add(stmt s) { block_->stmts().emplace_back(std::move(s)); }
+void block_builder::add(std::shared_ptr<internal::declaration> d) { add(stmt(std::move(d))); }
+void block_builder::add(std::shared_ptr<internal::declaration_assignment> da) {
+    add(stmt(std::move(da)));
+}
 
 void block_builder::assign(expr a, expr b) { add(assignment(std::move(a), std::move(b))); }
-
-void block_builder::declare(data_type ty, var v, std::vector<attr> attributes) {
-    auto node =
-        std::make_shared<internal::declaration>(std::move(ty), std::move(v), std::move(attributes));
-    add(stmt(std::move(node)));
-}
-
-var block_builder::declare(data_type ty, std::string prefix, std::vector<attr> attributes) {
-    auto v = var(std::move(prefix));
-    declare(std::move(ty), v, std::move(attributes));
-    return v;
-}
-
-void block_builder::declare_assign(data_type ty, var v, expr b, std::vector<attr> attributes) {
-    auto decl =
-        std::make_shared<internal::declaration>(std::move(ty), std::move(v), std::move(attributes));
-    auto node = std::make_shared<internal::declaration_assignment>(std::move(decl), std::move(b));
-    add(stmt(std::move(node)));
-}
-
-var block_builder::declare_assign(data_type ty, std::string prefix, expr b,
-                                  std::vector<attr> attributes) {
-    auto v = var(std::move(prefix));
-    declare_assign(std::move(ty), v, std::move(b), std::move(attributes));
-    return v;
-}
 
 /* for loop builder */
 for_loop_builder::for_loop_builder(expr start, expr condition, expr step)
@@ -100,7 +108,7 @@ function_builder::function_builder(std::string name)
 
 func function_builder::get_product() {
     if (!body_.get()) {
-        body_ = stmt(std::make_shared<internal::block>());
+        return func(proto_);
     }
     return func(std::make_shared<internal::function>(func(proto_), body_));
 }
@@ -115,8 +123,24 @@ void function_builder::qualifier(function_qualifier q) {
 
 void function_builder::attribute(attr a) { proto_->attributes().emplace_back(std::move(a)); }
 
+/* kernel builder */
 kernel_builder::kernel_builder(std::string name) : function_builder(std::move(name)) {
     this->qualifier(function_qualifier::kernel_t);
+}
+
+/* program builder */
+program_builder::program_builder()
+    : program_(std::make_shared<internal::program>(std::vector<func>{})) {}
+
+prog program_builder::get_product() { return prog(program_); }
+
+void program_builder::add(func f) { program_->declarations().emplace_back(std::move(f)); }
+
+void program_builder::add(std::shared_ptr<internal::declaration> d) {
+    add(func(std::make_shared<internal::global_declaration>(std::move(d))));
+}
+void program_builder::add(std::shared_ptr<internal::declaration_assignment> da) {
+    add(func(std::make_shared<internal::global_declaration>(std::move(da))));
 }
 
 } // namespace clir

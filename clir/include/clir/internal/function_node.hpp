@@ -4,6 +4,8 @@
 #ifndef FUNCTION_NODE_20220405_HPP
 #define FUNCTION_NODE_20220405_HPP
 
+#include "stmt_node.hpp"
+
 #include "clir/attr.hpp"
 #include "clir/builtin_type.hpp"
 #include "clir/data_type.hpp"
@@ -19,7 +21,8 @@
 
 namespace clir::internal {
 
-class CLIR_EXPORT function_node : public virtual_type_list<class prototype, class function> {};
+class CLIR_EXPORT function_node
+    : public virtual_type_list<class prototype, class function, class global_declaration> {};
 
 class CLIR_EXPORT prototype : public visitable<prototype, function_node> {
   public:
@@ -53,6 +56,18 @@ class CLIR_EXPORT function : public visitable<function, function_node> {
   private:
     func prototype_;
     stmt body_;
+};
+
+class CLIR_EXPORT global_declaration : public visitable<global_declaration, function_node> {
+  public:
+    global_declaration(std::shared_ptr<declaration> term) : term_(stmt(std::move(term))) {}
+    global_declaration(std::shared_ptr<declaration_assignment> term)
+        : term_(stmt(std::move(term))) {}
+    stmt &term() { return term_; }
+    void term(stmt s) { term_ = std::move(s); }
+
+  private:
+    stmt term_;
 };
 
 } // namespace clir::internal

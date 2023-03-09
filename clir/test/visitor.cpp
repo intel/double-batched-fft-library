@@ -1,6 +1,7 @@
 // Copyright (C) 2022 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "clir/builder.hpp"
 #include "clir/builtin_function.hpp"
 #include "clir/builtin_type.hpp"
 #include "clir/data_type.hpp"
@@ -104,12 +105,33 @@ TEST_CASE("Code generation") {
     }
 
     SUBCASE("prototype") {
-        CHECK(e2s(func(std::make_shared<internal::prototype>("test"))) == "void test() ");
+        std::stringstream oss1;
+        oss1 << "void test();" << std::endl;
+        CHECK(e2s(func(std::make_shared<internal::prototype>("test"))) == oss1.str());
+
         auto p2 = std::make_shared<internal::prototype>("test");
         p2->qualifiers(function_qualifier::kernel_t);
+        std::stringstream oss2;
+        oss2 << "kernel" << std::endl << "void test();" << std::endl;
+        CHECK(e2s(func(p2)) == oss2.str());
+    }
+
+    SUBCASE("program") {
+        auto fb = function_builder("test");
+        fb.qualifier(function_qualifier::extern_t);
+        program_builder pb;
+        pb.declare_assign(constant_int(), "c", 5);
+        pb.add(fb.get_product());
+        auto fb2 = function_builder("test2");
+        fb2.body([](block_builder &) {});
+        pb.add(fb2.get_product());
         std::stringstream oss;
-        oss << "kernel" << std::endl << "void test() ";
-        CHECK(e2s(func(p2)) == oss.str());
+        oss << "constant int c = 5;" << std::endl
+            << "extern" << std::endl
+            << "void test();" << std::endl
+            << "void test2() {" << std::endl
+            << '}' << std::endl;
+        CHECK(e2s(pb.get_product()) == oss.str());
     }
 }
 

@@ -6,6 +6,7 @@
 
 #include "clir/export.hpp"
 #include "clir/internal/function_node.hpp"
+#include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
 
 #include <cstdint>
@@ -22,6 +23,7 @@ class expr_node;
 
 class func;
 class stmt;
+class prog;
 
 class CLIR_EXPORT unique_names {
   public:
@@ -39,6 +41,10 @@ class CLIR_EXPORT unique_names {
     /* Kernel nodes */
     void operator()(internal::prototype &proto);
     void operator()(internal::function &fn);
+    void operator()(internal::global_declaration &d);
+
+    /* Program nodes */
+    void operator()(internal::program &prg);
 
   private:
     CLIR_NO_EXPORT void push_scope();
@@ -48,6 +54,7 @@ class CLIR_EXPORT unique_names {
     std::vector<std::unordered_map<std::string, unsigned long>> name_counters_;
 };
 
+CLIR_EXPORT void make_names_unique(prog p);
 CLIR_EXPORT void make_names_unique(func k);
 CLIR_EXPORT void make_names_unique(stmt s);
 

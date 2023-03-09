@@ -28,6 +28,7 @@ set(PUBLIC_HEADERS
     internal/args_impl.hpp
     internal/attr_node.hpp
     internal/expr_node.hpp
+    internal/program_node.hpp
     visitor/codegen_opencl.hpp
     visitor/equal_expr.hpp
     visitor/unique_names.hpp
@@ -40,6 +41,7 @@ set(PUBLIC_HEADERS
     handle.hpp
     func.hpp
     op.hpp
+    prog.hpp
     stmt.hpp
     string_util.hpp
     var.hpp

@@ -10,6 +10,7 @@
 #include "clir/func.hpp"
 #include "clir/handle.hpp"
 #include "clir/op.hpp"
+#include "clir/prog.hpp"
 #include "clir/stmt.hpp"
 #include "clir/string_util.hpp"
 #include "clir/var.hpp"
@@ -254,12 +255,28 @@ void codegen_opencl::operator()(internal::prototype &proto) {
         os_ << post_.str();
         post_.str(std::string());
     });
-    os_ << ") ";
+    os_ << ')';
+    if (definition_) {
+        os_ << ' ';
+    } else {
+        os_ << ';' << std::endl;
+    }
 }
 
 void codegen_opencl::operator()(internal::function &fn) {
+    definition_ = true;
     visit(*this, *fn.prototype());
+    definition_ = false;
     visit(*this, *fn.body());
+}
+
+void codegen_opencl::operator()(internal::global_declaration &d) { visit(*this, *d.term()); }
+
+/* Program nodes */
+void codegen_opencl::operator()(internal::program &prg) {
+    for (auto &d : prg.declarations()) {
+        visit(*this, *d);
+    }
 }
 
 /* Helper functions */
@@ -307,6 +324,7 @@ void codegen_opencl::print_declaration(internal::declaration &d) {
     }
 }
 
+void generate_opencl(std::ostream &os, prog p) { visit(codegen_opencl(os), *p); }
 void generate_opencl(std::ostream &os, func k) { visit(codegen_opencl(os), *k); }
 void generate_opencl(std::ostream &os, stmt s) { visit(codegen_opencl(os), *s); }
 void generate_opencl(std::ostream &os, expr e) { visit(codegen_opencl(os), *e); }

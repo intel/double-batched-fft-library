@@ -9,7 +9,9 @@
 #include "clir/export.hpp"
 #include "clir/expr.hpp"
 #include "clir/internal/function_node.hpp"
+#include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
+#include "clir/prog.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 
@@ -23,7 +25,21 @@ class data_type;
 class func;
 class var;
 
-class CLIR_EXPORT block_builder {
+namespace internal {
+class CLIR_EXPORT declaration_builder {
+  public:
+    void declare(data_type ty, var v, std::vector<attr> attributes = {});
+    var declare(data_type ty, std::string prefix, std::vector<attr> attributes = {});
+    void declare_assign(data_type ty, var v, expr b, std::vector<attr> attributes = {});
+    var declare_assign(data_type ty, std::string prefix, expr b, std::vector<attr> attributes = {});
+
+  protected:
+    virtual void add(std::shared_ptr<internal::declaration> d) = 0;
+    virtual void add(std::shared_ptr<internal::declaration_assignment> da) = 0;
+};
+} // namespace internal
+
+class CLIR_EXPORT block_builder : public internal::declaration_builder {
   public:
     block_builder();
     block_builder(std::shared_ptr<internal::block> block);
@@ -33,15 +49,15 @@ class CLIR_EXPORT block_builder {
     void add(expr e);
     void add(stmt s);
     void assign(expr a, expr b);
-    void declare(data_type ty, var v, std::vector<attr> attributes = {});
-    var declare(data_type ty, std::string prefix, std::vector<attr> attributes = {});
-    void declare_assign(data_type ty, var v, expr b, std::vector<attr> attributes = {});
-    var declare_assign(data_type ty, std::string prefix, expr b, std::vector<attr> attributes = {});
 
     template <typename F> block_builder &body(F &&f) {
         f(*this);
         return *this;
     }
+
+  protected:
+    void add(std::shared_ptr<internal::declaration> d) override;
+    void add(std::shared_ptr<internal::declaration_assignment> da) override;
 
   private:
     std::shared_ptr<internal::block> block_;
@@ -121,6 +137,21 @@ class CLIR_EXPORT function_builder {
 class CLIR_EXPORT kernel_builder : public function_builder {
   public:
     kernel_builder(std::string name);
+};
+
+class CLIR_EXPORT program_builder : public internal::declaration_builder {
+  public:
+    program_builder();
+
+    prog get_product();
+    void add(func f);
+
+  protected:
+    void add(std::shared_ptr<internal::declaration> d) override;
+    void add(std::shared_ptr<internal::declaration_assignment> da) override;
+
+  private:
+    std::shared_ptr<internal::program> program_;
 };
 
 } // namespace clir

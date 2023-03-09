@@ -5,6 +5,7 @@
 #include "clir/builtin_function.hpp"
 #include "clir/func.hpp"
 #include "clir/op.hpp"
+#include "clir/prog.hpp"
 #include "clir/stmt.hpp"
 #include "clir/visit.hpp"
 
@@ -196,6 +197,14 @@ void unsafe_simplification::operator()(internal::if_selection &is) {
 /* Kernel nodes */
 void unsafe_simplification::operator()(internal::prototype &) {}
 void unsafe_simplification::operator()(internal::function &fn) { visit(*this, *fn.body()); }
+void unsafe_simplification::operator()(internal::global_declaration &d) { visit(*this, *d.term()); }
+
+/* Program nodes */
+void unsafe_simplification::operator()(internal::program &prg) {
+    for (auto &d : prg.declarations()) {
+        visit(*this, *d);
+    }
+}
 
 expr unsafe_simplify(expr e) {
     auto f = visit(unsafe_simplification{}, *e);
@@ -203,5 +212,6 @@ expr unsafe_simplify(expr e) {
 }
 void unsafe_simplify(stmt s) { visit(unsafe_simplification{}, *s); }
 void unsafe_simplify(func k) { visit(unsafe_simplification{}, *k); }
+void unsafe_simplify(prog p) { visit(unsafe_simplification{}, *p); }
 
 } // namespace clir

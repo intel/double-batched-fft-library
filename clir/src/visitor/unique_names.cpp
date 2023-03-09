@@ -5,6 +5,7 @@
 #include "clir/expr.hpp"
 #include "clir/func.hpp"
 #include "clir/internal/expr_node.hpp"
+#include "clir/prog.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 #include "clir/visit.hpp"
@@ -92,6 +93,16 @@ void unique_names::operator()(internal::if_selection &is) {
 /* Kernel nodes */
 void unique_names::operator()(internal::prototype &) {}
 void unique_names::operator()(internal::function &fn) { visit(*this, *fn.body()); }
+void unique_names::operator()(internal::global_declaration &d) { visit(*this, *d.term()); }
+
+/* Program nodes */
+void unique_names::operator()(internal::program &prg) {
+    push_scope();
+    for (auto &d : prg.declarations()) {
+        visit(*this, *d);
+    }
+    pop_scope();
+}
 
 /* Helper */
 void unique_names::push_scope() {
@@ -104,6 +115,7 @@ void unique_names::pop_scope() {
     name_counters_.pop_back();
 }
 
+void make_names_unique(prog p) { visit(unique_names{}, *p); }
 void make_names_unique(func k) { visit(unique_names{}, *k); }
 void make_names_unique(stmt s) { visit(unique_names{}, *s); }
 

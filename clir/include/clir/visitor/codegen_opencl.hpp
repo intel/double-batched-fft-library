@@ -10,6 +10,7 @@
 #include "clir/internal/data_type_node.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/internal/function_node.hpp"
+#include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
 
 #include <iosfwd>
@@ -22,6 +23,7 @@ namespace clir {
 class data_type;
 class func;
 class stmt;
+class prog;
 
 class CLIR_EXPORT codegen_opencl {
   public:
@@ -64,6 +66,10 @@ class CLIR_EXPORT codegen_opencl {
     /* Kernel nodes */
     void operator()(internal::prototype &proto);
     void operator()(internal::function &fn);
+    void operator()(internal::global_declaration &d);
+
+    /* Program nodes */
+    void operator()(internal::program &prg);
 
   private:
     template <typename Iterator, typename Action>
@@ -88,8 +94,10 @@ class CLIR_EXPORT codegen_opencl {
     std::stringstream post_;
     bool inline_ = false;
     bool block_endl_ = true;
+    bool definition_ = false;
 };
 
+CLIR_EXPORT void generate_opencl(std::ostream &os, prog p);
 CLIR_EXPORT void generate_opencl(std::ostream &os, func k);
 CLIR_EXPORT void generate_opencl(std::ostream &os, stmt s);
 CLIR_EXPORT void generate_opencl(std::ostream &os, expr e);

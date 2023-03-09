@@ -8,6 +8,7 @@
 #include "clir/expr.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/internal/function_node.hpp"
+#include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
 
 namespace clir {
@@ -35,6 +36,7 @@ class CLIR_EXPORT determine_number_type {
 };
 } // namespace internal
 
+class prog;
 class func;
 class stmt;
 
@@ -67,11 +69,16 @@ class CLIR_EXPORT unsafe_simplification {
     /* Kernel nodes */
     void operator()(internal::prototype &proto);
     void operator()(internal::function &fn);
+    void operator()(internal::global_declaration &d);
+
+    /* Program nodes */
+    void operator()(internal::program &prg);
 };
 
 CLIR_EXPORT expr unsafe_simplify(expr e);
 CLIR_EXPORT void unsafe_simplify(stmt s);
 CLIR_EXPORT void unsafe_simplify(func k);
+CLIR_EXPORT void unsafe_simplify(prog p);
 
 } // namespace clir
 
