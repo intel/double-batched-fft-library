@@ -198,9 +198,9 @@ void load_store_slm(block_builder &bb, precision_helper fph, expr X,
             bb.assign(mnk[1], n_in);
             bb.assign(mnk[2], k_first + k_in);
             if (store) {
-                bb.add(call_external(callback, {X, X_idx, x1, mnk}));
+                bb.add(call(callback, {X, X_idx, x1, mnk}));
             } else {
-                bb.assign(x1, call_external(callback, {X, X_idx, mnk}));
+                bb.assign(x1, call(callback, {X, X_idx, mnk}));
             }
         } else {
             auto x = X[X_idx];

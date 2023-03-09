@@ -54,7 +54,7 @@ class CLIR_EXPORT unsafe_simplification {
     expr operator()(internal::ternary_op &e);
     expr operator()(internal::access &e);
     expr operator()(internal::call_builtin &fn);
-    expr operator()(internal::call_external &fn);
+    expr operator()(internal::call &fn);
     expr operator()(internal::cast &c);
     expr operator()(internal::swizzle &s);
 

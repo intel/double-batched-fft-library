@@ -13,7 +13,7 @@
 #include <functional>
 #include <utility>
 
-using clir::call_external;
+using clir::call;
 using clir::expr;
 
 namespace bbfft {
@@ -71,14 +71,13 @@ template <unsigned int D> class callback_accessor : public accessor<D> {
 
     expr operator()(std::array<expr, D> const &idx) const override {
         if (load_) {
-            return call_external(load_, {x_, offset_ + indexer_(idx), mnk_(idx)});
+            return call(load_, {x_, offset_ + indexer_(idx), mnk_(idx)});
         }
         return x_[offset_ + indexer_(idx)];
     }
     expr store(std::array<expr, D> const &idx, expr value) const override {
         if (store_) {
-            return call_external(store_,
-                                 {x_, offset_ + indexer_(idx), std::move(value), mnk_(idx)});
+            return call(store_, {x_, offset_ + indexer_(idx), std::move(value), mnk_(idx)});
         }
         return assignment(x_[indexer_(idx)], std::move(value));
     }

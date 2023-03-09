@@ -44,7 +44,7 @@ class stmt;
 class var;
 
 CLIR_EXPORT expr call_builtin(builtin_function fn, std::vector<expr> args);
-CLIR_EXPORT expr call_external(std::string name, std::vector<expr> args);
+CLIR_EXPORT expr call(std::string name, std::vector<expr> args);
 CLIR_EXPORT expr cast(data_type to, expr term);
 
 CLIR_EXPORT stmt declaration(data_type ty, var v, std::vector<attr> attributes = {});

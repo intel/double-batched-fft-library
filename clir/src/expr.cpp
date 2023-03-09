@@ -36,8 +36,8 @@ expr::expr(std::string value) : expr(std::make_shared<internal::string_imm>(std:
 expr call_builtin(builtin_function fn, std::vector<expr> args) {
     return expr(std::make_shared<internal::call_builtin>(fn, std::move(args)));
 }
-expr call_external(std::string name, std::vector<expr> args) {
-    return expr(std::make_shared<internal::call_external>(std::move(name), std::move(args)));
+expr call(std::string name, std::vector<expr> args) {
+    return expr(std::make_shared<internal::call>(std::move(name), std::move(args)));
 }
 expr cast(data_type to, expr term) {
     return expr(std::make_shared<internal::cast>(std::move(to), std::move(term)));

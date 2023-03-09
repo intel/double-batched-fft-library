@@ -23,7 +23,7 @@ class CLIR_EXPORT expr_node
     : public virtual_type_list<class variable, class int_imm, class uint_imm, class float_imm,
                                class cl_mem_fence_flags_imm, class string_imm, class unary_op,
                                class binary_op, class ternary_op, class access, class call_builtin,
-                               class call_external, class cast, class swizzle> {
+                               class call, class cast, class swizzle> {
   public:
     virtual unsigned precedence() const = 0;
     virtual associativity assoc() const = 0;
@@ -202,9 +202,9 @@ class CLIR_EXPORT call_builtin : public visitable<call_builtin, expr_node> {
     std::vector<expr> args_;
 };
 
-class CLIR_EXPORT call_external : public visitable<call_external, expr_node> {
+class CLIR_EXPORT call : public visitable<call, expr_node> {
   public:
-    call_external(std::string name, std::vector<expr> args)
+    call(std::string name, std::vector<expr> args)
         : name_(std::move(name)), args_(std::move(args)) {}
     unsigned precedence() const override { return 1; }
     associativity assoc() const override { return associativity::left_to_right; }

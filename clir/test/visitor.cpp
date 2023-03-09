@@ -75,7 +75,7 @@ TEST_CASE("Code generation") {
     }
 
     SUBCASE("printf") { CHECK(e2s(printf({"%d %d\n", a, b})) == "printf(\"%d %d\\n\", a, b)"); }
-    SUBCASE("external") { CHECK(e2s(call_external("test", {a, b})) == "test(a, b)"); }
+    SUBCASE("call") { CHECK(e2s(call("test", {a, b})) == "test(a, b)"); }
     SUBCASE("init_vector") {
         CHECK(e2s(init_vector(generic_int(3), {0, 1, 2})) == "(int3) (0, 1, 2)");
         CHECK(e2s(init_vector(generic_int(4), {1, init_vector(generic_int(2), {2, 3}), 4})) ==

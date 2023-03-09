@@ -126,7 +126,7 @@ void codegen_opencl::operator()(internal::call_builtin &fn) {
     os_ << ")";
 }
 
-void codegen_opencl::operator()(internal::call_external &fn) {
+void codegen_opencl::operator()(internal::call &fn) {
     os_ << fn.name() << "(";
     do_with_infix(fn.args().begin(), fn.args().end(), [this](auto x) { visit(*this, *x); });
     os_ << ")";

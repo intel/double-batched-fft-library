@@ -131,7 +131,7 @@ expr unsafe_simplification::operator()(internal::call_builtin &fn) {
     return nullptr;
 }
 
-expr unsafe_simplification::operator()(internal::call_external &fn) {
+expr unsafe_simplification::operator()(internal::call &fn) {
     for (auto &arg : fn.args()) {
         if (auto a = visit(*this, *arg); a) {
             arg = std::move(a);
