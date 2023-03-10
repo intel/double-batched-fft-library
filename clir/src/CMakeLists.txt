@@ -11,6 +11,7 @@ set(SOURCES
     builtin_type.cpp
     data_type.cpp
     expr.cpp
+    func.cpp
     op.cpp
     stmt.cpp
     string_util.cpp

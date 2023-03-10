@@ -13,10 +13,14 @@ namespace internal {
 class function_node;
 }
 
+class stmt;
+
 class CLIR_EXPORT func : public handle<internal::function_node> {
   public:
     using handle<internal::function_node>::handle;
 };
+
+CLIR_EXPORT func function(func prototype, stmt body);
 
 } // namespace clir
 
