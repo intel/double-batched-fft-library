@@ -36,9 +36,9 @@ class CLIR_EXPORT determine_number_type {
 };
 } // namespace internal
 
-class prog;
-class func;
-class stmt;
+class CLIR_EXPORT prog;
+class CLIR_EXPORT func;
+class CLIR_EXPORT stmt;
 
 class CLIR_EXPORT unsafe_simplification {
   public:

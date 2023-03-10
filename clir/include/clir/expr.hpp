@@ -34,14 +34,14 @@
 namespace clir {
 
 namespace internal {
-class expr_node;
+class CLIR_EXPORT expr_node;
 }
 
 enum class cl_mem_fence_flags;
-class data_type;
-class expr;
-class stmt;
-class var;
+class CLIR_EXPORT data_type;
+class CLIR_EXPORT expr;
+class CLIR_EXPORT stmt;
+class CLIR_EXPORT var;
 
 CLIR_EXPORT expr call_builtin(builtin_function fn, std::vector<expr> args);
 CLIR_EXPORT expr call(std::string name, std::vector<expr> args);

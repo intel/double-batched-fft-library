@@ -318,7 +318,7 @@
 
 namespace clir {
 
-class expr;
+class CLIR_EXPORT expr;
 
 enum class builtin_function { CLIR_BUILTIN_FUNCTION(CLIR_NAME_LIST_3) };
 

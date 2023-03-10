@@ -10,10 +10,10 @@
 namespace clir {
 
 namespace internal {
-class function_node;
+class CLIR_EXPORT function_node;
 }
 
-class stmt;
+class CLIR_EXPORT stmt;
 
 class CLIR_EXPORT func : public handle<internal::function_node> {
   public:

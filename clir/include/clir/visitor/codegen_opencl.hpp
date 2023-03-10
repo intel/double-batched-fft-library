@@ -20,10 +20,10 @@
 
 namespace clir {
 
-class data_type;
-class func;
-class stmt;
-class prog;
+class CLIR_EXPORT data_type;
+class CLIR_EXPORT func;
+class CLIR_EXPORT stmt;
+class CLIR_EXPORT prog;
 
 class CLIR_EXPORT codegen_opencl {
   public:

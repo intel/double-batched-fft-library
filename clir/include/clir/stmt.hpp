@@ -12,10 +12,10 @@
 namespace clir {
 
 namespace internal {
-class stmt_node;
+class CLIR_EXPORT stmt_node;
 }
 
-class expr;
+class CLIR_EXPORT expr;
 
 class CLIR_EXPORT stmt : public handle<internal::stmt_node> {
   public:

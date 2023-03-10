@@ -21,9 +21,9 @@
 
 namespace clir {
 
-class data_type;
-class func;
-class var;
+class CLIR_EXPORT data_type;
+class CLIR_EXPORT func;
+class CLIR_EXPORT var;
 
 namespace internal {
 class CLIR_EXPORT declaration_builder {

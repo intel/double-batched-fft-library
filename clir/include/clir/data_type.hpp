@@ -46,7 +46,7 @@
 namespace clir {
 
 namespace internal {
-class data_type_node;
+class CLIR_EXPORT data_type_node;
 } // namespace internal
 
 template <typename T> struct to_builtin_type;

@@ -10,7 +10,7 @@
 namespace clir {
 
 namespace internal {
-class attr_node;
+class CLIR_EXPORT attr_node;
 } // namespace internal
 
 class CLIR_EXPORT attr : public handle<internal::attr_node> {

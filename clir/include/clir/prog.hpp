@@ -10,7 +10,7 @@
 namespace clir {
 
 namespace internal {
-class program_node;
+class CLIR_EXPORT program_node;
 }
 
 class CLIR_EXPORT prog : public handle<internal::program_node> {

@@ -18,12 +18,12 @@
 namespace clir {
 
 namespace internal {
-class expr_node;
+class CLIR_EXPORT expr_node;
 }
 
-class func;
-class stmt;
-class prog;
+class CLIR_EXPORT func;
+class CLIR_EXPORT stmt;
+class CLIR_EXPORT prog;
 
 class CLIR_EXPORT unique_names {
   public:
