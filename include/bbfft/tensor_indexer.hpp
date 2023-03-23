@@ -39,7 +39,7 @@ enum class layout {
  */
 template <std::size_t Dout, typename IdxT, std::size_t Din>
 constexpr auto fit_array(std::array<IdxT, Din> const &in, IdxT fill_value = IdxT(0)) {
-    std::array<IdxT, Dout> out;
+    auto out = std::array<IdxT, Dout>{};
     constexpr unsigned int d_min = std::min(Din, Dout);
     for (unsigned int d = 0; d < d_min; ++d) {
         out[d] = in[d];
