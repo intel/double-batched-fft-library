@@ -64,6 +64,7 @@ else()
     find_path(OpenCL_INCLUDE_DIR NAMES CL/cl.h OpenCL/cl.h
         HINTS
             ENV OpenCL_ROOT
+            ENV CPATH
             ENV AMDAPPSDKROOT
             ENV INTELOCLSDKROOT
             ENV CUDA_PATH
@@ -82,6 +83,8 @@ else()
         find_library(OpenCL_LIBRARY NAMES OpenCL
             HINTS
                 ENV OpenCL_ROOT
+                ENV LIBRARY_PATH
+                ENV LD_LIBRARY_PATH
                 ENV AMDAPPSDKROOT
                 ENV INTELOCLSDKROOT
                 ENV CUDA_PATH
@@ -101,6 +104,8 @@ else()
         find_library(OpenCL_LIBRARY NAMES OpenCL
             HINTS
                 ENV OpenCL_ROOT
+                ENV LIBRARY_PATH
+                ENV LD_LIBRARY_PATH
                 ENV AMDAPPSDKROOT
                 ENV INTELOCLSDKROOT
                 ENV CUDA_PATH
