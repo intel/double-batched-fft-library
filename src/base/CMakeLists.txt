@@ -3,6 +3,7 @@
 
 include(GenerateExportHeader)
 include(CommonOptions)
+include(GitVersion)
 include(InstallLib)
 
 set(SOURCES_PRIVATE_TEST
@@ -62,9 +63,18 @@ target_include_directories(bbfft-base PUBLIC
 )
 target_include_directories(bbfft-base PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
                                               "${CMAKE_CURRENT_SOURCE_DIR}/../common")
+
+
+# Generate version header
+set(bbfft_version_header_in "${PROJECT_SOURCE_DIR}/include/bbfft/version.hpp.in")
+set(bbfft_version_header "${PROJECT_BINARY_DIR}/include/bbfft/version.hpp")
+git_version()
+configure_file(${bbfft_version_header_in} ${bbfft_version_header})
+
 target_sources(bbfft-base PUBLIC FILE_SET HEADERS
     BASE_DIRS ${PROJECT_SOURCE_DIR}/include
               ${PROJECT_BINARY_DIR}/include
     FILES ${PUBLIC_HEADERS}
-          "${bbfft_export_header}")
+          "${bbfft_export_header}"
+          "${bbfft_version_header}")
 install_lib(bbfft-base bbfft)

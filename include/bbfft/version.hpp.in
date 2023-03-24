@@ -1,0 +1,17 @@
+#ifndef VERSION_HPP_20230324_IN
+#define VERSION_HPP_20230324_IN
+
+namespace bbfft {
+
+// clang-format off
+constexpr int major_version = @GIT_MAJOR_VERSION@;
+constexpr int minor_version = @GIT_MINOR_VERSION@;
+constexpr int patch_version = @GIT_PATCH_VERSION@;
+constexpr int number_of_commits_since_release = @GIT_COMMITS_SINCE_RELEASE@;
+constexpr char const *git_commit = "@GIT_COMMIT@";
+constexpr char const *version = "v@GIT_MAJOR_VERSION@.@GIT_MINOR_VERSION@.@GIT_PATCH_VERSION@-@GIT_COMMITS_SINCE_RELEASE@-@GIT_COMMIT@";
+// clang-format on
+
+} // namespace bbfft
+
+#endif // VERSION_HPP_20230324_IN
