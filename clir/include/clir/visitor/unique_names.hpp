@@ -47,6 +47,7 @@ class CLIR_EXPORT unique_names {
     void operator()(internal::program &prg);
 
   private:
+    CLIR_NO_EXPORT void make_unique_name(var e);
     CLIR_NO_EXPORT void push_scope();
     CLIR_NO_EXPORT void pop_scope();
 

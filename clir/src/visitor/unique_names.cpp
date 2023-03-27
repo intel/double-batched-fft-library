@@ -19,12 +19,8 @@
 
 namespace clir {
 
-/* Expr nodes */
-void unique_names::operator()(internal::expr_node &) {}
-
-/* Stmt nodes */
-void unique_names::operator()(internal::declaration &d) {
-    internal::variable *v = dynamic_cast<internal::variable *>(d.variable().get());
+void unique_names::make_unique_name(var e) {
+    internal::variable *v = dynamic_cast<internal::variable *>(e.get());
     if (v == nullptr) {
         throw std::runtime_error("unique_names.declaration: Expected variable");
     }
@@ -43,7 +39,6 @@ void unique_names::operator()(internal::declaration &d) {
 
     auto name = std::string(v->name());
 
-    bool found = false;
     for (auto &name_counter : name_counters_) {
         auto nc = name_counter.find(name);
         if (nc != name_counter.end()) {
@@ -53,14 +48,18 @@ void unique_names::operator()(internal::declaration &d) {
                 new_name = name + std::to_string(nc->second);
             } while (name_counter.find(new_name) != name_counter.end());
             v->set_name(new_name);
-            found = true;
+            name = new_name;
             break;
         }
     }
-    if (!found) {
-        name_counters_.back()[name] = 0;
-    }
+    name_counters_.back()[name] = 0;
 }
+
+/* Expr nodes */
+void unique_names::operator()(internal::expr_node &) {}
+
+/* Stmt nodes */
+void unique_names::operator()(internal::declaration &d) { make_unique_name(d.variable()); }
 
 void unique_names::operator()(internal::declaration_assignment &d) { operator()(d.decl()); }
 
@@ -91,8 +90,17 @@ void unique_names::operator()(internal::if_selection &is) {
 }
 
 /* Kernel nodes */
-void unique_names::operator()(internal::prototype &) {}
-void unique_names::operator()(internal::function &fn) { visit(*this, *fn.body()); }
+void unique_names::operator()(internal::prototype &p) {
+    for (auto const &[t, v] : p.args()) {
+        make_unique_name(v);
+    }
+}
+void unique_names::operator()(internal::function &fn) {
+    push_scope();
+    visit(*this, *fn.prototype());
+    visit(*this, *fn.body());
+    pop_scope();
+}
 void unique_names::operator()(internal::global_declaration &d) { visit(*this, *d.term()); }
 
 /* Program nodes */
