@@ -49,39 +49,6 @@ namespace internal {
 class CLIR_EXPORT data_type_node;
 } // namespace internal
 
-template <typename T> struct to_builtin_type;
-template <> struct to_builtin_type<char> {
-    static constexpr builtin_type value = builtin_type::char_t;
-};
-template <> struct to_builtin_type<unsigned char> {
-    static constexpr builtin_type value = builtin_type::uchar_t;
-};
-template <> struct to_builtin_type<short> {
-    static constexpr builtin_type value = builtin_type::short_t;
-};
-template <> struct to_builtin_type<unsigned short> {
-    static constexpr builtin_type value = builtin_type::ushort_t;
-};
-template <> struct to_builtin_type<int> {
-    static constexpr builtin_type value = builtin_type::int_t;
-};
-template <> struct to_builtin_type<unsigned int> {
-    static constexpr builtin_type value = builtin_type::uint_t;
-};
-template <> struct to_builtin_type<long> {
-    static constexpr builtin_type value = builtin_type::long_t;
-};
-template <> struct to_builtin_type<unsigned long> {
-    static constexpr builtin_type value = builtin_type::ulong_t;
-};
-template <> struct to_builtin_type<float> {
-    static constexpr builtin_type value = builtin_type::float_t;
-};
-template <> struct to_builtin_type<double> {
-    static constexpr builtin_type value = builtin_type::double_t;
-};
-template <typename T> inline constexpr builtin_type to_builtin_type_v = to_builtin_type<T>::value;
-
 class CLIR_EXPORT data_type : public handle<internal::data_type_node> {
   public:
     using handle<internal::data_type_node>::handle;
