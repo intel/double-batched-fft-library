@@ -14,7 +14,7 @@ is sufficent to compile the library.
 
 Detailed list of dependencies:
 
-- CMake >= 2.23.0
+- CMake >= 3.23
 - C++ compiler with SYCL support
 - OpenCL library
 - Level Zero loader library
