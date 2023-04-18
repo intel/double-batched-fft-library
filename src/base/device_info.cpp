@@ -8,7 +8,7 @@
 
 namespace bbfft {
 
-std::size_t device_info::min_subgroup_size() {
+std::size_t device_info::min_subgroup_size() const {
     std::size_t sgs = 8;
     if (num_subgroup_sizes) {
         sgs = *std::min_element(subgroup_sizes.begin(),
@@ -18,7 +18,7 @@ std::size_t device_info::min_subgroup_size() {
     return sgs;
 }
 
-std::size_t device_info::max_subgroup_size() {
+std::size_t device_info::max_subgroup_size() const {
     std::size_t sgs = 8;
     if (num_subgroup_sizes) {
         sgs = *std::max_element(subgroup_sizes.begin(),
@@ -28,7 +28,7 @@ std::size_t device_info::max_subgroup_size() {
     return sgs;
 }
 
-std::size_t device_info::register_space() {
+std::size_t device_info::register_space() const {
     switch (type) {
     case device_type::cpu: {
         // Assume AVX512 for now
