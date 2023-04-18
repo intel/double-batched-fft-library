@@ -6,6 +6,8 @@
 
 #include <level_zero/ze_api.h>
 
+#include <cstdint>
+
 namespace bbfft::ze {
 
 class event_pool {

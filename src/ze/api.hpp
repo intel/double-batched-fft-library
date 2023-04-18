@@ -13,11 +13,11 @@
 #include "bbfft/ze/error.hpp"
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <level_zero/ze_api.h>
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 namespace bbfft::ze {

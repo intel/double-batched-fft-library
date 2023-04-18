@@ -3,6 +3,7 @@
 
 #include "clir/op.hpp"
 
+#include <array>
 #include <ostream>
 
 namespace clir {

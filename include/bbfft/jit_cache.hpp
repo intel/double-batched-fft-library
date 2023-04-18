@@ -7,6 +7,7 @@
 #include "bbfft/export.hpp"
 #include "bbfft/shared_handle.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <string>

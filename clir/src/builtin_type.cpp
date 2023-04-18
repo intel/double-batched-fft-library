@@ -3,6 +3,7 @@
 
 #include "clir/builtin_type.hpp"
 
+#include <cstddef>
 #include <ostream>
 #include <sstream>
 #include <type_traits>

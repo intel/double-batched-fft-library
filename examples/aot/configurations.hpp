@@ -4,9 +4,11 @@
 #ifndef CONFIGURATIONS_20230202_HPP
 #define CONFIGURATIONS_20230202_HPP
 
-#include "bbfft/configuration.hpp"
-
 #include <vector>
+
+namespace bbfft {
+struct configuration;
+}
 
 std::vector<bbfft::configuration> configurations();
 

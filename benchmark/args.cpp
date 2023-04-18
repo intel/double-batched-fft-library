@@ -4,7 +4,7 @@
 #include "args.hpp"
 #include "test.hpp"
 
-#include <iostream>
+#include <cstddef>
 #include <stdexcept>
 #include <string>
 

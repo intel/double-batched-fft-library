@@ -4,8 +4,6 @@
 #include "bbfft/jit_cache.hpp"
 
 #include <functional>
-#include <unordered_map>
-#include <utility>
 
 namespace bbfft {
 

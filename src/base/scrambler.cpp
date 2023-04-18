@@ -3,6 +3,8 @@
 
 #include "scrambler.hpp"
 
+#include <utility>
+
 namespace bbfft {
 
 scrambler::scrambler(std::vector<int> factorization) : factorization_(std::move(factorization)) {}

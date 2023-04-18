@@ -8,9 +8,11 @@
 #include <bbfft/generator.hpp>
 #include <bbfft/ze/online_compiler.hpp>
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 using namespace bbfft;

@@ -3,6 +3,8 @@
 
 #include "configurations.hpp"
 
+#include "bbfft/configuration.hpp"
+
 using namespace bbfft;
 
 std::vector<configuration> configurations() {

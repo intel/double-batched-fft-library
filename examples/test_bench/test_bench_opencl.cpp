@@ -4,6 +4,7 @@
 #include "test_bench_opencl.hpp"
 #include "bbfft/cl/error.hpp"
 #include "bbfft/cl/make_plan.hpp"
+#include "bbfft/configuration.hpp"
 
 test_bench_opencl::test_bench_opencl() {
     cl_uint num_platforms = 1;

@@ -1,5 +1,7 @@
 #include "bbfft/jit_cache_all.hpp"
 
+#include <utility>
+
 namespace bbfft {
 
 auto jit_cache_all::get(jit_cache_key const &key) const -> shared_handle<module_handle_t> {

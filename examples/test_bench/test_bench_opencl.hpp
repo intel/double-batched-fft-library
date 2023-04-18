@@ -4,10 +4,13 @@
 #ifndef TEST_BENCH_OPENCL_20221207_HPP
 #define TEST_BENCH_OPENCL_20221207_HPP
 
-#include "bbfft/configuration.hpp"
 #include "bbfft/plan.hpp"
 
 #include <CL/cl.h>
+
+namespace bbfft {
+struct configuration;
+}
 
 class test_bench_opencl {
   public:

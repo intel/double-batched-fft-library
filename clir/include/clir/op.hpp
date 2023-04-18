@@ -6,7 +6,6 @@
 
 #include "clir/export.hpp"
 
-#include <array>
 #include <iosfwd>
 
 namespace clir {

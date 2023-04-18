@@ -5,6 +5,8 @@
 
 #include "doctest/doctest.h"
 
+#include <cstddef>
+
 using namespace bbfft;
 
 TEST_CASE("tensor indexer") {

@@ -5,6 +5,7 @@
 #define ARGS_20220713_HPP
 
 #include <array>
+#include <cstddef>
 
 struct args {
     std::array<std::size_t, 3> N;

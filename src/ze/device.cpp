@@ -4,6 +4,10 @@
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
+
 namespace bbfft {
 
 auto get_device_info(ze_device_handle_t device) -> device_info {
