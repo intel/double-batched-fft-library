@@ -132,7 +132,7 @@ configuration parse_fft_descriptor(std::string_view desc) {
     int dim = 0;
     cfg.shape[dim++] = parse_number();
     while (it != desc.cend()) {
-        if (dim >= max_tensor_dim) {
+        if (dim >= static_cast<int>(max_tensor_dim)) {
             throw std::runtime_error(format_error("tensor dimension must not be larger than " +
                                                       std::to_string(max_tensor_dim),
                                                   false));
