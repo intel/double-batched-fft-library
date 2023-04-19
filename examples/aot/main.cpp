@@ -1,10 +1,10 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "aot_cache.hpp"
-
+#include "bbfft/aot_cache.hpp"
 #include "bbfft/configuration.hpp"
 #include "bbfft/sycl/make_plan.hpp"
+#include "bbfft/sycl/online_compiler.hpp"
 
 #include <CL/sycl.hpp>
 
@@ -28,7 +28,7 @@ template <typename F> auto bench(F &&f) {
 }
 
 int main(int argc, char **argv) {
-    auto q = sycl::queue{};
+    auto q = ::sycl::queue{};
 
     std::cout
         << "This example measures plan creation time with and without ahead-of-time compilation."
@@ -54,10 +54,15 @@ int main(int argc, char **argv) {
     print_result("no aot kernels", t1);
 
     auto start = high_resolution_clock::now();
-    auto cache = aot_cache(q);
+    auto cache = aot_cache{};
+    extern uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
+    cache.register_module(bbfft::sycl::create_aot_module(
+        &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
+        module_format::native, q.get_context(), q.get_device()));
     auto end = high_resolution_clock::now();
     duration<double> time = end - start;
     std::cout << "aot_cache initialization time: " << time.count() << std::endl;
+
     auto t2 = bench([&]() { make_plan(cfg, q, &cache); });
     print_result("aot kernels", t2);
 

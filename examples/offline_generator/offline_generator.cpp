@@ -12,7 +12,7 @@ using namespace bbfft;
 int main() {
     configuration cfg = {
         2, {1, 4, 6, 1024}, precision::f32, direction::backward, transform_type::r2c};
-    device_info info = {1024, {16, 32}, 2, 128 * 1024};
+    device_info info = {1024, {16, 32}, 128 * 1024};
 
     generate_fft_kernels(std::cout, {cfg}, info);
 

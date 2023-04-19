@@ -64,4 +64,37 @@ cl_kernel create_kernel(cl_program prog, std::string const &name) {
     return k;
 }
 
+aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, module_format format,
+                             cl_context context, cl_device_id device) {
+
+    aot_module mod;
+    auto native_module = build_kernel_bundle(binary, binary_size, format, context, device);
+    mod.module =
+        shared_handle<module_handle_t>(cast<module_handle_t>(native_module), [](module_handle_t m) {
+            clReleaseProgram(cast<cl_program>(m));
+        });
+    size_t count = 0;
+    CL_CHECK(clGetProgramInfo(native_module, CL_PROGRAM_KERNEL_NAMES, 0, nullptr, &count));
+    auto names = std::vector<char>(count);
+    CL_CHECK(clGetProgramInfo(native_module, CL_PROGRAM_KERNEL_NAMES, count, names.data(), &count));
+    if (names.size() > 0) {
+        char *begin = names.data();
+        char *end = begin;
+        // exclude terminating null char in names_end
+        char *names_end = names.data() + names.size() - 1;
+        for (; end != names_end; ++end) {
+            if (*end == ';') {
+                if (end - begin > 0) {
+                    mod.kernel_names.insert(std::string(begin, end));
+                }
+                begin = end + 1;
+            }
+        }
+        if (end - begin > 0) {
+            mod.kernel_names.insert(std::string(begin, end));
+        }
+    }
+    return mod;
+}
+
 } // namespace bbfft::cl

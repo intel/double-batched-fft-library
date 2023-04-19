@@ -30,7 +30,8 @@ using namespace clir;
 
 namespace bbfft {
 
-factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg, device_info info) {
+factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
+                                                    device_info const &info) {
     std::size_t N = cfg.shape[1];
     std::size_t N_slm = N;
     bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;

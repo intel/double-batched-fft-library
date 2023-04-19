@@ -4,6 +4,7 @@
 #ifndef ZE_ONLINE_COMPILER_20221129_HPP
 #define ZE_ONLINE_COMPILER_20221129_HPP
 
+#include "bbfft/aot_cache.hpp"
 #include "bbfft/export.hpp"
 #include "bbfft/module_format.hpp"
 
@@ -74,6 +75,21 @@ BBFFT_EXPORT std::vector<uint8_t> compile_to_spirv(std::string const &source);
  */
 BBFFT_EXPORT std::vector<uint8_t> compile_to_native(std::string const &source,
                                                     std::string const &device_type);
+
+/**
+ * @brief Build module for ahead-of-time kernel cache (aot_cache)
+ *
+ * @param binary Pointer to native device binary blob
+ * @param binary_size Size of native device binary blob
+ * @param format Binary format
+ * @param context Level Zero context
+ * @param device Level Zero device
+ *
+ * @return ahead-of-time module
+ */
+BBFFT_EXPORT aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size,
+                                          module_format format, ze_context_handle_t context,
+                                          ze_device_handle_t device);
 
 } // namespace bbfft::ze
 

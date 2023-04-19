@@ -48,7 +48,7 @@ struct BBFFT_EXPORT small_batch_configuration {
  * @return small_batch_configuration
  */
 BBFFT_EXPORT small_batch_configuration configure_small_batch_fft(configuration const &cfg,
-                                                                 device_info info);
+                                                                 device_info const &info);
 /**
  * @brief Generate OpenCL C code for small batch FFT algorithm
  *
@@ -93,7 +93,7 @@ struct BBFFT_EXPORT factor2_slm_configuration {
  * @return factor2_slm_configuration
  */
 BBFFT_EXPORT factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
-                                                                 device_info info);
+                                                                 device_info const &info);
 /**
  * @brief Generate OpenCL C code for two factor FFT algorithm
  *

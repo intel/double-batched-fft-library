@@ -4,7 +4,6 @@
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
 
@@ -21,9 +20,8 @@ auto get_device_info(ze_device_handle_t device) -> device_info {
 
     info.max_work_group_size = p2.maxTotalGroupSize;
 
-    info.num_subgroup_sizes =
-        std::min(std::size_t(p2.numSubGroupSizes), info.subgroup_sizes.size());
-    for (uint32_t i = 0; i < info.num_subgroup_sizes; ++i) {
+    info.subgroup_sizes.resize(p2.numSubGroupSizes);
+    for (uint32_t i = 0; i < p2.numSubGroupSizes; ++i) {
         info.subgroup_sizes[i] = p2.subGroupSizes[i];
     }
 

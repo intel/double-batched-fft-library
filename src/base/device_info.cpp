@@ -4,26 +4,23 @@
 #include "bbfft/device_info.hpp"
 
 #include <algorithm>
+#include <ostream>
 #include <stdexcept>
 
 namespace bbfft {
 
 std::size_t device_info::min_subgroup_size() const {
     std::size_t sgs = 8;
-    if (num_subgroup_sizes) {
-        sgs = *std::min_element(subgroup_sizes.begin(),
-                                subgroup_sizes.begin() +
-                                    std::min(num_subgroup_sizes, subgroup_sizes.size()));
+    if (!subgroup_sizes.empty()) {
+        sgs = *std::min_element(subgroup_sizes.cbegin(), subgroup_sizes.cend());
     }
     return sgs;
 }
 
 std::size_t device_info::max_subgroup_size() const {
     std::size_t sgs = 8;
-    if (num_subgroup_sizes) {
-        sgs = *std::max_element(subgroup_sizes.begin(),
-                                subgroup_sizes.begin() +
-                                    std::min(num_subgroup_sizes, subgroup_sizes.size()));
+    if (!subgroup_sizes.empty()) {
+        sgs = *std::max_element(subgroup_sizes.cbegin(), subgroup_sizes.cend());
     }
     return sgs;
 }
@@ -50,6 +47,32 @@ std::size_t device_info::register_space() const {
         throw std::runtime_error("register_space unknown for custom device");
     }
     return 0;
+}
+
+std::ostream &operator<<(std::ostream &os, device_type type) {
+    switch (type) {
+    case device_type::gpu:
+        os << "gpu";
+        break;
+    case device_type::cpu:
+        os << "cpu";
+        break;
+    default:
+        os << "custom";
+        break;
+    }
+    return os;
+}
+std::ostream &operator<<(std::ostream &os, device_info const &info) {
+    os << "{" << info.max_work_group_size << ", {";
+    if (!info.subgroup_sizes.empty()) {
+        auto it = info.subgroup_sizes.cbegin();
+        os << *it++;
+        for (; it < info.subgroup_sizes.cend(); ++it) {
+            os << ", " << *it;
+        }
+    }
+    return os << "}, " << info.local_memory_size << ", " << info.type << "}";
 }
 
 } // namespace bbfft

@@ -32,7 +32,8 @@ using namespace clir;
 
 namespace bbfft {
 
-small_batch_configuration configure_small_batch_fft(configuration const &cfg, device_info info) {
+small_batch_configuration configure_small_batch_fft(configuration const &cfg,
+                                                    device_info const &info) {
     auto M = cfg.shape[0];
     std::size_t N = cfg.shape[1];
     std::size_t N_slm = N;
@@ -46,8 +47,7 @@ small_batch_configuration configure_small_batch_fft(configuration const &cfg, de
     std::size_t sgs = info.min_subgroup_size();
     if (M == 1) {
         auto register_space = info.register_space();
-        for (std::size_t i = 0; i < info.num_subgroup_sizes; ++i) {
-            auto sgs_i = info.subgroup_sizes[i];
+        for (auto sgs_i : info.subgroup_sizes) {
             auto required_register_space = 2 * sizeof_real * N * sgs_i;
             if (sgs < sgs_i && required_register_space < register_space / 2) {
                 sgs = sgs_i;

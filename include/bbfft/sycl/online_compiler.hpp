@@ -4,6 +4,7 @@
 #ifndef SYCL_ONLINE_COMPILER_20230203_HPP
 #define SYCL_ONLINE_COMPILER_20230203_HPP
 
+#include "bbfft/aot_cache.hpp"
 #include "bbfft/export.hpp"
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/module_format.hpp"
@@ -76,6 +77,21 @@ BBFFT_EXPORT auto make_kernel_bundle(module_handle_t native_module, bool keep_ow
  */
 BBFFT_EXPORT auto create_kernel(::sycl::kernel_bundle<::sycl::bundle_state::executable> bundle,
                                 std::string const &name) -> ::sycl::kernel;
+
+/**
+ * @brief Build module for ahead-of-time kernel cache (aot_cache)
+ *
+ * @param binary Pointer to native device binary blob
+ * @param binary_size Size of native device binary blob
+ * @param format Binary format
+ * @param context context
+ * @param device device
+ *
+ * @return ahead-of-time module
+ */
+BBFFT_EXPORT aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size,
+                                          module_format format, ::sycl::context context,
+                                          ::sycl::device device);
 
 } // namespace bbfft::sycl
 

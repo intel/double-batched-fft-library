@@ -48,6 +48,7 @@ if(BUILD_DOCUMENTATION)
 endif()
 add_subdirectory(src)
 add_subdirectory(clir)
+add_subdirectory(tools)
 
 enable_testing()
 if(BUILD_TESTING)

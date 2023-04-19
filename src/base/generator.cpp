@@ -13,9 +13,10 @@
 
 namespace bbfft {
 
-std::vector<std::string>
-generate_fft_kernels(std::ostream &os, std::vector<configuration> const &cfgs, device_info info) {
-    auto api = dummy_api(std::move(info), &os);
+std::vector<std::string> generate_fft_kernels(std::ostream &os,
+                                              std::vector<configuration> const &cfgs,
+                                              device_info const &info) {
+    auto api = dummy_api(info, &os);
     jit_cache_all cache;
     for (auto const &cfg : cfgs) {
         select_fft_algorithm(cfg, api, &cache);

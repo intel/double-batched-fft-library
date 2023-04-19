@@ -11,6 +11,7 @@ set(SOURCES_PRIVATE_TEST
 )
 
 set(SOURCES
+    aot_cache.cpp
     bad_configuration.cpp
     configuration.cpp
     device_info.cpp
@@ -19,6 +20,7 @@ set(SOURCES
     jit_cache_all.cpp
     math.cpp
     mixed_radix_fft.cpp
+    parser.cpp
     prime_factorization.cpp
     root_of_unity.cpp
     user_module.cpp
@@ -27,6 +29,7 @@ set(SOURCES
     generator/utility.cpp
 )
 set(PUBLIC_HEADERS
+    aot_cache.hpp
     bad_configuration.hpp
     device_info.hpp
     configuration.hpp
@@ -34,6 +37,7 @@ set(PUBLIC_HEADERS
     jit_cache_all.hpp
     generator.hpp
     module_format.hpp
+    parser.hpp
     plan.hpp
     tensor_indexer.hpp
     shared_handle.hpp

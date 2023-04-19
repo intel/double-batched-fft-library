@@ -4,6 +4,7 @@
 #ifndef CL_ONLINE_COMPILER_20221206_HPP
 #define CL_ONLINE_COMPILER_20221206_HPP
 
+#include "bbfft/aot_cache.hpp"
 #include "bbfft/export.hpp"
 #include "bbfft/module_format.hpp"
 
@@ -49,6 +50,21 @@ BBFFT_EXPORT cl_program build_kernel_bundle(uint8_t const *binary, std::size_t b
  * @return OpenCL kernel
  */
 BBFFT_EXPORT cl_kernel create_kernel(cl_program prog, std::string const &name);
+
+/**
+ * @brief Build module for ahead-of-time kernel cache (aot_cache)
+ *
+ * @param binary Pointer to native device binary blob
+ * @param binary_size Size of native device binary blob
+ * @param format Binary format
+ * @param context OpenCL context
+ * @param device OpenCL device
+ *
+ * @return ahead-of-time module
+ */
+BBFFT_EXPORT aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size,
+                                          module_format format, cl_context context,
+                                          cl_device_id device);
 
 } // namespace bbfft::cl
 

@@ -5,6 +5,7 @@
 #include "bbfft/cl/error.hpp"
 
 #include <CL/cl_ext.h>
+#include <type_traits>
 
 namespace bbfft {
 
@@ -13,9 +14,13 @@ auto get_device_info(cl_device_id device) -> device_info {
     CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE,
                              sizeof(info.max_work_group_size), &info.max_work_group_size, nullptr));
 
-    CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_SUB_GROUP_SIZES_INTEL, sizeof(info.subgroup_sizes),
-                             info.subgroup_sizes.data(), &info.num_subgroup_sizes));
-    info.num_subgroup_sizes /= sizeof(info.subgroup_sizes[0]);
+    static_assert(std::is_same_v<decltype(info.subgroup_sizes)::value_type, std::size_t>);
+    std::size_t subgroup_sizes_bytes = 0;
+    CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_SUB_GROUP_SIZES_INTEL, 0, nullptr,
+                             &subgroup_sizes_bytes));
+    info.subgroup_sizes.resize(subgroup_sizes_bytes / sizeof(std::size_t));
+    CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_SUB_GROUP_SIZES_INTEL, subgroup_sizes_bytes,
+                             info.subgroup_sizes.data(), &subgroup_sizes_bytes));
 
     cl_ulong local_mem_size;
     CL_CHECK(clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(local_mem_size),

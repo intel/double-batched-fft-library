@@ -1,6 +1,7 @@
 #ifndef BUILD_WRAPPER_20230206_HPP
 #define BUILD_WRAPPER_20230206_HPP
 
+#include "bbfft/aot_cache.hpp"
 #include "bbfft/cl/error.hpp"
 #include "bbfft/cl/online_compiler.hpp"
 #include "bbfft/jit_cache.hpp"
@@ -32,6 +33,9 @@ template <> struct build_wrapper<::sycl::backend::ext_oneapi_level_zero> {
     template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
         return cast<module_handle_t>(
             ze::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
+    }
+    template <typename... Args> auto create_aot_module(Args &&...args) -> aot_module {
+        return ze::create_aot_module(std::forward<Args>(args)..., native_context, native_device);
     }
     static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
         return shared_handle<module_handle_t>(
@@ -70,6 +74,9 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
     template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
         return cast<module_handle_t>(
             cl::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
+    }
+    template <typename... Args> auto create_aot_module(Args &&...args) -> aot_module {
+        return cl::create_aot_module(std::forward<Args>(args)..., native_context, native_device);
     }
     static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
         return shared_handle<module_handle_t>(

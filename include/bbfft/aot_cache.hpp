@@ -1,41 +1,44 @@
 // Copyright (C) 2023 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef JIT_CACHE_ALL_20230202_HPP
-#define JIT_CACHE_ALL_20230202_HPP
+#ifndef AOT_CACHE_20230202_HPP
+#define AOT_CACHE_20230202_HPP
 
 #include "bbfft/export.hpp"
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
 
 #include <string>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace bbfft {
 
-/**
- * @brief Cache that stores all kernels
- */
-class BBFFT_EXPORT jit_cache_all : public jit_cache {
+struct BBFFT_EXPORT aot_module {
+    shared_handle<module_handle_t> module;
+    std::unordered_set<std::string> kernel_names;
+};
+
+class BBFFT_EXPORT aot_cache : public jit_cache {
   public:
     /**
      * @copydoc jit_cache::get
      */
     auto get(jit_cache_key const &key) const -> shared_handle<module_handle_t> override;
     /**
-     * @copydoc cache::store
+     * @copydoc jit_cache::store
      */
     void store(jit_cache_key const &key, shared_handle<module_handle_t> module) override;
+
     /**
-     * @brief Get all kernel names stored in this cache
+     * @brief register module with this cache
      */
-    auto kernel_names() const -> std::vector<std::string>;
+    void register_module(aot_module mod);
 
   private:
-    std::unordered_map<jit_cache_key, shared_handle<module_handle_t>, jit_cache_key_hash> mods_;
+    std::vector<aot_module> modules_;
 };
 
 } // namespace bbfft
 
-#endif // JIT_CACHE_ALL_20230202_HPP
+#endif // AOT_CACHE_20230202_HPP

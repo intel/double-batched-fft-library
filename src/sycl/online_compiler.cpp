@@ -84,4 +84,14 @@ auto create_kernel(kernel_bundle<bundle_state::executable> bundle, std::string c
     return dispatch(bundle.get_backend(), f, supported_backends{});
 }
 
+aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, module_format format,
+                             context c, device d) {
+
+    auto const f = [&](auto b) {
+        return build_wrapper<decltype(b)::value>(c, d).create_aot_module(binary, binary_size,
+                                                                         format);
+    };
+    return dispatch(c.get_backend(), f, supported_backends{});
+}
+
 } // namespace bbfft::sycl

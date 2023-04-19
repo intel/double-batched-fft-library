@@ -23,8 +23,9 @@ namespace bbfft {
  *
  * @return kernel names
  */
-BBFFT_EXPORT std::vector<std::string>
-generate_fft_kernels(std::ostream &os, std::vector<configuration> const &cfgs, device_info info);
+BBFFT_EXPORT std::vector<std::string> generate_fft_kernels(std::ostream &os,
+                                                           std::vector<configuration> const &cfgs,
+                                                           device_info const &info);
 
 } // namespace bbfft
 
