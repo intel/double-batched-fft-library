@@ -20,6 +20,10 @@ add_executable(test-codegen codegen.cpp)
 target_link_libraries(test-codegen PRIVATE test-lib clir::clir bbfft-private-test bbfft-base)
 doctest_discover_tests(test-codegen)
 
+add_executable(test-parser parser.cpp)
+target_link_libraries(test-parser PRIVATE test-lib bbfft-base)
+doctest_discover_tests(test-parser)
+
 add_executable(test-tensor tensor.cpp)
 target_link_libraries(test-tensor PRIVATE test-lib bbfft-base)
 doctest_discover_tests(test-tensor)

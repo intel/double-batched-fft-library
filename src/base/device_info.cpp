@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <ostream>
+#include <sstream>
 #include <stdexcept>
 
 namespace bbfft {
@@ -48,6 +49,18 @@ std::size_t device_info::register_space() const {
     }
     return 0;
 }
+
+std::string device_info::to_string() const {
+    std::ostringstream oss;
+    oss << *this;
+    return oss.str();
+}
+bool device_info::operator==(device_info const &other) const {
+    return max_work_group_size == other.max_work_group_size &&
+           subgroup_sizes == other.subgroup_sizes && local_memory_size == other.local_memory_size &&
+           type == other.type;
+}
+bool device_info::operator!=(device_info const &other) const { return !(*this == other); }
 
 std::ostream &operator<<(std::ostream &os, device_type type) {
     switch (type) {

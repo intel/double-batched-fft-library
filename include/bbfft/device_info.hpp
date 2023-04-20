@@ -26,6 +26,9 @@ struct BBFFT_EXPORT device_info {
     std::size_t min_subgroup_size() const; ///< Minimum subgroup size
     std::size_t max_subgroup_size() const; ///< Maximum subgroup size
     std::size_t register_space() const;    ///< Size of register file in bytes
+    std::string to_string() const;         ///< convert device info to string
+    bool operator==(device_info const &other) const;
+    bool operator!=(device_info const &other) const;
 };
 
 BBFFT_EXPORT std::ostream &operator<<(std::ostream &os, device_type type);
