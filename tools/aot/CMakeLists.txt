@@ -3,10 +3,10 @@
 
 include(GNUInstallDirs)
 
-add_executable(bbfft-aot-generate main.cpp args.cpp info.cpp)
+add_executable(bbfft-aot-generate main.cpp args.cpp)
 add_executable(bbfft::bbfft-aot-generate ALIAS bbfft-aot-generate)
 target_compile_features(bbfft-aot-generate PRIVATE cxx_std_17)
-target_link_libraries(bbfft-aot-generate PRIVATE bbfft-base bbfft-level-zero)
+target_link_libraries(bbfft-aot-generate PRIVATE bbfft-base bbfft-level-zero tools-common)
 
 set(CONFIG_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/bbfft-aot-generate)
 
