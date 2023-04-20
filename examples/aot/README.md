@@ -4,56 +4,45 @@ In this example we show how to compile FFT kernels ahead-of-time (AOT).
 AOT compilation is useful if the plan creation overhead becomes significant and 
 the set of required FFT plans is known at compile-time.
 
-We need a three-step compilation process: First, we compile a generator that uses
-the double batched FFT library to generate the FFT kernels (that is, OpenCL source code) and
-compiles the source code to the native device binary.
-In the second step, the linker is used to create an object from the native device binary.
-The third step is to compile the main example where we link the object that included the native binary
-that we generated in the second step.
+We need a two-step process:
+First, we compile FFT kernels to a native device binary using the `bbfft-aot-generate` tool
+and use the GNU linker embed the native device binary in the application.
+The second step is to create `aot_cache` in the application to lookup native device code
+during plan creation.
 
-## 1. Generator (generate.cpp)
+## 1. Native device binary generation and linking
 
-The source code for the FFT kernels is generated using `generate_fft_kernels` from `bbfft/generator.hpp`:
+We generate the native device binary for selected FFT configurations using
+the `bbfft-aot-generate` tool that comes with the Double-Batched FFT Library.
+For example, in order to create kernels for a complex-to-complex FFT in single precision with
+N=16,32 and a batch size of 1000 on Ponte Vecchio use
 
-```c++
-    std::ostringstream oss;
-    device_info info = {1024, {16, 32}, 2, 128 * 1024};
-    auto kernel_names = generate_fft_kernels(oss, configurations(), info);
+```bash
+bbfft-aot-generate -d pvc kernels.bin scfi16*1000 scfi32*1000
 ```
 
-The source code for the configurations given by `configuration()` is written to a stringstream.
-The code is specialized for a device with properties given by `device_info`.
-(Refer to the API documentation for the meaning of the numbers in `device_info`.)
-
-`generate_fft_kernels` returns a list of kernel names.
-We generate a cpp file that contains that list in the global variable
-```c++
-std::unordered_set<std::string> aot_compiled_kernels;
+Then the GNU linker is used to embed the native device binary in your application:
+```bash
+ld -r -b binary -o kernels.o kernels.bin
 ```
-
-Finally, the source code is compiled for "pvc" and the binary is saved in `kernel_file`.
-```c++
-    auto bin = ze::compile_to_native(oss.str(), "pvc");
-    kernel_file.write(reinterpret_cast<char *>(bin.data()), bin.size());
-```
-
-## 2. Object file creation (CMakeLists.txt)
-
-We create an object file from the native binary by adding a custom command in our `CMakeLists.txt`:
+Linking `kernels.o` makes the symbols `_binary_kernels_bin_start` and `_binary_kernels_bin_end` available
+that point to the native device binary.
+ 
+CMake users can use the following workflow to automatise the above steps, e.g. for all real-to-complex
+power of two FFTs until N=1024:
 
 ```cmake
-add_custom_command(
-    ...
-    COMMAND aot-generate ${BIN_FILE} ${NAMES_FILE}    
-    COMMAND ${CMAKE_LINKER} -r -b binary -o ${OBJ_FILE} ${BIN_FILE}
-    ...
-)
+find_package(bbfft-aot-generate REQUIRED)
+
+set(N 2 4 8 16 32 64 128 256 512 1024)
+foreach(n IN LISTS N)
+    list(APPEND descriptor_list "srfi${n}*16384")
+endforeach()
+
+add_aot_kernels_to_target(TARGET <your-cmake-target> PREFIX kernels DEVICE pvc LIST ${descriptor_list})
 ```
 
-The first command calls our generator (generate.cpp).
-In the second command, we link the binary blob created by the generator into an object file using the binary input format (`-b binary`).
-
-## 3. Main example
+## 2. Lookup native device code during plan creation
 
 If everything worked, we find the object file `kernels.o` in the build folder.
 The file looks something like the following:
@@ -68,30 +57,27 @@ $ nm -a build/examples/aot/kernels.o
 
 Here, we have the symbols `_binary_kernels_bin_start` and `_binary_kernels_bin_end` that indicate the
 start and end of the ahead-of-time compiled binary blob.
-We create the class `aot_cache` that derives from `jit_cache`.
-The constructor of `aot_cache` loads the binary blob and stores it in either a `cl_program` or a
-`ze_module_handle_t`, depending on the back-end selected in the SYCL queue.
-
+With these symbols we create an `aot_module` that we register with the `aot_cache`
 ```c++
-aot_cache::aot_cache(::sycl::queue q) {
-    extern const uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
-
-    auto handle = bbfft::sycl::build_native_module(
+auto q = sycl::queue{};
+auto cache = bbfft::aot_cache{};
+try {
+    extern std::uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
+    cache.register_module(bbfft::sycl::create_aot_module(
         &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
-        q.get_context(), q.get_device());
-    module_ = bbfft::sycl::make_shared_handle(handle, q.get_backend());
+        bbfft::module_format::native, q.get_context(), q.get_device()));
+} catch (std::exception const &e) {
+    // handle exception
 }
 ```
+Here, we employ the symbols of the object file to direct `create_aot_module` to the binary blob.
+We have wrapped `create_aot_module` in a `try ... catch` block as it might fail, for example if
+the application is run on a device requiring a different native device binary.
+In that case, the `aot_module` is not registered with the `aot_cache` and we fall back to
+just-in-time compilation.
 
-Here, we employ the symbols of the object file to direct `build_native_module` to the binary blob.
-The last ingredient we need is a get function that returns the native 1module in the case that the FFT kernel
-was compiled ahead-of-time.
-
+During plan creation you need to pass the cache as argument such that plan creation benefits from
+ahead-of-time compilation:
 ```c++
-auto aot_cache::get(jit_cache_key const &key) const -> shared_handle<module_handle_t> {
-    if (auto it = aot_compiled_kernels.find(key.kernel_name); it != aot_compiled_kernels.end()) {
-        return module_;
-    }
-    return {};
-}
+auto plan = bbfft::make_plan(cfg, q, &cache);
 ```
