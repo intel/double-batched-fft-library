@@ -9,6 +9,7 @@
 #include <CL/sycl.hpp>
 
 #include <chrono>
+#include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
     auto start = high_resolution_clock::now();
     auto cache = aot_cache{};
     try {
-        extern uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
+        extern std::uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
         cache.register_module(bbfft::sycl::create_aot_module(
             &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
             module_format::native, q.get_context(), q.get_device()));
