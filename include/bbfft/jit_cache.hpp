@@ -14,8 +14,8 @@
 
 namespace bbfft {
 
-using device_handle_t = uintptr_t;
-using module_handle_t = uintptr_t;
+using device_handle_t = std::uintptr_t;
+using module_handle_t = std::uintptr_t;
 
 template <class To, class From> To cast(From v);
 template <class To, class From> To cast(From v) {
@@ -28,8 +28,8 @@ template <class To, class From> To cast(From v) {
  * @brief Unique identifier for fft kernel
  */
 struct BBFFT_EXPORT jit_cache_key {
-    std::string kernel_name = {};                              ///< Name of the OpenCL kernel
-    uint64_t device_id = std::numeric_limits<uint64_t>::max(); ///< Unique device id
+    std::string kernel_name = {}; ///< Name of the OpenCL kernel
+    std::uint64_t device_id = std::numeric_limits<std::uint64_t>::max(); ///< Unique device id
 
     bool operator==(jit_cache_key const &other) const;
 };

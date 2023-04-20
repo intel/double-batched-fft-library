@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/ze/online_compiler.hpp"
+#include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
 
 #include "ocloc_api.h"
@@ -159,6 +160,7 @@ aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, mod
     for (auto &name : names) {
         mod.kernel_names.insert(name);
     }
+    mod.device_id = get_device_id(device);
     return mod;
 }
 

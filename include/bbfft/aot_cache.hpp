@@ -17,6 +17,7 @@ namespace bbfft {
 struct BBFFT_EXPORT aot_module {
     shared_handle<module_handle_t> module;
     std::unordered_set<std::string> kernel_names;
+    std::uint64_t device_id;
 };
 
 class BBFFT_EXPORT aot_cache : public jit_cache {

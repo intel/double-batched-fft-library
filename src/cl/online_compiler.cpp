@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/cl/online_compiler.hpp"
+#include "bbfft/cl/device.hpp"
 #include "bbfft/cl/error.hpp"
 
 #include <cstdio>
@@ -94,6 +95,7 @@ aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, mod
             mod.kernel_names.insert(std::string(begin, end));
         }
     }
+    mod.device_id = get_device_id(device);
     return mod;
 }
 

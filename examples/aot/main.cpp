@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 
 using namespace std::chrono;
@@ -55,10 +56,15 @@ int main(int argc, char **argv) {
 
     auto start = high_resolution_clock::now();
     auto cache = aot_cache{};
-    extern uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
-    cache.register_module(bbfft::sycl::create_aot_module(
-        &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
-        module_format::native, q.get_context(), q.get_device()));
+    try {
+        extern uint8_t _binary_kernels_bin_start, _binary_kernels_bin_end;
+        cache.register_module(bbfft::sycl::create_aot_module(
+            &_binary_kernels_bin_start, &_binary_kernels_bin_end - &_binary_kernels_bin_start,
+            module_format::native, q.get_context(), q.get_device()));
+    } catch (std::exception const &e) {
+        std::cerr << "Could not load ahead-of-time compiled FFT kernels:" << std::endl
+                  << e.what() << std::endl;
+    }
     auto end = high_resolution_clock::now();
     duration<double> time = end - start;
     std::cout << "aot_cache initialization time: " << time.count() << std::endl;
