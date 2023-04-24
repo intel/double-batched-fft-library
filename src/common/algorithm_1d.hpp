@@ -21,7 +21,7 @@ std::shared_ptr<detail::plan_impl<typename Api::event_type>>
 select_1d_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache) {
     auto info = api.info();
     int sgs = info.min_subgroup_size();
-    auto reg_space = info.register_space();
+    auto reg_space = info.register_space_max();
     std::size_t N = cfg.shape[1];
     auto required_reg_space_for_small_batch = 2 * static_cast<int>(cfg.fp) * N * sgs;
 

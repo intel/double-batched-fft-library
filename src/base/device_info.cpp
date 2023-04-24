@@ -26,7 +26,7 @@ std::size_t device_info::max_subgroup_size() const {
     return sgs;
 }
 
-std::size_t device_info::register_space() const {
+std::size_t device_info::register_space_min() const {
     switch (type) {
     case device_type::cpu: {
         // Assume AVX512 for now
@@ -36,7 +36,7 @@ std::size_t device_info::register_space() const {
     }
     case device_type::gpu: {
         constexpr std::size_t bytes_per_reg = 32u; // Number of bytes per register
-        constexpr std::size_t num_regs = 256u;     // Number of registers (with large GRF)
+        const std::size_t num_regs = 128u;         // Number of registers
 
         std::size_t sgs = min_subgroup_size();
         std::size_t scale_bytes_per_reg =
@@ -48,6 +48,14 @@ std::size_t device_info::register_space() const {
         throw std::runtime_error("register_space unknown for custom device");
     }
     return 0;
+}
+
+std::size_t device_info::register_space_max() const {
+    if (type == device_type::gpu) {
+        // Doubled registers per thread in large GRF mode
+        return 2u * register_space_min();
+    }
+    return register_space_min();
 }
 
 std::string device_info::to_string() const {

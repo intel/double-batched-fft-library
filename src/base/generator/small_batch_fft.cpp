@@ -46,7 +46,7 @@ small_batch_configuration configure_small_batch_fft(configuration const &cfg,
 
     std::size_t sgs = info.min_subgroup_size();
     if (M == 1) {
-        auto register_space = info.register_space();
+        auto register_space = info.register_space_max();
         for (auto sgs_i : info.subgroup_sizes) {
             auto required_register_space = 2 * sizeof_real * N * sgs_i;
             if (sgs < sgs_i && required_register_space < register_space / 2) {

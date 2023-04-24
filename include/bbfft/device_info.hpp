@@ -23,10 +23,11 @@ struct BBFFT_EXPORT device_info {
     std::size_t local_memory_size = 0;       ///< size of shared local memory
     device_type type = device_type::gpu;     ///< device type
 
-    std::size_t min_subgroup_size() const; ///< Minimum subgroup size
-    std::size_t max_subgroup_size() const; ///< Maximum subgroup size
-    std::size_t register_space() const;    ///< Size of register file in bytes
-    std::string to_string() const;         ///< convert device info to string
+    std::size_t min_subgroup_size() const;  ///< Minimum subgroup size
+    std::size_t max_subgroup_size() const;  ///< Maximum subgroup size
+    std::size_t register_space_min() const; ///< Min size of register file in bytes
+    std::size_t register_space_max() const; ///< Max size of register file in bytes
+    std::string to_string() const;          ///< convert device info to string
     bool operator==(device_info const &other) const;
     bool operator!=(device_info const &other) const;
 };
