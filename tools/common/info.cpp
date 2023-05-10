@@ -5,5 +5,5 @@
 
 using namespace bbfft;
 
-const auto builtin_device_info = std::unordered_map<std::string, device_info>{
+const std::unordered_map<std::string, device_info> builtin_device_info = {
     {"pvc", {1024, {16, 32}, 128 * 1024, device_type::gpu}}};

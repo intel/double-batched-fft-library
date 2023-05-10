@@ -62,7 +62,7 @@ target_include_directories(clir PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
 target_compile_features(clir PRIVATE cxx_std_17)
-target_compile_options(clir PRIVATE -Wall -Wextra -Wpedantic)
+add_common_flags(clir)
 set(clir_export_header "${CMAKE_CURRENT_BINARY_DIR}/include/clir/export.hpp")
 generate_export_header(clir EXPORT_FILE_NAME "${clir_export_header}")
 target_compile_definitions(clir PUBLIC

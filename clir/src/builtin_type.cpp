@@ -27,7 +27,7 @@ void to_string_helper(std::ostream &os, function_qualifier q, char sep) {
         ut i2 = 1 << i;
         if (ut(q) & i2) {
             os << function_qualifier_strings[i];
-            ut i3 = (~0) << (i + 1);
+            ut i3 = (~0u) << (i + 1);
             if (ut(q) & i3) {
                 os << sep;
             }
