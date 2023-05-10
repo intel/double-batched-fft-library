@@ -9,7 +9,10 @@ namespace bbfft {
 /**
  * @brief Binary module format
  */
-enum class module_format { spirv, native };
+enum class module_format {
+    spirv, ///< SPIR-V
+    native ///< Native device binary
+};
 
 } // namespace bbfft
 

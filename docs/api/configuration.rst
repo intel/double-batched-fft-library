@@ -5,6 +5,9 @@
 Configuration
 =============
 
+A "configuration" specifies FFT parameters, such as precision, shape, batch size, transform mode, etc.
+In the double-batched FFT library, all parameters are collected in the :cpp:class:`bbfft::configuration` struct.
+
 Main configuration
 ==================
 
@@ -53,6 +56,8 @@ Transform type
 --------------
 
 .. doxygenenum:: bbfft::transform_type
+
+.. doxygenfunction:: bbfft::to_string(transform_type)
 
 
 Stride computation
