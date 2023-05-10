@@ -15,7 +15,7 @@
 namespace bbfft {
 
 struct BBFFT_EXPORT aot_module {
-    shared_handle<module_handle_t> module;
+    shared_handle<module_handle_t> mod;
     std::unordered_set<std::string> kernel_names;
     std::uint64_t device_id;
 };
@@ -29,15 +29,15 @@ class BBFFT_EXPORT aot_cache : public jit_cache {
     /**
      * @copydoc jit_cache::store
      */
-    void store(jit_cache_key const &key, shared_handle<module_handle_t> module) override;
+    void store(jit_cache_key const &key, shared_handle<module_handle_t> mod) override;
 
     /**
      * @brief register module with this cache
      */
-    void register_module(aot_module mod);
+    void register_module(aot_module aot_mod);
 
   private:
-    std::vector<aot_module> modules_;
+    std::vector<aot_module> aot_modules_;
 };
 
 } // namespace bbfft

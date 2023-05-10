@@ -10,10 +10,11 @@
 namespace bbfft {
 
 auto aot_cache::get(jit_cache_key const &key) const -> shared_handle<module_handle_t> {
-    for (auto const &mod : modules_) {
-        if (key.device_id == mod.device_id) {
-            if (auto it = mod.kernel_names.find(key.kernel_name); it != mod.kernel_names.end()) {
-                return mod.module;
+    for (auto const &aot_mod : aot_modules_) {
+        if (key.device_id == aot_mod.device_id) {
+            if (auto it = aot_mod.kernel_names.find(key.kernel_name);
+                it != aot_mod.kernel_names.end()) {
+                return aot_mod.mod;
             }
         }
     }
@@ -22,6 +23,8 @@ auto aot_cache::get(jit_cache_key const &key) const -> shared_handle<module_hand
 
 void aot_cache::store(jit_cache_key const &, shared_handle<module_handle_t>) {}
 
-void aot_cache::register_module(aot_module mod) { modules_.emplace_back(std::move(mod)); }
+void aot_cache::register_module(aot_module aot_mod) {
+    aot_modules_.emplace_back(std::move(aot_mod));
+}
 
 } // namespace bbfft

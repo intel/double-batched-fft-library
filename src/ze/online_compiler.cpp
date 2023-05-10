@@ -147,9 +147,9 @@ std::vector<uint8_t> compile_to_native(std::string const &source, std::string co
 aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, module_format format,
                              ze_context_handle_t context, ze_device_handle_t device) {
 
-    aot_module mod;
+    aot_module amod;
     auto native_module = build_kernel_bundle(binary, binary_size, format, context, device);
-    mod.module =
+    amod.mod =
         shared_handle<module_handle_t>(cast<module_handle_t>(native_module), [](module_handle_t m) {
             zeModuleDestroy(cast<ze_module_handle_t>(m));
         });
@@ -158,10 +158,10 @@ aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, mod
     auto names = std::vector<const char *>(count);
     ZE_CHECK(zeModuleGetKernelNames(native_module, &count, names.data()));
     for (auto &name : names) {
-        mod.kernel_names.insert(name);
+        amod.kernel_names.insert(name);
     }
-    mod.device_id = get_device_id(device);
-    return mod;
+    amod.device_id = get_device_id(device);
+    return amod;
 }
 
 } // namespace bbfft::ze

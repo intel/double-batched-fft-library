@@ -26,7 +26,7 @@ class BBFFT_EXPORT jit_cache_all : public jit_cache {
     /**
      * @copydoc cache::store
      */
-    void store(jit_cache_key const &key, shared_handle<module_handle_t> module) override;
+    void store(jit_cache_key const &key, shared_handle<module_handle_t> mod) override;
     /**
      * @brief Get all kernel names stored in this cache
      */

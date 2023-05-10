@@ -70,9 +70,9 @@ class BBFFT_EXPORT jit_cache {
      * @brief Store  FFT kernel bundle
      *
      * @param key FFT kernel identifier
-     * @param module kernel bundle
+     * @param mod kernel bundle
      */
-    virtual void store(jit_cache_key const &key, shared_handle<module_handle_t> module) = 0;
+    virtual void store(jit_cache_key const &key, shared_handle<module_handle_t> mod) = 0;
 };
 
 } // namespace bbfft
