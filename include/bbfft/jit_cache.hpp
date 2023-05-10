@@ -14,15 +14,8 @@
 
 namespace bbfft {
 
-using device_handle_t = std::uintptr_t;
-using module_handle_t = std::uintptr_t;
-
-template <class To, class From> To cast(From v);
-template <class To, class From> To cast(From v) {
-    static_assert(sizeof(To) == sizeof(From));
-    static_assert(alignof(To) == alignof(From));
-    return reinterpret_cast<To>(v);
-}
+using device_handle_t = std::uintptr_t; ///< Opaque handle for devices
+using module_handle_t = std::uintptr_t; ///< Opaque handle for modules
 
 /**
  * @brief Unique identifier for fft kernel
@@ -31,7 +24,7 @@ struct BBFFT_EXPORT jit_cache_key {
     std::string kernel_name = {}; ///< Name of the OpenCL kernel
     std::uint64_t device_id = std::numeric_limits<std::uint64_t>::max(); ///< Unique device id
 
-    bool operator==(jit_cache_key const &other) const;
+    bool operator==(jit_cache_key const &other) const; ///< equality check
 };
 /**
  * @brief Hash function for jit_cache_key

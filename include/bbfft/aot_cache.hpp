@@ -14,12 +14,19 @@
 
 namespace bbfft {
 
+/**
+ * @brief Collection of native module handle, set of kernel names stored in the native module, and a
+ * device identifier.
+ */
 struct BBFFT_EXPORT aot_module {
-    shared_handle<module_handle_t> mod;
-    std::unordered_set<std::string> kernel_names;
-    std::uint64_t device_id;
+    shared_handle<module_handle_t> mod;           ///< Native module handle
+    std::unordered_set<std::string> kernel_names; ///< Set of kernel names
+    std::uint64_t device_id;                      ///< Device id for mod
 };
 
+/**
+ * @brief Cache to look up ahead-of-time compiled FFT kernels
+ */
 class BBFFT_EXPORT aot_cache : public jit_cache {
   public:
     /**

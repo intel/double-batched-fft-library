@@ -24,7 +24,7 @@ class BBFFT_EXPORT jit_cache_all : public jit_cache {
      */
     auto get(jit_cache_key const &key) const -> shared_handle<module_handle_t> override;
     /**
-     * @copydoc cache::store
+     * @copydoc jit_cache::store
      */
     void store(jit_cache_key const &key, shared_handle<module_handle_t> mod) override;
     /**

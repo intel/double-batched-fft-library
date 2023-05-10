@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "api.hpp"
+#include "bbfft/detail/cast.hpp"
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/online_compiler.hpp"
 
@@ -18,12 +19,12 @@ uint64_t api::device_id() { return get_device_id(device_); }
 
 auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
     ze_module_handle_t mod = ::bbfft::ze::build_kernel_bundle(source, context_, device_);
-    return shared_handle<module_handle_t>(cast<module_handle_t>(mod), [](module_handle_t mod) {
-        zeModuleDestroy(cast<ze_module_handle_t>(mod));
-    });
+    return shared_handle<module_handle_t>(
+        detail::cast<module_handle_t>(mod),
+        [](module_handle_t mod) { zeModuleDestroy(detail::cast<ze_module_handle_t>(mod)); });
 }
 auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {
-    return cast<ze_module_handle_t>(mod);
+    return detail::cast<ze_module_handle_t>(mod);
 }
 auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type {
     return ::bbfft::ze::create_kernel(b, name);

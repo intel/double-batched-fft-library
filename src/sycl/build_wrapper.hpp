@@ -4,6 +4,7 @@
 #include "bbfft/aot_cache.hpp"
 #include "bbfft/cl/error.hpp"
 #include "bbfft/cl/online_compiler.hpp"
+#include "bbfft/detail/cast.hpp"
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
 #include "bbfft/ze/online_compiler.hpp"
@@ -31,21 +32,23 @@ template <> struct build_wrapper<::sycl::backend::ext_oneapi_level_zero> {
           native_device(::sycl::get_native<be_t, ::sycl::device>(d)) {}
 
     template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
-        return cast<module_handle_t>(
+        return detail::cast<module_handle_t>(
             ze::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
     }
     template <typename... Args> auto create_aot_module(Args &&...args) -> aot_module {
         return ze::create_aot_module(std::forward<Args>(args)..., native_context, native_device);
     }
     static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
-        return shared_handle<module_handle_t>(
-            mod, [](module_handle_t mod) { zeModuleDestroy(cast<ze_module_handle_t>(mod)); });
+        return shared_handle<module_handle_t>(mod, [](module_handle_t mod) {
+            zeModuleDestroy(detail::cast<ze_module_handle_t>(mod));
+        });
     }
     static auto make_kernel_bundle(module_handle_t mod, bool keep_ownership, ::sycl::context c)
         -> bundle_t {
         auto own = keep_ownership ? ::sycl::ext::oneapi::level_zero::ownership::keep
                                   : ::sycl::ext::oneapi::level_zero::ownership::transfer;
-        return ::sycl::make_kernel_bundle<be_t, bstate_t>({cast<ze_module_handle_t>(mod), own}, c);
+        return ::sycl::make_kernel_bundle<be_t, bstate_t>(
+            {detail::cast<ze_module_handle_t>(mod), own}, c);
     }
     static auto create_kernel(bundle_t bundle, std::string const &name) -> ::sycl::kernel {
         auto native_bundle = ::sycl::get_native<be_t, bstate_t>(bundle);
@@ -72,7 +75,7 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
     }
 
     template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
-        return cast<module_handle_t>(
+        return detail::cast<module_handle_t>(
             cl::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
     }
     template <typename... Args> auto create_aot_module(Args &&...args) -> aot_module {
@@ -80,11 +83,11 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
     }
     static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
         return shared_handle<module_handle_t>(
-            mod, [](module_handle_t mod) { clReleaseProgram(cast<cl_program>(mod)); });
+            mod, [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });
     }
     static auto make_kernel_bundle(module_handle_t mod, bool keep_ownership, ::sycl::context c)
         -> bundle_t {
-        auto native_module = cast<cl_program>(mod);
+        auto native_module = detail::cast<cl_program>(mod);
         auto bundle = ::sycl::make_kernel_bundle<be_t, bstate_t>(native_module, c);
         // TODO: The runtime should actually call retain but it currently does not
         if (keep_ownership) {

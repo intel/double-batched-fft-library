@@ -4,6 +4,7 @@
 #include "api.hpp"
 #include "bbfft/cl/device.hpp"
 #include "bbfft/cl/online_compiler.hpp"
+#include "bbfft/detail/cast.hpp"
 
 #include <CL/cl_ext.h>
 
@@ -51,12 +52,12 @@ uint64_t api::device_id() { return get_device_id(device_); }
 
 auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
     cl_program mod = ::bbfft::cl::build_kernel_bundle(source, context_, device_);
-    return shared_handle<module_handle_t>(cast<module_handle_t>(mod), [](module_handle_t mod) {
-        clReleaseProgram(cast<cl_program>(mod));
-    });
+    return shared_handle<module_handle_t>(
+        detail::cast<module_handle_t>(mod),
+        [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });
 }
 auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {
-    return cast<kernel_bundle_type>(mod);
+    return detail::cast<kernel_bundle_type>(mod);
 }
 auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type {
     return ::bbfft::cl::create_kernel(b, name);

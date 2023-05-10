@@ -88,8 +88,7 @@ template <typename EventT> class plan {
     /**
      * @brief Execute plan (in-place)
      *
-     * @param in Pointer to input tensor
-     * @param out Pointer to output tensor
+     * @param inout Pointer to input and output tensor
      *
      * @return Completion event
      */
@@ -97,8 +96,7 @@ template <typename EventT> class plan {
     /**
      * @brief Execute plan (in-place)
      *
-     * @param in Pointer to input tensor
-     * @param out Pointer to output tensor
+     * @param inout Pointer to input and output tensor
      * @param dep_event Event to wait on before launching
      *
      * @return Completion event
@@ -109,8 +107,7 @@ template <typename EventT> class plan {
     /**
      * @brief Execute plan (in-place)
      *
-     * @param in Pointer to input tensor
-     * @param out Pointer to output tensor
+     * @param inout Pointer to input and output tensor
      * @param dep_events Events to wait on before launching
      *
      * @return Completion event

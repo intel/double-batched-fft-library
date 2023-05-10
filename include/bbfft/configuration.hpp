@@ -29,12 +29,18 @@ enum class precision : int {
  * @tparam T float or double
  */
 template <typename T> struct to_precision;
+/**
+ * @brief Specialization of to_precision for float
+ */
 template <> struct to_precision<float> {
     /**
      * @brief Precision corresponding to float.
      */
     static constexpr precision value = precision::f32;
 };
+/**
+ * @brief Specialization of to_precision for double
+ */
 template <> struct to_precision<double> {
     /**
      * @brief Precision corresponding to double.

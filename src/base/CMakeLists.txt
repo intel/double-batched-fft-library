@@ -42,6 +42,7 @@ set(PUBLIC_HEADERS
     tensor_indexer.hpp
     shared_handle.hpp
     user_module.hpp
+    detail/cast.hpp
     detail/generator_impl.hpp
     detail/plan_impl.hpp
 )

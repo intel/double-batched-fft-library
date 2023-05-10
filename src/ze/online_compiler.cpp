@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/ze/online_compiler.hpp"
+#include "bbfft/detail/cast.hpp"
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
 
@@ -149,10 +150,9 @@ aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, mod
 
     aot_module amod;
     auto native_module = build_kernel_bundle(binary, binary_size, format, context, device);
-    amod.mod =
-        shared_handle<module_handle_t>(cast<module_handle_t>(native_module), [](module_handle_t m) {
-            zeModuleDestroy(cast<ze_module_handle_t>(m));
-        });
+    amod.mod = shared_handle<module_handle_t>(
+        detail::cast<module_handle_t>(native_module),
+        [](module_handle_t m) { zeModuleDestroy(detail::cast<ze_module_handle_t>(m)); });
     uint32_t count = 0;
     ZE_CHECK(zeModuleGetKernelNames(native_module, &count, nullptr));
     auto names = std::vector<const char *>(count);

@@ -4,6 +4,7 @@
 #include "bbfft/cl/online_compiler.hpp"
 #include "bbfft/cl/device.hpp"
 #include "bbfft/cl/error.hpp"
+#include "bbfft/detail/cast.hpp"
 
 #include <cstdio>
 #include <stdexcept>
@@ -70,10 +71,9 @@ aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, mod
 
     aot_module amod;
     auto native_module = build_kernel_bundle(binary, binary_size, format, context, device);
-    amod.mod =
-        shared_handle<module_handle_t>(cast<module_handle_t>(native_module), [](module_handle_t m) {
-            clReleaseProgram(cast<cl_program>(m));
-        });
+    amod.mod = shared_handle<module_handle_t>(
+        detail::cast<module_handle_t>(native_module),
+        [](module_handle_t m) { clReleaseProgram(detail::cast<cl_program>(m)); });
     size_t count = 0;
     CL_CHECK(clGetProgramInfo(native_module, CL_PROGRAM_KERNEL_NAMES, 0, nullptr, &count));
     auto names = std::vector<char>(count);
