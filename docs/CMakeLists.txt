@@ -35,7 +35,9 @@ set(RST_DOC_FILES
     api/plan.rst
     api/utilities.rst
     manual/build.rst
+    manual/caching.rst
     manual/data-layout.rst
+    manual/descriptor.rst
     manual/examples.rst
     manual/index.rst
     manual/plans.rst

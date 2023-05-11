@@ -11,5 +11,7 @@ User manual
    plans
    data-layout
    examples
+   caching
+   descriptor
 
 
