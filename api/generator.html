@@ -3,12 +3,12 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Utilities" href="utilities.html" /><link rel="prev" title="Plans" href="plan.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Online compiler" href="online_compiler.html" /><link rel="prev" title="Plans" href="plan.html" />
 
-    <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
         <title>Offline generation - Double-Batched FFT Library documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -160,12 +160,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../manual/plans.html">Creating and using plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../manual/data-layout.html">Understanding data layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../manual/examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/caching.html">Kernel caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/descriptor.html">Descriptor format</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plan.html">Plans</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Offline generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="online_compiler.html">Online compiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jit_cache.html">Kernel caching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
 </ul>
 </li>
@@ -205,16 +209,274 @@
         <article role="main">
           <section id="offline-generation">
 <h1>Offline generation<a class="headerlink" href="#offline-generation" title="Permalink to this heading">#</a></h1>
-<p>The basis for all FFT algorithms are two 1D FFT algorithms.
-The “small batch FFT” is intended for FFT sizes up to about N=64</p>
-<p>(the maximum size depends on the size of the register file of the device).
-The “two factor FFT” is intended for larger FFT up to the size of the shared local memory.</p>
-<p>The OpenCL C source code of the two algorithms is generated using the following API calls.</p>
-<section id="small-batch-fft">
-<h2>Small batch fft<a class="headerlink" href="#small-batch-fft" title="Permalink to this heading">#</a></h2>
+<p>OpenCL-C for FFT kernels source code can be generated offline using the following function:</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25configure_small_batch_fftERK13configuration11device_info">
-<span id="_CPPv3N5bbfft25configure_small_batch_fftERK13configuration11device_info"></span><span id="_CPPv2N5bbfft25configure_small_batch_fftERK13configuration11device_info"></span><span id="bbfft::configure_small_batch_fft__configurationCR.device_info"></span><span class="target" id="namespacebbfft_1a9ff7aa230613ce22417746c94a07687a"></span><a class="reference internal" href="#_CPPv4N5bbfft25small_batch_configurationE" title="bbfft::small_batch_configuration"><span class="n"><span class="pre">small_batch_configuration</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">configure_small_batch_fft</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft25configure_small_batch_fftERK13configuration11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft20generate_fft_kernelsERNSt7ostreamERKNSt6vectorI13configurationEERK11device_info">
+<span id="_CPPv3N5bbfft20generate_fft_kernelsERNSt7ostreamERKNSt6vectorI13configurationEERK11device_info"></span><span id="_CPPv2N5bbfft20generate_fft_kernelsERNSt7ostreamERKNSt6vectorI13configurationEERK11device_info"></span><span id="bbfft::generate_fft_kernels__osR.std::vector:configuration:CR.device_infoCR"></span><span class="target" id="namespacebbfft_1a107ce4ebe6cc7076157fd8ea73794e9e"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_fft_kernels</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfgs</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft20generate_fft_kernelsERNSt7ostreamERKNSt6vectorI13configurationEERK11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Generate FFT kernel code for configuration and device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os</strong> – Output stream (e.g. std::cout) </p></li>
+<li><p><strong>cfgs</strong> – configurations </p></li>
+<li><p><strong>info</strong> – Properties of target device</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>kernel names </p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="device-info">
+<h2>Device info<a class="headerlink" href="#device-info" title="Permalink to this heading">#</a></h2>
+<p>FFTs are specialized for the target device based on information stored in the following struct:</p>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_infoE">
+<span id="_CPPv3N5bbfft11device_infoE"></span><span id="_CPPv2N5bbfft11device_infoE"></span><span id="bbfft::device_info"></span><span class="target" id="structbbfft_1_1device__info"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">device_info</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_infoE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Parameters of target device. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_info17min_subgroup_sizeEv">
+<span id="_CPPv3NK5bbfft11device_info17min_subgroup_sizeEv"></span><span id="_CPPv2NK5bbfft11device_info17min_subgroup_sizeEv"></span><span id="bbfft::device_info::min_subgroup_sizeC"></span><span class="target" id="structbbfft_1_1device__info_1a401fd90d4c31540d6e24616faa52023b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">min_subgroup_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_info17min_subgroup_sizeEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Minimum subgroup size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_info17max_subgroup_sizeEv">
+<span id="_CPPv3NK5bbfft11device_info17max_subgroup_sizeEv"></span><span id="_CPPv2NK5bbfft11device_info17max_subgroup_sizeEv"></span><span id="bbfft::device_info::max_subgroup_sizeC"></span><span class="target" id="structbbfft_1_1device__info_1a0bd53c0eab9d5fbf8af1206656b0c422"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_subgroup_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_info17max_subgroup_sizeEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Maximum subgroup size. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_info18register_space_minEv">
+<span id="_CPPv3NK5bbfft11device_info18register_space_minEv"></span><span id="_CPPv2NK5bbfft11device_info18register_space_minEv"></span><span id="bbfft::device_info::register_space_minC"></span><span class="target" id="structbbfft_1_1device__info_1a1e2112c16a1a13e83f2b7bdf8f6096c0"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">register_space_min</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_info18register_space_minEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Min size of register file in bytes. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_info18register_space_maxEv">
+<span id="_CPPv3NK5bbfft11device_info18register_space_maxEv"></span><span id="_CPPv2NK5bbfft11device_info18register_space_maxEv"></span><span id="bbfft::device_info::register_space_maxC"></span><span class="target" id="structbbfft_1_1device__info_1a8c221956625f477bd90eed937bd1f8f0"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">register_space_max</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_info18register_space_maxEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Max size of register file in bytes. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_info9to_stringEv">
+<span id="_CPPv3NK5bbfft11device_info9to_stringEv"></span><span id="_CPPv2NK5bbfft11device_info9to_stringEv"></span><span id="bbfft::device_info::to_stringC"></span><span class="target" id="structbbfft_1_1device__info_1a0dd73d183a77ab75f16d623d2ce449b9"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">to_string</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_info9to_stringEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>convert device info to string </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_infoeqERK11device_info">
+<span id="_CPPv3NK5bbfft11device_infoeqERK11device_info"></span><span id="_CPPv2NK5bbfft11device_infoeqERK11device_info"></span><span id="bbfft::device_info::eq-operator__device_infoCRC"></span><span class="target" id="structbbfft_1_1device__info_1afce5b94a4197aeb9a7b21456499c3050"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_infoeqERK11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>equality check </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft11device_infoneERK11device_info">
+<span id="_CPPv3NK5bbfft11device_infoneERK11device_info"></span><span id="_CPPv2NK5bbfft11device_infoneERK11device_info"></span><span id="bbfft::device_info::neq-operator__device_infoCRC"></span><span class="target" id="structbbfft_1_1device__info_1a727d9af1cec5b8d88addf4cd8277a7d1"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">!=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft11device_infoneERK11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>inequality check </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info19max_work_group_sizeE">
+<span id="_CPPv3N5bbfft11device_info19max_work_group_sizeE"></span><span id="_CPPv2N5bbfft11device_info19max_work_group_sizeE"></span><span id="bbfft::device_info::max_work_group_size__std::s"></span><span class="target" id="structbbfft_1_1device__info_1acf6f6223e02a3bd30910e0d9c31e86e8"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_work_group_size</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info19max_work_group_sizeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>maximum number of work items in work group </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info14subgroup_sizesE">
+<span id="_CPPv3N5bbfft11device_info14subgroup_sizesE"></span><span id="_CPPv2N5bbfft11device_info14subgroup_sizesE"></span><span id="bbfft::device_info::subgroup_sizes__std::vector:std::s:"></span><span class="target" id="structbbfft_1_1device__info_1a1167f349ff65b096f980b459e1cbde71"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subgroup_sizes</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info14subgroup_sizesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>supported sub group sizes </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17local_memory_sizeE">
+<span id="_CPPv3N5bbfft11device_info17local_memory_sizeE"></span><span id="_CPPv2N5bbfft11device_info17local_memory_sizeE"></span><span id="bbfft::device_info::local_memory_size__std::s"></span><span class="target" id="structbbfft_1_1device__info_1af369731f0f98b59bd24756c86664572b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">local_memory_size</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17local_memory_sizeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>size of shared local memory </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info4typeE">
+<span id="_CPPv3N5bbfft11device_info4typeE"></span><span id="_CPPv2N5bbfft11device_info4typeE"></span><span id="bbfft::device_info::type__device_type"></span><span class="target" id="structbbfft_1_1device__info_1ab1ee9432f34ab4ef19cee757bbab854a"></span><a class="reference internal" href="#_CPPv4N5bbfft11device_typeE" title="bbfft::device_type"><span class="n"><span class="pre">device_type</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft11device_typeE" title="bbfft::device_type"><span class="n"><span class="pre">device_type</span></span></a><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft11device_type3gpuE" title="bbfft::device_type::gpu"><span class="n"><span class="pre">gpu</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft11device_info4typeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>device type </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfftlsERNSt7ostreamE11device_type">
+<span id="_CPPv3N5bbfftlsERNSt7ostreamE11device_type"></span><span id="_CPPv2N5bbfftlsERNSt7ostreamE11device_type"></span><span id="bbfft::lshift-operator__osR.device_type"></span><span class="target" id="namespacebbfft_1aae7af666d6008b264a97257f7f535b39"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;&lt;</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_typeE" title="bbfft::device_type"><span class="n"><span class="pre">device_type</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfftlsERNSt7ostreamE11device_type" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Convert device type to string. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os</strong> – output stream </p></li>
+<li><p><strong>type</strong> – device type</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reference to os </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfftlsERNSt7ostreamERK11device_info">
+<span id="_CPPv3N5bbfftlsERNSt7ostreamERK11device_info"></span><span id="_CPPv2N5bbfftlsERNSt7ostreamERK11device_info"></span><span id="bbfft::lshift-operator__osR.device_infoCR"></span><span class="target" id="namespacebbfft_1af5d9eabfe6447fcc24595aff27ec556c"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">&lt;&lt;</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfftlsERNSt7ostreamERK11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Convert device info to string. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>os</strong> – output stream </p></li>
+<li><p><strong>info</strong> – device info</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Reference to os </p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="enumerations">
+<h3>Enumerations<a class="headerlink" href="#enumerations" title="Permalink to this heading">#</a></h3>
+<dl class="cpp enum-class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_typeE">
+<span id="_CPPv3N5bbfft11device_typeE"></span><span id="_CPPv2N5bbfft11device_typeE"></span><span class="target" id="namespacebbfft_1a31e6c0d65fa0c2993efa39ae9142aaec"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">device_type</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_typeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Device type. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_type3gpuE">
+<span id="_CPPv3N5bbfft11device_type3gpuE"></span><span id="_CPPv2N5bbfft11device_type3gpuE"></span><span class="target" id="namespacebbfft_1a31e6c0d65fa0c2993efa39ae9142aaeca0aa0be2a866411d9ff03515227454947"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">gpu</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_type3gpuE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>GPU device. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_type3cpuE">
+<span id="_CPPv3N5bbfft11device_type3cpuE"></span><span id="_CPPv2N5bbfft11device_type3cpuE"></span><span class="target" id="namespacebbfft_1a31e6c0d65fa0c2993efa39ae9142aaecad9747e2da342bdb995f6389533ad1a3d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cpu</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_type3cpuE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>CPU device. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_type6customE">
+<span id="_CPPv3N5bbfft11device_type6customE"></span><span id="_CPPv2N5bbfft11device_type6customE"></span><span class="target" id="namespacebbfft_1a31e6c0d65fa0c2993efa39ae9142aaeca8b9035807842a4e4dbe009f3f1478127"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">custom</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_type6customE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>custom device </p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="query-device-info-in-opencl">
+<h3>Query device info in OpenCL<a class="headerlink" href="#query-device-info-in-opencl" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15get_device_infoE12cl_device_id">
+<span id="_CPPv3N5bbfft15get_device_infoE12cl_device_id"></span><span id="_CPPv2N5bbfft15get_device_infoE12cl_device_id"></span><span id="bbfft::get_device_info__cl_device_id"></span><span class="target" id="namespacebbfft_1a3c027d46e918ed66420aab3ab56227a7"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">get_device_info</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cl_device_id</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft15get_device_infoE12cl_device_id" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns device info for device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – device</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1device__info"><span class="std std-ref">device_info</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13get_device_idE12cl_device_id">
+<span id="_CPPv3N5bbfft13get_device_idE12cl_device_id"></span><span id="_CPPv2N5bbfft13get_device_idE12cl_device_id"></span><span id="bbfft::get_device_id__cl_device_id"></span><span class="target" id="namespacebbfft_1ad69d604875919008c9bc2f83f2a87cd3"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">get_device_id</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">cl_device_id</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><a class="headerlink" href="#_CPPv4N5bbfft13get_device_idE12cl_device_id" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Return device id for device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – device</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>device id </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="query-device-info-in-level-zero">
+<h3>Query device info in Level Zero<a class="headerlink" href="#query-device-info-in-level-zero" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15get_device_infoE18ze_device_handle_t">
+<span id="_CPPv3N5bbfft15get_device_infoE18ze_device_handle_t"></span><span id="_CPPv2N5bbfft15get_device_infoE18ze_device_handle_t"></span><span id="bbfft::get_device_info__ze_device_handle_t"></span><span class="target" id="namespacebbfft_1a7f11b61e103fbc90f3f0da4ed1df5e50"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">get_device_info</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ze_device_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft15get_device_infoE18ze_device_handle_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns device info for device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – device</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1device__info"><span class="std std-ref">device_info</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13get_device_idE18ze_device_handle_t">
+<span id="_CPPv3N5bbfft13get_device_idE18ze_device_handle_t"></span><span id="_CPPv2N5bbfft13get_device_idE18ze_device_handle_t"></span><span id="bbfft::get_device_id__ze_device_handle_t"></span><span class="target" id="namespacebbfft_1a9333d0c197d6a9e620d8a207dc906b84"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">get_device_id</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">ze_device_handle_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><a class="headerlink" href="#_CPPv4N5bbfft13get_device_idE18ze_device_handle_t" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Return device id for device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – device</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>device id </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="query-device-info-in-sycl">
+<h3>Query device info in SYCL<a class="headerlink" href="#query-device-info-in-sycl" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft15get_device_infoEN4sycl6deviceE">
+<span id="_CPPv3N5bbfft15get_device_infoEN4sycl6deviceE"></span><span id="_CPPv2N5bbfft15get_device_infoEN4sycl6deviceE"></span><span id="bbfft::get_device_info__sycl::device"></span><span class="target" id="namespacebbfft_1aaf6722e980dabd64c10e85f71d5a34aa"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">get_device_info</span></span></span><span class="sig-paren">(</span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">device</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft15get_device_infoEN4sycl6deviceE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns device info for device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – device</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1device__info"><span class="std std-ref">device_info</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13get_device_idEN4sycl6deviceE">
+<span id="_CPPv3N5bbfft13get_device_idEN4sycl6deviceE"></span><span id="_CPPv2N5bbfft13get_device_idEN4sycl6deviceE"></span><span id="bbfft::get_device_id__sycl::device"></span><span class="target" id="namespacebbfft_1ae4a9ecb7f5606f9e0ec8ae95241bb5cf"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">get_device_id</span></span></span><span class="sig-paren">(</span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">sycl</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">device</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">device</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">uint64_t</span></span><a class="headerlink" href="#_CPPv4N5bbfft13get_device_idEN4sycl6deviceE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Return device id for device. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – device</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>device id </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="algorithms">
+<h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="#_CPPv4N5bbfft20generate_fft_kernelsERNSt7ostreamERKNSt6vectorI13configurationEERK11device_info" title="bbfft::generate_fft_kernels"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">bbfft::generate_fft_kernels()</span></code></a> function automatically selects
+the algorithm to generate the FFT kernel.
+The functions in this section allow direct access to the generators of each algorithm.</p>
+<section id="small-batch-fft">
+<h3>Small batch fft<a class="headerlink" href="#small-batch-fft" title="Permalink to this heading">#</a></h3>
+<p>The “small batch FFT” is intended for FFT sizes up to about N=64
+(the maximum size depends on the size of the register file of the device).</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25configure_small_batch_fftERK13configurationRK11device_info">
+<span id="_CPPv3N5bbfft25configure_small_batch_fftERK13configurationRK11device_info"></span><span id="_CPPv2N5bbfft25configure_small_batch_fftERK13configurationRK11device_info"></span><span id="bbfft::configure_small_batch_fft__configurationCR.device_infoCR"></span><span class="target" id="namespacebbfft_1a7c085675c6562d1b357f6c9e1383d608"></span><a class="reference internal" href="#_CPPv4N5bbfft25small_batch_configurationE" title="bbfft::small_batch_configuration"><span class="n"><span class="pre">small_batch_configuration</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">configure_small_batch_fft</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft25configure_small_batch_fftERK13configurationRK11device_info" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Configure small batch FFT algorithm. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -224,21 +486,21 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1small__batch__configuration"><span class="std std-ref">small_batch_configuration</span></a> </p>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1small__batch__configuration"><span class="std std-ref">small_batch_configuration</span></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration">
-<span id="_CPPv3N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration"></span><span id="_CPPv2N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration"></span><span id="bbfft::generate_small_batch_fft__osR.ss.small_batch_configurationCR"></span><span class="target" id="namespacebbfft_1a99c14d8e0d9d71f185caa36edd09cad1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_small_batch_fft</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft25small_batch_configurationE" title="bbfft::small_batch_configuration"><span class="n"><span class="pre">small_batch_configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration" title="Permalink to this definition">#</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamERK25small_batch_configurationNSt11string_viewE">
+<span id="_CPPv3N5bbfft24generate_small_batch_fftERNSt7ostreamERK25small_batch_configurationNSt11string_viewE"></span><span id="_CPPv2N5bbfft24generate_small_batch_fftERNSt7ostreamERK25small_batch_configurationNSt11string_viewE"></span><span id="bbfft::generate_small_batch_fft__osR.small_batch_configurationCR.std::string_view"></span><span class="target" id="namespacebbfft_1a3a65ec5340193a36fb994b51efaf1520"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_small_batch_fft</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft25small_batch_configurationE" title="bbfft::small_batch_configuration"><span class="n"><span class="pre">small_batch_configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamERK25small_batch_configurationNSt11string_viewE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Generate OpenCL C code for small batch FFT algorithm. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>os</strong> – Output stream (e.g. std::cout) </p></li>
-<li><p><strong>name</strong> – Kernel name </p></li>
 <li><p><strong>cfg</strong> – small batch configuration </p></li>
+<li><p><strong>name</strong> – Override default kernel name </p></li>
 </ul>
 </dd>
 </dl>
@@ -249,10 +511,19 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
 <span id="_CPPv3N5bbfft25small_batch_configurationE"></span><span id="_CPPv2N5bbfft25small_batch_configurationE"></span><span id="bbfft::small_batch_configuration"></span><span class="target" id="structbbfft_1_1small__batch__configuration"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">small_batch_configuration</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25small_batch_configurationE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Configuration for small batch FFT. </p>
 <p><dl class="simple">
-<dt><strong>Attention</strong></dt><dd><p>Do not set values directly but use <a class="reference internal" href="#namespacebbfft_1a9ff7aa230613ce22417746c94a07687a"><span class="std std-ref">configure_small_batch_fft</span></a> </p>
+<dt><strong>Attention</strong></dt><dd><p>Do not set values directly but use <a class="reference internal" href="#namespacebbfft_1a7c085675c6562d1b357f6c9e1383d608"><span class="std std-ref">configure_small_batch_fft</span></a></p>
 </dd>
 </dl>
 </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft25small_batch_configuration10identifierEv">
+<span id="_CPPv3NK5bbfft25small_batch_configuration10identifierEv"></span><span id="_CPPv2NK5bbfft25small_batch_configuration10identifierEv"></span><span id="bbfft::small_batch_configuration::identifierC"></span><span class="target" id="structbbfft_1_1small__batch__configuration_1ac75d2c6f13dbe8ca24f14ad0d05f0b4a"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">identifier</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft25small_batch_configuration10identifierEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>convert configuration to identification string </p>
+</dd></dl>
+
+</div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
 <dl class="cpp var">
@@ -338,10 +609,11 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
 
 </section>
 <section id="two-factor-fft">
-<h2>Two factor fft<a class="headerlink" href="#two-factor-fft" title="Permalink to this heading">#</a></h2>
+<h3>Two factor fft<a class="headerlink" href="#two-factor-fft" title="Permalink to this heading">#</a></h3>
+<p>The “two factor FFT” is intended for larger FFT up to the size of the shared local memory.</p>
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25configure_factor2_slm_fftERK13configuration11device_info">
-<span id="_CPPv3N5bbfft25configure_factor2_slm_fftERK13configuration11device_info"></span><span id="_CPPv2N5bbfft25configure_factor2_slm_fftERK13configuration11device_info"></span><span id="bbfft::configure_factor2_slm_fft__configurationCR.device_info"></span><span class="target" id="namespacebbfft_1ac01199e187c3912903a4be29bb4f4de0"></span><a class="reference internal" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="bbfft::factor2_slm_configuration"><span class="n"><span class="pre">factor2_slm_configuration</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">configure_factor2_slm_fft</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft25configure_factor2_slm_fftERK13configuration11device_info" title="Permalink to this definition">#</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft25configure_factor2_slm_fftERK13configurationRK11device_info">
+<span id="_CPPv3N5bbfft25configure_factor2_slm_fftERK13configurationRK11device_info"></span><span id="_CPPv2N5bbfft25configure_factor2_slm_fftERK13configurationRK11device_info"></span><span id="bbfft::configure_factor2_slm_fft__configurationCR.device_infoCR"></span><span class="target" id="namespacebbfft_1a8b1b994b38c845c5eefaa0f696470e6b"></span><a class="reference internal" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="bbfft::factor2_slm_configuration"><span class="n"><span class="pre">factor2_slm_configuration</span></span></a><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">configure_factor2_slm_fft</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><span class="n"><span class="pre">configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft11device_infoE" title="bbfft::device_info"><span class="n"><span class="pre">device_info</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft25configure_factor2_slm_fftERK13configurationRK11device_info" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Configure two factor FFT algorithm. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -351,21 +623,21 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1factor2__slm__configuration"><span class="std std-ref">factor2_slm_configuration</span></a> </p>
+<dd class="field-even"><p><a class="reference internal" href="#structbbfft_1_1factor2__slm__configuration"><span class="std std-ref">factor2_slm_configuration</span></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration">
-<span id="_CPPv3N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration"></span><span id="_CPPv2N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration"></span><span id="bbfft::generate_factor2_slm_fft__osR.ss.factor2_slm_configurationCR"></span><span class="target" id="namespacebbfft_1a1a2224b1ad6430884fa19e3ce1f5ed93"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_factor2_slm_fft</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="bbfft::factor2_slm_configuration"><span class="n"><span class="pre">factor2_slm_configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration" title="Permalink to this definition">#</a><br /></dt>
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamERK25factor2_slm_configurationNSt11string_viewE">
+<span id="_CPPv3N5bbfft24generate_factor2_slm_fftERNSt7ostreamERK25factor2_slm_configurationNSt11string_viewE"></span><span id="_CPPv2N5bbfft24generate_factor2_slm_fftERNSt7ostreamERK25factor2_slm_configurationNSt11string_viewE"></span><span id="bbfft::generate_factor2_slm_fft__osR.factor2_slm_configurationCR.std::string_view"></span><span class="target" id="namespacebbfft_1acab99537f8c3f261c5b20182d54e55af"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-prename descclassname"><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">generate_factor2_slm_fft</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ostream</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">os</span></span>, <a class="reference internal" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="bbfft::factor2_slm_configuration"><span class="n"><span class="pre">factor2_slm_configuration</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">cfg</span></span>, <span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string_view</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">name</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamERK25factor2_slm_configurationNSt11string_viewE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Generate OpenCL C code for two factor FFT algorithm. </p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>os</strong> – Output stream (e.g. std::cout) </p></li>
-<li><p><strong>name</strong> – Kernel name </p></li>
 <li><p><strong>cfg</strong> – small batch configuration </p></li>
+<li><p><strong>name</strong> – Override default kernel name </p></li>
 </ul>
 </dd>
 </dl>
@@ -376,10 +648,19 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
 <span id="_CPPv3N5bbfft25factor2_slm_configurationE"></span><span id="_CPPv2N5bbfft25factor2_slm_configurationE"></span><span id="bbfft::factor2_slm_configuration"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">factor2_slm_configuration</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft25factor2_slm_configurationE" title="Permalink to this definition">#</a><br /></dt>
 <dd><p>Configuration for two factor FFT. </p>
 <p><dl class="simple">
-<dt><strong>Attention</strong></dt><dd><p>Do not set values directly but use <a class="reference internal" href="#namespacebbfft_1ac01199e187c3912903a4be29bb4f4de0"><span class="std std-ref">configure_factor2_slm_fft</span></a> </p>
+<dt><strong>Attention</strong></dt><dd><p>Do not set values directly but use <a class="reference internal" href="#namespacebbfft_1a8b1b994b38c845c5eefaa0f696470e6b"><span class="std std-ref">configure_factor2_slm_fft</span></a></p>
 </dd>
 </dl>
 </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft25factor2_slm_configuration10identifierEv">
+<span id="_CPPv3NK5bbfft25factor2_slm_configuration10identifierEv"></span><span id="_CPPv2NK5bbfft25factor2_slm_configuration10identifierEv"></span><span id="bbfft::factor2_slm_configuration::identifierC"></span><span class="target" id="structbbfft_1_1factor2__slm__configuration_1ab2a9f7b89b097ba912a4fbdf24f73398"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">identifier</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft25factor2_slm_configuration10identifierEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>convert configuration to identification string </p>
+</dd></dl>
+
+</div>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
 <dl class="cpp var">
@@ -482,62 +763,6 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
 </dd></dl>
 
 </section>
-<section id="device-info">
-<h2>Device info<a class="headerlink" href="#device-info" title="Permalink to this heading">#</a></h2>
-<dl class="cpp struct">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_infoE">
-<span id="_CPPv3N5bbfft11device_infoE"></span><span id="_CPPv2N5bbfft11device_infoE"></span><span id="bbfft::device_info"></span><span class="target" id="structbbfft_1_1device__info"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">device_info</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_infoE" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>Parameters of target device. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17min_subgroup_sizeEv">
-<span id="_CPPv3N5bbfft11device_info17min_subgroup_sizeEv"></span><span id="_CPPv2N5bbfft11device_info17min_subgroup_sizeEv"></span><span id="bbfft::device_info::min_subgroup_size"></span><span class="target" id="structbbfft_1_1device__info_1a859c2e4ab8dfe624b4cdb6a5cc66da6c"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">min_subgroup_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17min_subgroup_sizeEv" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>Minimum subgroup size. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17max_subgroup_sizeEv">
-<span id="_CPPv3N5bbfft11device_info17max_subgroup_sizeEv"></span><span id="_CPPv2N5bbfft11device_info17max_subgroup_sizeEv"></span><span id="bbfft::device_info::max_subgroup_size"></span><span class="target" id="structbbfft_1_1device__info_1aa8d4b7119d6bdc9ff80f5af39eb414ed"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_subgroup_size</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17max_subgroup_sizeEv" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>Maximum subgroup size. </p>
-</dd></dl>
-
-<dl class="cpp function">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info14register_spaceEv">
-<span id="_CPPv3N5bbfft11device_info14register_spaceEv"></span><span id="_CPPv2N5bbfft11device_info14register_spaceEv"></span><span id="bbfft::device_info::register_space"></span><span class="target" id="structbbfft_1_1device__info_1a6ac26dfc7202e556f6816ba90a752544"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">register_space</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft11device_info14register_spaceEv" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>Size of register file in bytes. </p>
-</dd></dl>
-
-</div>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info19max_work_group_sizeE">
-<span id="_CPPv3N5bbfft11device_info19max_work_group_sizeE"></span><span id="_CPPv2N5bbfft11device_info19max_work_group_sizeE"></span><span id="bbfft::device_info::max_work_group_size__std::s"></span><span class="target" id="structbbfft_1_1device__info_1acf6f6223e02a3bd30910e0d9c31e86e8"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">max_work_group_size</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info19max_work_group_sizeE" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>maximum number of work items in work group </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info14subgroup_sizesE">
-<span id="_CPPv3N5bbfft11device_info14subgroup_sizesE"></span><span id="_CPPv2N5bbfft11device_info14subgroup_sizesE"></span><span id="bbfft::device_info::subgroup_sizes__std::array:std::s.5:"></span><span class="target" id="structbbfft_1_1device__info_1a1cf10281ca2d54cb75b7f0fb589996d9"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">5</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">subgroup_sizes</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info14subgroup_sizesE" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>supported sub group sizes </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info18num_subgroup_sizesE">
-<span id="_CPPv3N5bbfft11device_info18num_subgroup_sizesE"></span><span id="_CPPv2N5bbfft11device_info18num_subgroup_sizesE"></span><span id="bbfft::device_info::num_subgroup_sizes__std::s"></span><span class="target" id="structbbfft_1_1device__info_1a9f362910abf0b3ea807bb47bd985403a"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">num_subgroup_sizes</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info18num_subgroup_sizesE" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>number of entries in subgroup_sizes </p>
-</dd></dl>
-
-<dl class="cpp var">
-<dt class="sig sig-object cpp" id="_CPPv4N5bbfft11device_info17local_memory_sizeE">
-<span id="_CPPv3N5bbfft11device_info17local_memory_sizeE"></span><span id="_CPPv2N5bbfft11device_info17local_memory_sizeE"></span><span id="bbfft::device_info::local_memory_size__std::s"></span><span class="target" id="structbbfft_1_1device__info_1af369731f0f98b59bd24756c86664572b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">local_memory_size</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft11device_info17local_memory_sizeE" title="Permalink to this definition">#</a><br /></dt>
-<dd><p>size of shared local memory </p>
-</dd></dl>
-
-</div>
-</dd></dl>
-
 </section>
 </section>
 
@@ -546,12 +771,12 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="utilities.html">
+          <a class="next-page" href="online_compiler.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Utilities</div>
+                <div class="title">Online compiler</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -597,9 +822,18 @@ The “two factor FFT” is intended for larger FFT up to the size of the shared
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Offline generation</a><ul>
+<li><a class="reference internal" href="#device-info">Device info</a><ul>
+<li><a class="reference internal" href="#enumerations">Enumerations</a></li>
+<li><a class="reference internal" href="#query-device-info-in-opencl">Query device info in OpenCL</a></li>
+<li><a class="reference internal" href="#query-device-info-in-level-zero">Query device info in Level Zero</a></li>
+<li><a class="reference internal" href="#query-device-info-in-sycl">Query device info in SYCL</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algorithms">Algorithms</a><ul>
 <li><a class="reference internal" href="#small-batch-fft">Small batch fft</a></li>
 <li><a class="reference internal" href="#two-factor-fft">Two factor fft</a></li>
-<li><a class="reference internal" href="#device-info">Device info</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

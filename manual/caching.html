@@ -1,0 +1,403 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Descriptor format" href="descriptor.html" /><link rel="prev" title="Examples" href="examples.html" />
+
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
+        <title>Kernel caching - Double-Batched FFT Library documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Double-Batched FFT Library  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Double-Batched FFT Library  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build.html">Building and linking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plans.html">Creating and using plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-layout.html">Understanding data layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Kernel caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="descriptor.html">Descriptor format</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/plan.html">Plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/generator.html">Offline generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/online_compiler.html">Online compiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/jit_cache.html">Kernel caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/utilities.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="kernel-caching">
+<h1>Kernel caching<a class="headerlink" href="#kernel-caching" title="Permalink to this heading">#</a></h1>
+<p>The FFT kernel are specialized for the <a class="reference internal" href="../api/configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">configuration</span></code></a>.
+Many factors influence the FFT code, including</p>
+<ul class="simple">
+<li><p>Input and and output tensor shape</p></li>
+<li><p>Transform mode (complex-to-complex, complex-to-real, real-to-complex, forward, backward)</p></li>
+<li><p>Input and output tensor strides</p></li>
+<li><p>Target device architecture (sub-group size, size of register file, size of shared local memory)</p></li>
+<li><p>User callbacks</p></li>
+</ul>
+<p>Just-in-time (JIT) compilation is employed to specialize kernels at run-time.
+JIT compilation happens at plan creation, which is therefore expensive in comparison to plan execution.
+In some situations it might be necessary to create the plan multiple times, hence the double-batched FFT library
+offers a caching mechanism.</p>
+<section id="run-time-caching">
+<h2>Run-time caching<a class="headerlink" href="#run-time-caching" title="Permalink to this heading">#</a></h2>
+<p>Run-time caching is enabled by passing a pointer to a <a class="reference internal" href="../api/jit_cache.html#_CPPv4N5bbfft9jit_cacheE" title="bbfft::jit_cache"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">bbfft::jit_cache</span></code></a> to the plan factory
+function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/jit_cache_all.hpp&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/sycl/make_plan.hpp&quot;</span>
+
+<span class="k">auto</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jit_cache_all</span><span class="p">{};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cache</span><span class="p">);</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">plan2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cache</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>In the above example, the creation of <code class="docutils literal notranslate"><span class="pre">plan</span></code> is expensive, whereas the FFT kernel in the creation
+of <code class="docutils literal notranslate"><span class="pre">plan2</span></code> is looked up in the cache and therefore the creation is fast.</p>
+<p>The object of the class <a class="reference internal" href="../api/jit_cache.html#_CPPv4N5bbfft13jit_cache_allE" title="bbfft::jit_cache_all"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">bbfft::jit_cache_all</span></code></a> simply caches all kernels it encountered.
+More advanced caching strategies can be implemented by deriving from the <a class="reference internal" href="../api/jit_cache.html#_CPPv4N5bbfft9jit_cacheE" title="bbfft::jit_cache"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">bbfft::jit_cache</span></code></a> interface.</p>
+</section>
+<section id="ahead-of-time-caching">
+<h2>Ahead-of-time caching<a class="headerlink" href="#ahead-of-time-caching" title="Permalink to this heading">#</a></h2>
+<p>In some situations one might only need a small subset of FFT kernels, which are known at compile-time,
+but there is little reuse of plans.
+In that case creating a JIT cache ahead-of-time (AOT) can be useful.</p>
+<p>We need a two-step process in order to enable AOT caching:
+First, we compile FFT kernels to a native device binary using the <code class="docutils literal notranslate"><span class="pre">bbfft-aot-generate</span></code> tool
+and use the GNU linker embed the native device binary in the application.
+The second step is to create a <a class="reference internal" href="../api/jit_cache.html#_CPPv4N5bbfft9aot_cacheE" title="bbfft::aot_cache"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">bbfft::aot_cache</span></code></a> in the application to lookup native device code
+during plan creation.</p>
+<section id="native-device-binary-generation-and-linking">
+<h3>Native device binary generation and linking<a class="headerlink" href="#native-device-binary-generation-and-linking" title="Permalink to this heading">#</a></h3>
+<p>We generate the native device binary for selected FFT configurations using
+the <code class="docutils literal notranslate"><span class="pre">bbfft-aot-generate</span></code> tool that comes with the Double-Batched FFT Library.
+For example, in order to create kernels for a complex-to-complex FFT in single precision with
+N=16,32 and a batch size of 1000 on Ponte Vecchio use</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bbfft-aot-generate<span class="w"> </span>-d<span class="w"> </span>pvc<span class="w"> </span>kernels.bin<span class="w"> </span>scfi16*1000<span class="w"> </span>scfi32*1000
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="descriptor.html#descriptor"><span class="std std-ref">Descriptor format</span></a> for the specification of the short FFT descriptor format.
+Built-in device info is currently only available for PVC.
+For other devices you can pass the output of the <code class="docutils literal notranslate"><span class="pre">bbfft-device-info</span></code> tool
+to <code class="docutils literal notranslate"><span class="pre">bbfft-aot-generate</span></code> with the <code class="docutils literal notranslate"><span class="pre">-i</span></code> flag.</p>
+<p>The GNU linker is used to embed the native device binary in your application:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ld<span class="w"> </span>-r<span class="w"> </span>-b<span class="w"> </span>binary<span class="w"> </span>-o<span class="w"> </span>kernels.o<span class="w"> </span>kernels.bin
+</pre></div>
+</div>
+<p>Linking <code class="docutils literal notranslate"><span class="pre">kernels.o</span></code> makes the symbols <code class="docutils literal notranslate"><span class="pre">_binary_kernels_bin_start</span></code> and <code class="docutils literal notranslate"><span class="pre">_binary_kernels_bin_end</span></code> available
+that point to the native device binary.</p>
+<p>CMake users can use the following workflow to automatise the above steps, e.g. for all real-to-complex
+power of two FFTs until N=1024:</p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">find_package</span><span class="p">(</span><span class="s">bbfft-aot-generate</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
+
+<span class="nb">set</span><span class="p">(</span><span class="s">N</span><span class="w"> </span><span class="s">2</span><span class="w"> </span><span class="s">4</span><span class="w"> </span><span class="s">8</span><span class="w"> </span><span class="s">16</span><span class="w"> </span><span class="s">32</span><span class="w"> </span><span class="s">64</span><span class="w"> </span><span class="s">128</span><span class="w"> </span><span class="s">256</span><span class="w"> </span><span class="s">512</span><span class="w"> </span><span class="s">1024</span><span class="p">)</span>
+<span class="nb">foreach</span><span class="p">(</span><span class="s">n</span><span class="w"> </span><span class="s">IN</span><span class="w"> </span><span class="s">LISTS</span><span class="w"> </span><span class="s">N</span><span class="p">)</span>
+<span class="w">    </span><span class="nb">list</span><span class="p">(</span><span class="s">APPEND</span><span class="w"> </span><span class="s">descriptors</span><span class="w"> </span><span class="s2">&quot;srfi${n}*16384&quot;</span><span class="p">)</span>
+<span class="nb">endforeach</span><span class="p">()</span>
+
+<span class="nb">add_aot_kernels_to_target</span><span class="p">(</span><span class="s">TARGET</span><span class="w"> </span><span class="s">&lt;your-cmake-target&gt;</span><span class="w"> </span><span class="s">PREFIX</span><span class="w"> </span><span class="s">kernels</span><span class="w"> </span><span class="s">DEVICE</span><span class="w"> </span><span class="s">pvc</span><span class="w"> </span><span class="s">LIST</span><span class="w"> </span><span class="o">${</span><span class="nv">descriptors</span><span class="o">}</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="lookup-native-device-code-during-plan-creation">
+<h3>Lookup native device code during plan creation<a class="headerlink" href="#lookup-native-device-code-during-plan-creation" title="Permalink to this heading">#</a></h3>
+<p>If everything worked, we find the object file <code class="docutils literal notranslate"><span class="pre">kernels.o</span></code> in the build folder.
+The file looks something like the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nm<span class="w"> </span>-a<span class="w"> </span>build/examples/aot/kernels.o
+<span class="m">0000000000142770</span><span class="w"> </span>D<span class="w"> </span>_binary_kernels_bin_end
+<span class="m">0000000000142770</span><span class="w"> </span>A<span class="w"> </span>_binary_kernels_bin_size
+<span class="m">0000000000000000</span><span class="w"> </span>D<span class="w"> </span>_binary_kernels_bin_start
+<span class="m">0000000000000000</span><span class="w"> </span>d<span class="w"> </span>.data
+</pre></div>
+</div>
+<p>Here, we have the symbols <code class="docutils literal notranslate"><span class="pre">_binary_kernels_bin_start</span></code> and <code class="docutils literal notranslate"><span class="pre">_binary_kernels_bin_end</span></code> that indicate the
+start and end of the ahead-of-time compiled binary blob.
+With these symbols we create an <a class="reference internal" href="../api/jit_cache.html#_CPPv4N5bbfft10aot_moduleE" title="bbfft::aot_module"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">bbfft::aot_module</span></code></a> that we register with the
+<a class="reference internal" href="../api/jit_cache.html#_CPPv4N5bbfft9aot_cacheE" title="bbfft::aot_cache"><code class="xref cpp cpp-class docutils literal notranslate"><span class="pre">bbfft::aot_cache</span></code></a>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="p">{};</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbfft</span><span class="o">::</span><span class="n">aot_cache</span><span class="p">{};</span>
+<span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">extern</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">_binary_kernels_bin_start</span><span class="p">,</span><span class="w"> </span><span class="n">_binary_kernels_bin_end</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cache</span><span class="p">.</span><span class="n">register_module</span><span class="p">(</span><span class="n">bbfft</span><span class="o">::</span><span class="n">sycl</span><span class="o">::</span><span class="n">create_aot_module</span><span class="p">(</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">_binary_kernels_bin_start</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_binary_kernels_bin_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="o">&amp;</span><span class="n">_binary_kernels_bin_start</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bbfft</span><span class="o">::</span><span class="n">module_format</span><span class="o">::</span><span class="n">native</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">.</span><span class="n">get_context</span><span class="p">(),</span><span class="w"> </span><span class="n">q</span><span class="p">.</span><span class="n">get_device</span><span class="p">()));</span>
+<span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="o">&amp;</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// handle exception</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We employ the symbols of the object file to direct <code class="docutils literal notranslate"><span class="pre">create_aot_module</span></code> to the native device binary.
+We have wrapped <code class="docutils literal notranslate"><span class="pre">create_aot_module</span></code> in a <code class="docutils literal notranslate"><span class="pre">try</span> <span class="pre">...</span> <span class="pre">catch</span></code> block as it might fail, for example if
+the application is run on a device requiring a different native device binary.
+In that case, the <code class="docutils literal notranslate"><span class="pre">aot_module</span></code> is not registered with the <code class="docutils literal notranslate"><span class="pre">aot_cache</span></code> and we fall back to
+just-in-time compilation.</p>
+<p>During plan creation you need to pass the cache to <code class="docutils literal notranslate"><span class="pre">make_plan</span></code> such that plan creation benefits from
+ahead-of-time compilation:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">auto</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbfft</span><span class="o">::</span><span class="n">make_plan</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cache</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="descriptor.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Descriptor format</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="examples.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Examples</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Intel Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Kernel caching</a><ul>
+<li><a class="reference internal" href="#run-time-caching">Run-time caching</a></li>
+<li><a class="reference internal" href="#ahead-of-time-caching">Ahead-of-time caching</a><ul>
+<li><a class="reference internal" href="#native-device-binary-generation-and-linking">Native device binary generation and linking</a></li>
+<li><a class="reference internal" href="#lookup-native-device-code-during-plan-creation">Lookup native device code during plan creation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>

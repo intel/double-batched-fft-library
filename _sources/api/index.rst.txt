@@ -10,6 +10,8 @@ API reference
    configuration
    plan
    generator
+   online_compiler
+   jit_cache
    utilities
 
 Indices and tables

@@ -5,15 +5,17 @@
 Examples
 ========
 
-Here we show the configurations for several standard cases.
+We show the configurations for several standard cases.
 FFTW analogues are provided if applicable.
+Here, we use double precision; for single precision one uses *precision::f32*
+in the double-batched FFT library and the prefix *fftwf* in FFTW.
 
 Single complex-data FFT
 -----------------------
 
 .. code:: c++
 
-   configuration cfg = {1, {1, N, 1}, direction::forward, transform_type::c2c};
+   configuration cfg = {1, {1, N, 1}, precision::f64, direction::forward, transform_type::c2c};
 
 .. tip::
 
@@ -30,7 +32,7 @@ Single real-data FFT
 
 .. code:: c++
 
-   configuration cfg = {1, {1, N, 1}, direction::forward, transform_type::r2c};
+   configuration cfg = {1, {1, N, 1}, precision::f64, direction::forward, transform_type::r2c};
 
 .. tip::
 
@@ -46,7 +48,7 @@ Single-batched real-data FFT (in-place)
 
 .. code:: c++
 
-   configuration cfg = {1, {1, N, howmany}, direction::forward, transform_type::r2c};
+   configuration cfg = {1, {1, N, howmany}, precision::f64, direction::forward, transform_type::r2c};
    cfg.set_strides_default(true);
 
 .. tip::
@@ -70,7 +72,7 @@ Double-batched real-data FFT (in-place)
 
 .. code:: c++
 
-   configuration cfg = {1, {M, N, howmany}, direction::forward, transform_type::r2c};
+   configuration cfg = {1, {M, N, howmany}, precision::f64, direction::forward, transform_type::r2c};
    cfg.set_strides_default(true);
 
 .. tip::
@@ -98,7 +100,7 @@ Single 3D complex-data FFT
 
 .. code:: c++
 
-   configuration cfg = {1, {1, N0, N1, N2, 1}, direction::forward, transform_type::c2c};
+   configuration cfg = {1, {1, N0, N1, N2, 1}, precision::f64, direction::forward, transform_type::c2c};
 
 .. tip::
 

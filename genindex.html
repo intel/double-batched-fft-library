@@ -4,9 +4,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
 
-    <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 --><title>Index - Double-Batched FFT Library documentation</title>
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 --><title>Index - Double-Batched FFT Library documentation</title>
 <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -158,12 +158,16 @@
 <li class="toctree-l2"><a class="reference internal" href="manual/plans.html">Creating and using plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="manual/data-layout.html">Understanding data layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="manual/examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/caching.html">Kernel caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual/descriptor.html">Descriptor format</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/configuration.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/plan.html">Plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/generator.html">Offline generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/online_compiler.html">Online compiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/jit_cache.html">Kernel caching</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/utilities.html">Utilities</a></li>
 </ul>
 </li>
@@ -209,15 +213,33 @@
   <h2>B</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft9aot_cacheE">bbfft::aot_cache (C++ class)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4NK5bbfft9aot_cache3getERK13jit_cache_key">bbfft::aot_cache::get (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft9aot_cache15register_moduleE10aot_module">bbfft::aot_cache::register_module (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft9aot_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE">bbfft::aot_cache::store (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft10aot_moduleE">bbfft::aot_module (C++ struct)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft10aot_module9device_idE">bbfft::aot_module::device_id (C++ member)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft10aot_module12kernel_namesE">bbfft::aot_module::kernel_names (C++ member)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft10aot_module3modE">bbfft::aot_module::mod (C++ member)</a>
+</li>
         <li><a href="api/plan.html#_CPPv4N5bbfft17bad_configurationE">bbfft::bad_configuration (C++ class)</a>
 </li>
         <li><a href="api/plan.html#_CPPv4N5bbfft17bad_configuration17bad_configurationENSt6stringE">bbfft::bad_configuration::bad_configuration (C++ function)</a>, <a href="api/plan.html#_CPPv4N5bbfft17bad_configuration17bad_configurationEPKc">[1]</a>
 </li>
         <li><a href="api/plan.html#_CPPv4NK5bbfft17bad_configuration4whatEv">bbfft::bad_configuration::what (C++ function)</a>
 </li>
-        <li><a href="api/utilities.html#_CPPv4N5bbfft2cl19build_kernel_bundleENSt6stringE10cl_context12cl_device_id">bbfft::cl::build_kernel_bundle (C++ function)</a>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2cl19build_kernel_bundleEPK7uint8_tNSt6size_tE13module_format10cl_context12cl_device_id">bbfft::cl::build_kernel_bundle (C++ function)</a>, <a href="api/online_compiler.html#_CPPv4N5bbfft2cl19build_kernel_bundleERKNSt6stringE10cl_context12cl_device_id">[1]</a>
 </li>
-        <li><a href="api/utilities.html#_CPPv4N5bbfft2cl13create_kernelE10cl_programNSt6stringE">bbfft::cl::create_kernel (C++ function)</a>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2cl17create_aot_moduleEPK7uint8_tNSt6size_tE13module_format10cl_context12cl_device_id">bbfft::cl::create_aot_module (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2cl13create_kernelE10cl_programRKNSt6stringE">bbfft::cl::create_kernel (C++ function)</a>
 </li>
         <li><a href="api/plan.html#_CPPv4N5bbfft2cl5errorE">bbfft::cl::error (C++ class)</a>
 </li>
@@ -245,11 +267,13 @@
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft13configuration5shapeE">bbfft::configuration::shape (C++ member)</a>
 </li>
+        <li><a href="api/configuration.html#_CPPv4NK5bbfft13configuration9to_stringEv">bbfft::configuration::to_string (C++ function)</a>
+</li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft13configuration4typeE">bbfft::configuration::type (C++ member)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft25configure_factor2_slm_fftERK13configuration11device_info">bbfft::configure_factor2_slm_fft (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4N5bbfft25configure_factor2_slm_fftERK13configurationRK11device_info">bbfft::configure_factor2_slm_fft (C++ function)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft25configure_small_batch_fftERK13configuration11device_info">bbfft::configure_small_batch_fft (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4N5bbfft25configure_small_batch_fftERK13configurationRK11device_info">bbfft::configure_small_batch_fft (C++ function)</a>
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft15default_istrideEjRKNSt5arrayINSt6size_tE14max_tensor_dimEE14transform_typeb">bbfft::default_istride (C++ function)</a>
 </li>
@@ -259,17 +283,33 @@
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft11device_info17local_memory_sizeE">bbfft::device_info::local_memory_size (C++ member)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft11device_info17max_subgroup_sizeEv">bbfft::device_info::max_subgroup_size (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_info17max_subgroup_sizeEv">bbfft::device_info::max_subgroup_size (C++ function)</a>
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft11device_info19max_work_group_sizeE">bbfft::device_info::max_work_group_size (C++ member)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft11device_info17min_subgroup_sizeEv">bbfft::device_info::min_subgroup_size (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_info17min_subgroup_sizeEv">bbfft::device_info::min_subgroup_size (C++ function)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft11device_info18num_subgroup_sizesE">bbfft::device_info::num_subgroup_sizes (C++ member)</a>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_infoneERK11device_info">bbfft::device_info::operator!= (C++ function)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft11device_info14register_spaceEv">bbfft::device_info::register_space (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_infoeqERK11device_info">bbfft::device_info::operator== (C++ function)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_info18register_space_maxEv">bbfft::device_info::register_space_max (C++ function)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_info18register_space_minEv">bbfft::device_info::register_space_min (C++ function)</a>
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft11device_info14subgroup_sizesE">bbfft::device_info::subgroup_sizes (C++ member)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft11device_info9to_stringEv">bbfft::device_info::to_string (C++ function)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft11device_info4typeE">bbfft::device_info::type (C++ member)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft11device_typeE">bbfft::device_type (C++ enum)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft11device_type3cpuE">bbfft::device_type::cpu (C++ enumerator)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft11device_type6customE">bbfft::device_type::custom (C++ enumerator)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft11device_type3gpuE">bbfft::device_type::gpu (C++ enumerator)</a>
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft9directionE">bbfft::direction (C++ enum)</a>
 </li>
@@ -284,6 +324,8 @@
         <li><a href="api/generator.html#_CPPv4N5bbfft25factor2_slm_configuration15external_bufferE">bbfft::factor2_slm_configuration::external_buffer (C++ member)</a>
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft25factor2_slm_configuration2fpE">bbfft::factor2_slm_configuration::fp (C++ member)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft25factor2_slm_configuration10identifierEv">bbfft::factor2_slm_configuration::identifier (C++ function)</a>
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft25factor2_slm_configuration19inplace_unsupportedE">bbfft::factor2_slm_configuration::inplace_unsupported (C++ member)</a>
 </li>
@@ -313,9 +355,45 @@
 </li>
         <li><a href="api/utilities.html#_CPPv4I_NSt6size_tE0_NSt6size_tEEN5bbfft9fit_arrayEDaRKNSt5arrayI4IdxT3DinEE4IdxT">bbfft::fit_array (C++ function)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamENSt6stringERK25factor2_slm_configuration">bbfft::generate_factor2_slm_fft (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4N5bbfft24generate_factor2_slm_fftERNSt7ostreamERK25factor2_slm_configurationNSt11string_viewE">bbfft::generate_factor2_slm_fft (C++ function)</a>
 </li>
-        <li><a href="api/generator.html#_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamENSt6stringERK25small_batch_configuration">bbfft::generate_small_batch_fft (C++ function)</a>
+        <li><a href="api/generator.html#_CPPv4N5bbfft20generate_fft_kernelsERNSt7ostreamERKNSt6vectorI13configurationEERK11device_info">bbfft::generate_fft_kernels (C++ function)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft24generate_small_batch_fftERNSt7ostreamERK25small_batch_configurationNSt11string_viewE">bbfft::generate_small_batch_fft (C++ function)</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft13get_device_idE12cl_device_id">bbfft::get_device_id (C++ function)</a>, <a href="api/generator.html#_CPPv4N5bbfft13get_device_idE18ze_device_handle_t">[1]</a>, <a href="api/generator.html#_CPPv4N5bbfft13get_device_idEN4sycl6deviceE">[2]</a>
+</li>
+        <li><a href="api/generator.html#_CPPv4N5bbfft15get_device_infoE12cl_device_id">bbfft::get_device_info (C++ function)</a>, <a href="api/generator.html#_CPPv4N5bbfft15get_device_infoE18ze_device_handle_t">[1]</a>, <a href="api/generator.html#_CPPv4N5bbfft15get_device_infoEN4sycl6deviceE">[2]</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft9jit_cacheE">bbfft::jit_cache (C++ class)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4NK5bbfft9jit_cache3getERK13jit_cache_key">bbfft::jit_cache::get (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft9jit_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE">bbfft::jit_cache::store (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft9jit_cacheD0Ev">bbfft::jit_cache::~jit_cache (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft13jit_cache_allE">bbfft::jit_cache_all (C++ class)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4NK5bbfft13jit_cache_all3getERK13jit_cache_key">bbfft::jit_cache_all::get (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4NK5bbfft13jit_cache_all12kernel_namesEv">bbfft::jit_cache_all::kernel_names (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft13jit_cache_all5storeERK13jit_cache_key13shared_handleI15module_handle_tE">bbfft::jit_cache_all::store (C++ function)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft13jit_cache_keyE">bbfft::jit_cache_key (C++ struct)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft13jit_cache_key9device_idE">bbfft::jit_cache_key::device_id (C++ member)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft13jit_cache_key11kernel_nameE">bbfft::jit_cache_key::kernel_name (C++ member)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4NK5bbfft13jit_cache_keyeqERK13jit_cache_key">bbfft::jit_cache_key::operator== (C++ function)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4N5bbfft18jit_cache_key_hashE">bbfft::jit_cache_key_hash (C++ struct)</a>
+</li>
+        <li><a href="api/jit_cache.html#_CPPv4NK5bbfft18jit_cache_key_hashclERK13jit_cache_key">bbfft::jit_cache_key_hash::operator() (C++ function)</a>
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft15kernel_languageE">bbfft::kernel_language (C++ enum)</a>
 </li>
@@ -325,15 +403,25 @@
 </li>
         <li><a href="api/utilities.html#_CPPv4N5bbfft6layout9col_majorE">bbfft::layout::col_major (C++ enumerator)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/utilities.html#_CPPv4N5bbfft6layout9row_majorE">bbfft::layout::row_major (C++ enumerator)</a>
 </li>
-        <li><a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configuration16cl_command_queue">bbfft::make_plan (C++ function)</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configuration16cl_command_queue10cl_context12cl_device_id">[1]</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configuration24ze_command_list_handle_t19ze_context_handle_t18ze_device_handle_t">[2]</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueE">[3]</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueEN4sycl7contextEN4sycl6deviceE">[4]</a>
+        <li><a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configuration16cl_command_queue10cl_context12cl_device_idP9jit_cache">bbfft::make_plan (C++ function)</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configuration16cl_command_queueP9jit_cache">[1]</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configuration24ze_command_list_handle_t19ze_context_handle_t18ze_device_handle_tP9jit_cache">[2]</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueEN4sycl7contextEN4sycl6deviceEP9jit_cache">[3]</a>, <a href="api/plan.html#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueEP9jit_cache">[4]</a>
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft11max_fft_dimE">bbfft::max_fft_dim (C++ member)</a>
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft14max_tensor_dimE">bbfft::max_tensor_dim (C++ member)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft13module_formatE">bbfft::module_format (C++ enum)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft13module_format6nativeE">bbfft::module_format::native (C++ enumerator)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft13module_format5spirvE">bbfft::module_format::spirv (C++ enumerator)</a>
+</li>
+        <li><a href="api/configuration.html#_CPPv4N5bbfftlsERNSt7ostreamERK13configuration">bbfft::operator&lt;&lt; (C++ function)</a>, <a href="api/generator.html#_CPPv4N5bbfftlsERNSt7ostreamE11device_type">[1]</a>, <a href="api/generator.html#_CPPv4N5bbfftlsERNSt7ostreamERK11device_info">[2]</a>
+</li>
+        <li><a href="api/utilities.html#_CPPv4N5bbfft17parse_device_infoENSt11string_viewE">bbfft::parse_device_info (C++ function)</a>
+</li>
+        <li><a href="api/utilities.html#_CPPv4N5bbfft20parse_fft_descriptorENSt11string_viewE">bbfft::parse_fft_descriptor (C++ function)</a>
 </li>
         <li><a href="api/plan.html#_CPPv4I0EN5bbfft4planE">bbfft::plan (C++ class)</a>
 </li>
@@ -357,6 +445,8 @@
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft25small_batch_configuration2fpE">bbfft::small_batch_configuration::fp (C++ member)</a>
 </li>
+        <li><a href="api/generator.html#_CPPv4NK5bbfft25small_batch_configuration10identifierEv">bbfft::small_batch_configuration::identifier (C++ function)</a>
+</li>
         <li><a href="api/generator.html#_CPPv4N5bbfft25small_batch_configuration19inplace_unsupportedE">bbfft::small_batch_configuration::inplace_unsupported (C++ member)</a>
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft25small_batch_configuration7istrideE">bbfft::small_batch_configuration::istride (C++ member)</a>
@@ -378,6 +468,16 @@
         <li><a href="api/generator.html#_CPPv4N5bbfft25small_batch_configuration14store_functionE">bbfft::small_batch_configuration::store_function (C++ member)</a>
 </li>
         <li><a href="api/generator.html#_CPPv4N5bbfft25small_batch_configuration4typeE">bbfft::small_batch_configuration::type (C++ member)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft4sycl19build_native_moduleEPK7uint8_tNSt6size_tE13module_formatN4sycl7contextEN4sycl6deviceE">bbfft::sycl::build_native_module (C++ function)</a>, <a href="api/online_compiler.html#_CPPv4N5bbfft4sycl19build_native_moduleERKNSt6stringEN4sycl7contextEN4sycl6deviceE">[1]</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft4sycl17create_aot_moduleEPK7uint8_tNSt6size_tE13module_formatN4sycl7contextEN4sycl6deviceE">bbfft::sycl::create_aot_module (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft4sycl13create_kernelEN4sycl13kernel_bundleIN4sycl12bundle_state10executableEEERKNSt6stringE">bbfft::sycl::create_kernel (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft4sycl18make_kernel_bundleE15module_handle_tbN4sycl7contextE">bbfft::sycl::make_kernel_bundle (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft4sycl18make_shared_handleE15module_handle_tN4sycl7backendE">bbfft::sycl::make_shared_handle (C++ function)</a>
 </li>
         <li><a href="api/utilities.html#_CPPv4I0_j_6layoutEN5bbfft14tensor_indexerE">bbfft::tensor_indexer (C++ class)</a>
 </li>
@@ -411,6 +511,8 @@
 </li>
         <li><a href="api/configuration.html#_CPPv4I0EN5bbfft14to_precision_vE">bbfft::to_precision_v (C++ member)</a>
 </li>
+        <li><a href="api/configuration.html#_CPPv4N5bbfft9to_stringE14transform_type">bbfft::to_string (C++ function)</a>
+</li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft14transform_typeE">bbfft::transform_type (C++ enum)</a>
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft14transform_type3c2cE">bbfft::transform_type::c2c (C++ enumerator)</a>
@@ -433,9 +535,15 @@
 </li>
         <li><a href="api/configuration.html#_CPPv4N5bbfft11user_module14store_functionE">bbfft::user_module::store_function (C++ member)</a>
 </li>
-        <li><a href="api/utilities.html#_CPPv4N5bbfft2ze19build_kernel_bundleENSt6stringE19ze_context_handle_t18ze_device_handle_t">bbfft::ze::build_kernel_bundle (C++ function)</a>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2ze19build_kernel_bundleEPK7uint8_tNSt6size_tE13module_format19ze_context_handle_t18ze_device_handle_t">bbfft::ze::build_kernel_bundle (C++ function)</a>, <a href="api/online_compiler.html#_CPPv4N5bbfft2ze19build_kernel_bundleERKNSt6stringE19ze_context_handle_t18ze_device_handle_t">[1]</a>
 </li>
-        <li><a href="api/utilities.html#_CPPv4N5bbfft2ze13create_kernelE18ze_module_handle_tNSt6stringE">bbfft::ze::create_kernel (C++ function)</a>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2ze17compile_to_nativeERKNSt6stringERKNSt6stringE">bbfft::ze::compile_to_native (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2ze16compile_to_spirvERKNSt6stringE">bbfft::ze::compile_to_spirv (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2ze17create_aot_moduleEPK7uint8_tNSt6size_tE13module_format19ze_context_handle_t18ze_device_handle_t">bbfft::ze::create_aot_module (C++ function)</a>
+</li>
+        <li><a href="api/online_compiler.html#_CPPv4N5bbfft2ze13create_kernelE18ze_module_handle_tRKNSt6stringE">bbfft::ze::create_kernel (C++ function)</a>
 </li>
         <li><a href="api/plan.html#_CPPv4N5bbfft2ze5errorE">bbfft::ze::error (C++ class)</a>
 </li>

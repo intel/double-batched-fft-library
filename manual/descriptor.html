@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Creating and using plans" href="plans.html" /><link rel="prev" title="User manual" href="index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API reference" href="../api/index.html" /><link rel="prev" title="Kernel caching" href="caching.html" />
 
     <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
-        <title>Building and linking - Double-Batched FFT Library documentation</title>
+        <title>Descriptor format - Double-Batched FFT Library documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -156,12 +156,12 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Building and linking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build.html">Building and linking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plans.html">Creating and using plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data-layout.html">Understanding data layouts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="caching.html">Kernel caching</a></li>
-<li class="toctree-l2"><a class="reference internal" href="descriptor.html">Descriptor format</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Descriptor format</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -207,131 +207,118 @@
           </label>
         </div>
         <article role="main">
-          <section id="building-and-linking">
-<h1>Building and linking<a class="headerlink" href="#building-and-linking" title="Permalink to this heading">#</a></h1>
-<section id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">#</a></h2>
-<p>Installing the
-<a class="reference external" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html">Intel oneAPI Base Toolkit</a>
-is sufficent to compile the library.</p>
-<p>Detailed list of dependencies:</p>
-<ul class="simple">
-<li><p>CMake &gt;= 3.23</p></li>
-<li><p>C++ compiler with SYCL support</p></li>
-<li><p>OpenCL library</p></li>
-<li><p>Level Zero loader library</p></li>
-<li><p>ocloc (OpenCL offline compiler from the Intel Compute Runtime)</p></li>
-</ul>
-</section>
-<section id="build-from-source-using-oneapi">
-<h2>Build from source using oneAPI<a class="headerlink" href="#build-from-source-using-oneapi" title="Permalink to this heading">#</a></h2>
-<p>First, Initialize the oneAPI environment.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">. /opt/intel/oneapi/setvars.sh</span>
+          <section id="descriptor-format">
+<span id="descriptor"></span><h1>Descriptor format<a class="headerlink" href="#descriptor-format" title="Permalink to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">bbfft-aot-generate</span></code> and <code class="docutils literal notranslate"><span class="pre">bbfft-offline-generate</span></code> tools use a short FFT descriptor format.
+The general form of a FFT descriptor is (in <a class="reference external" href="https://www.ietf.org/rfc/rfc5234.txt">ABNF syntax</a>):</p>
+<div class="highlight-abnf notranslate"><div class="highlight"><pre><span></span>fft_<span class="nc">descriptor</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="nc">precision</span><span class="w"> </span><span class="nc">domain</span><span class="w"> </span><span class="nc">direction</span><span class="w"> </span><span class="nc">placement</span><span class="w"> </span><span class="nc">shape</span><span class="w"> </span><span class="p">[</span><span class="nc">istride</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="nc">ostride</span><span class="p">]</span>
+<span class="nc">precision</span><span class="w">       </span><span class="o">=</span><span class="w">  </span><span class="l">&quot;s&quot;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;d&quot;</span>
+<span class="nc">domain</span><span class="w">          </span><span class="o">=</span><span class="w">  </span><span class="l">&quot;c&quot;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;r&quot;</span>
+<span class="nc">direction</span><span class="w">       </span><span class="o">=</span><span class="w">  </span><span class="l">&quot;f&quot;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;b&quot;</span>
+<span class="nc">placement</span><span class="w">       </span><span class="o">=</span><span class="w">  </span><span class="l">&quot;i&quot;</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="l">&quot;o&quot;</span>
+<span class="nc">shape</span><span class="w">           </span><span class="o">=</span><span class="w">  </span><span class="p">[</span><span class="nc">number</span><span class="w"> </span><span class="l">&quot;.&quot;</span><span class="p">]</span><span class="w"> </span><span class="nc">number</span><span class="w"> </span><span class="o">*2</span><span class="p">(</span><span class="l">&quot;x&quot;</span><span class="w"> </span><span class="nc">number</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="l">&quot;*&quot;</span><span class="w"> </span><span class="nc">number</span><span class="p">]</span>
+<span class="nc">number</span><span class="w">          </span><span class="o">=</span><span class="w">  </span><span class="o">1*</span><span class="k">DIGIT</span>
+<span class="nc">istride</span><span class="w">         </span><span class="o">=</span><span class="w">  </span><span class="l">&quot;i&quot;</span><span class="w"> </span><span class="nc">stride</span>
+<span class="nc">ostride</span><span class="w">         </span><span class="o">=</span><span class="w">  </span><span class="l">&quot;o&quot;</span><span class="w"> </span><span class="nc">stride</span>
+<span class="nc">stride</span><span class="w">          </span><span class="o">=</span><span class="w">  </span><span class="nc">number</span><span class="w"> </span><span class="o">2*4</span><span class="p">(</span><span class="l">&quot;,&quot;</span><span class="w"> </span><span class="nc">number</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Clone the library’s repository to your local filesystem. Enter the directory containing your local copy
-of the repository and run</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake -Bbuild -S. -DCMAKE_CXX_COMPILER=icpx -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=NO</span>
-</pre></div>
-</div>
-<p>Static libraries are built when using the above command.
-Forshared libraries build use</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake -Bbuild -S. -DCMAKE_CXX_COMPILER=icpx -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=YES</span>
-</pre></div>
-</div>
-<p>After successful configuration, build the library with</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake --build build</span>
-</pre></div>
-</div>
-<p>Finally, install with</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake --install build --prefix /path/to/installation</span>
-</pre></div>
-</div>
-</section>
-<section id="build-options">
-<h2>Build options<a class="headerlink" href="#build-options" title="Permalink to this heading">#</a></h2>
-<p>The build can be customized by passing -D&lt;option&gt;=ON or OFF to cmake.
-The following options are supported:</p>
-<div class="table-wrapper docutils container">
+<p>The precision, domain, direction, and placement options are:</p>
+<div class="table-wrapper colwidths-given docutils container">
 <table class="docutils align-default">
+<colgroup>
+<col style="width: 9.1%" />
+<col style="width: 90.9%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Option</p></th>
-<th class="head"><p>Description</p></th>
+<th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>BUILD_DOCUMENTATION</p></td>
-<td><p>Generate the documentation</p></td>
+<tr class="row-even"><td><p><strong>s</strong></p></td>
+<td><p>Single precision</p></td>
 </tr>
-<tr class="row-odd"><td><p>BUILD_BENCHMARK</p></td>
-<td><p>Build benchmark executables</p></td>
+<tr class="row-odd"><td><p><strong>d</strong></p></td>
+<td><p>Double precision</p></td>
 </tr>
-<tr class="row-even"><td><p>BUILD_EXAMPLE</p></td>
-<td><p>Build examples</p></td>
+<tr class="row-even"><td><p><strong>c</strong></p></td>
+<td><p>Complex input and complex output</p></td>
 </tr>
-<tr class="row-odd"><td><p>BUILD_TESTING</p></td>
-<td><p>Build unit tests</p></td>
+<tr class="row-odd"><td><p><strong>r</strong></p></td>
+<td><p>Real input and complex output in forward direction;
+complex input and real output in backward direction</p></td>
 </tr>
-<tr class="row-even"><td><p>BUILD_SYCL</p></td>
-<td><p>Build FFT library for SYCL</p></td>
+<tr class="row-even"><td><p><strong>f</strong></p></td>
+<td><p>Forward direction</p></td>
 </tr>
-<tr class="row-odd"><td><p>BUILD_LEVEL_ZERO</p></td>
-<td><p>Build FFT library for Level Zero (must be ON if BUILD_SYCL=ON)</p></td>
+<tr class="row-odd"><td><p><strong>b</strong></p></td>
+<td><p>Backward direction</p></td>
 </tr>
-<tr class="row-even"><td><p>BUILD_OPENCL</p></td>
-<td><p>Build FFT library for OpenCL (must be ON if BUILD_SYCL=ON)</p></td>
+<tr class="row-even"><td><p><strong>i</strong></p></td>
+<td><p>In-place</p></td>
 </tr>
-<tr class="row-odd"><td><p>ENABLE_WARNINGS</p></td>
-<td><p>Enable strict warnings</p></td>
-</tr>
-<tr class="row-even"><td><p>NO_DOUBLE_PRECISION</p></td>
-<td><p>Disable double precision in benchmarks and tests; useful if GPU
-has no support for double precision</p></td>
-</tr>
-<tr class="row-odd"><td><p>USE_CUDA</p></td>
-<td><p>Build CUDA benchmark and examples</p></td>
-</tr>
-<tr class="row-even"><td><p>USE_MKL</p></td>
-<td><p>Build MKL benchmark</p></td>
-</tr>
-<tr class="row-odd"><td><p>USE_VKFFT</p></td>
-<td><p>Build VkFFT benchmark</p></td>
+<tr class="row-odd"><td><p><strong>o</strong></p></td>
+<td><p>Out-of-place</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-</section>
-<section id="linking-in-a-cmake-project">
-<h2>Linking in a CMake project<a class="headerlink" href="#linking-in-a-cmake-project" title="Permalink to this heading">#</a></h2>
-<p>The project builds the three different libraries bbfft-level-zero, bbfft-opencl, and
-bbfft-sycl. The first library uses the Level Zero run-time, the second library uses
-the OpenCL library, and the last library the SYCL run-time.
-Using the BUILD_(SYCL, LEVEL_ZERO, OPENCL) options one can choose which libraries are built.
-For example, if you do not use SYCL in your project, you can disable the SYCL build
-and as such do not need a C++ compiler with SYCL support.
-Note that bbfft-sycl depends on bbfft-level-zero and bbfft-opencl and cannot be
-built stand-alone.</p>
-<p>For each of the three libraries, CMake targets are exported and installed along with the
-libraries and headers. Hence, use the find_package mechanism in your CMake project as following:</p>
-<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">find_package</span><span class="p">(</span><span class="s">bbfft-sycl</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-<span class="c"># or</span>
-<span class="nb">find_package</span><span class="p">(</span><span class="s">bbfft-level-zero</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-<span class="c"># or</span>
-<span class="nb">find_package</span><span class="p">(</span><span class="s">bbfft-opencl</span><span class="w"> </span><span class="s">REQUIRED</span><span class="p">)</span>
-</pre></div>
+<p>The shape rule defines the shape of the <span class="math notranslate nohighlight">\(M \times N_1 \times \dots \times N_D \times K\)</span> tensor
+(see <a class="reference internal" href="data-layout.html#data-layout"><span class="std std-ref">Understanding data layouts</span></a>).
+Here, the number before the dot is the left-batch size <span class="math notranslate nohighlight">\(M\)</span>.
+If omitted, then <span class="math notranslate nohighlight">\(M=1\)</span>.</p>
+<p>The numbers before and after “x” correspond to <span class="math notranslate nohighlight">\(N_1,N_2,N_3\)</span> and the number of “x”
+is equal to the FFT dimension plus 1.
+E.g., “5” corresponds to <span class="math notranslate nohighlight">\(N_1=5\)</span> and FFT dimension 1, and “8x16x32” corresponds to
+<span class="math notranslate nohighlight">\(N_1=8,N_2=16,N_3=32\)</span> and FFT dimension 3.</p>
+<p>The last number, after “*”, is the right-batch size <span class="math notranslate nohighlight">\(K\)</span>. If omitted, then <span class="math notranslate nohighlight">\(K=1\)</span>.</p>
+<p>The istride and ostride rules can be used to override the default strides of the input and output tensor.
+The sequence of numbers corresponds to <span class="math notranslate nohighlight">\(s_0,\dots,s_{D+1}\)</span> (see <a class="reference internal" href="data-layout.html#data-layout"><span class="std std-ref">Understanding data layouts</span></a>).
+The length of the sequence of numbers must be equal to the FFT dimension plus two.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Custom strides for in-place transforms need to be repeated, i.e. both istride and ostride
+need to be given.</p>
 </div>
-<p>You can omit the REQUIRED flag.
-For non-standard installation directories you might need to add the installation
-location to the CMAKE_PREFIX_PATH.
-For specifically requesting the static or shared library version use</p>
-<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">find_package</span><span class="p">(</span><span class="s">bbfft-sycl</span><span class="w"> </span><span class="s">REQUIRED</span><span class="w"> </span><span class="s">static</span><span class="p">)</span>
-<span class="c"># or</span>
-<span class="nb">find_package</span><span class="p">(</span><span class="s">bbfft-sycl</span><span class="w"> </span><span class="s">REQUIRED</span><span class="w"> </span><span class="s">shared</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>To link the library and to set include directories you only need</p>
-<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">your-target</span><span class="w"> </span><span class="s">PRIVATE</span><span class="w"> </span><span class="s">bbfft::bbfft-sycl</span><span class="p">)</span>
-</pre></div>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 9.1%" />
+<col style="width: 90.9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Gibberish</p></th>
+<th class="head"><p>English</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>srfi5</p></td>
+<td><p>Single precision real-to-complex 5-point FFT with in-place data layout.</p></td>
+</tr>
+<tr class="row-odd"><td><p>dcbi4*5</p></td>
+<td><p>Double precision complex-to-complex 4-point FFT in backward direction with
+in-place data layout and right-batch size of 5.</p></td>
+</tr>
+<tr class="row-even"><td><p>dcbi4.5</p></td>
+<td><p>Double precision complex-to-complex 5-point FFT in backward direction with
+in-place data layout and left-batch size of 4.</p></td>
+</tr>
+<tr class="row-odd"><td><p>drfo5x6x7</p></td>
+<td><p>Double precision real-to-complex 3-D FFT on <span class="math notranslate nohighlight">\(5x6x7\)</span> tensor with out-of-place data layout.</p></td>
+</tr>
+<tr class="row-even"><td><p>srbo4.5x6*7</p></td>
+<td><p>Double precision complex-to-real 2-D FFT on <span class="math notranslate nohighlight">\(5x6\)</span> tensor with left-batch size 4 and
+right-batch size 7 with out-of-place data layout.</p></td>
+</tr>
+<tr class="row-odd"><td><p>scfo16*32i1,1,20</p></td>
+<td><p>Single precision complex-to-complex 16-point FFT with right-batch size 32 with out-place data-layout
+and input stride override (20 complex numbers between batch elements in input tensor).</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 </section>
@@ -341,23 +328,23 @@ For specifically requesting the static or shared library version use</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="plans.html">
+          <a class="next-page" href="../api/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Creating and using plans</div>
+                <div class="title">API reference</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="index.html">
+          <a class="prev-page" href="caching.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">User manual</div>
+                <div class="title">Kernel caching</div>
                 
               </div>
             </a>
@@ -391,11 +378,8 @@ For specifically requesting the static or shared library version use</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Building and linking</a><ul>
-<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
-<li><a class="reference internal" href="#build-from-source-using-oneapi">Build from source using oneAPI</a></li>
-<li><a class="reference internal" href="#build-options">Build options</a></li>
-<li><a class="reference internal" href="#linking-in-a-cmake-project">Linking in a CMake project</a></li>
+<li><a class="reference internal" href="#">Descriptor format</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
@@ -411,5 +395,6 @@ For specifically requesting the static or shared library version use</p>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/scripts/furo.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

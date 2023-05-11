@@ -1,0 +1,527 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Utilities" href="utilities.html" /><link rel="prev" title="Online compiler" href="online_compiler.html" />
+
+    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
+        <title>Kernel caching - Double-Batched FFT Library documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Double-Batched FFT Library  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Double-Batched FFT Library  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../manual/index.html">User manual</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../manual/build.html">Building and linking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/plans.html">Creating and using plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/data-layout.html">Understanding data layouts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/examples.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/caching.html">Kernel caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../manual/descriptor.html">Descriptor format</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plan.html">Plans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generator.html">Offline generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="online_compiler.html">Online compiler</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Kernel caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="kernel-caching">
+<span id="jit-cache-api"></span><h1>Kernel caching<a class="headerlink" href="#kernel-caching" title="Permalink to this heading">#</a></h1>
+<p>It might be necessary to recreate the same plan multiple times.
+To facilitate fast plan creation, kernels might be cached and looked up at plan creation.</p>
+<section id="jit-cache-interface">
+<h2>JIT cache interface<a class="headerlink" href="#jit-cache-interface" title="Permalink to this heading">#</a></h2>
+<p>The general interface of a JIT cache is defined below.
+Users may derive from jit_cache in order to implement their own caching strategies should
+the provided caching strategies be insufficent.</p>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9jit_cacheE">
+<span id="_CPPv3N5bbfft9jit_cacheE"></span><span id="_CPPv2N5bbfft9jit_cacheE"></span><span id="bbfft::jit_cache"></span><span class="target" id="classbbfft_1_1jit__cache"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jit_cache</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft9jit_cacheE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Interface for jit_caches. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Template Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>backend-specific</strong> – kernel bundle type </p>
+</dd>
+</dl>
+<p>Subclassed by <a class="reference internal" href="#classbbfft_1_1aot__cache"><span class="std std-ref">bbfft::aot_cache</span></a>, <a class="reference internal" href="#classbbfft_1_1jit__cache__all"><span class="std std-ref">bbfft::jit_cache_all</span></a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9jit_cacheD0Ev">
+<span id="_CPPv3N5bbfft9jit_cacheD0Ev"></span><span id="_CPPv2N5bbfft9jit_cacheD0Ev"></span><span id="bbfft::jit_cache::~jit_cache"></span><span class="target" id="classbbfft_1_1jit__cache_1a59b9b92bc496d343690cc4b9b1ecc845"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~jit_cache</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft9jit_cacheD0Ev" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Destructor. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft9jit_cache3getERK13jit_cache_key">
+<span id="_CPPv3NK5bbfft9jit_cache3getERK13jit_cache_key"></span><span id="_CPPv2NK5bbfft9jit_cache3getERK13jit_cache_key"></span><span id="bbfft::jit_cache::get__jit_cache_keyCRC"></span><span class="target" id="classbbfft_1_1jit__cache_1aecedfd5972dd037a99dacec722337865"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4NK5bbfft9jit_cache3getERK13jit_cache_key" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get FFT kernel bundle. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – FFT kernel identifier</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>kernel bundle </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9jit_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE">
+<span id="_CPPv3N5bbfft9jit_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE"></span><span id="_CPPv2N5bbfft9jit_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE"></span><span id="bbfft::jit_cache::store__jit_cache_keyCR.shared_handle:module_handle_t:"></span><span class="target" id="classbbfft_1_1jit__cache_1acf5d5f09a59167aa9ed981355a837436"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">store</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mod</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0</span></span><a class="headerlink" href="#_CPPv4N5bbfft9jit_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Store FFT kernel bundle. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – FFT kernel identifier </p></li>
+<li><p><strong>mod</strong> – kernel bundle </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<section id="cache-keys">
+<h3>Cache keys<a class="headerlink" href="#cache-keys" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13jit_cache_keyE">
+<span id="_CPPv3N5bbfft13jit_cache_keyE"></span><span id="_CPPv2N5bbfft13jit_cache_keyE"></span><span id="bbfft::jit_cache_key"></span><span class="target" id="structbbfft_1_1jit__cache__key"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jit_cache_key</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft13jit_cache_keyE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Unique identifier for fft kernel. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft13jit_cache_keyeqERK13jit_cache_key">
+<span id="_CPPv3NK5bbfft13jit_cache_keyeqERK13jit_cache_key"></span><span id="_CPPv2NK5bbfft13jit_cache_keyeqERK13jit_cache_key"></span><span id="bbfft::jit_cache_key::eq-operator__jit_cache_keyCRC"></span><span class="target" id="structbbfft_1_1jit__cache__key_1a60ba380e73e3e23df868af20cec0115c"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK5bbfft13jit_cache_keyeqERK13jit_cache_key" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>equality check </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13jit_cache_key11kernel_nameE">
+<span id="_CPPv3N5bbfft13jit_cache_key11kernel_nameE"></span><span id="_CPPv2N5bbfft13jit_cache_key11kernel_nameE"></span><span id="bbfft::jit_cache_key::kernel_name__ss"></span><span class="target" id="structbbfft_1_1jit__cache__key_1ab785801cbe688d0ba17877dac34c573e"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernel_name</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span><a class="headerlink" href="#_CPPv4N5bbfft13jit_cache_key11kernel_nameE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Name of the OpenCL kernel. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13jit_cache_key9device_idE">
+<span id="_CPPv3N5bbfft13jit_cache_key9device_idE"></span><span id="_CPPv2N5bbfft13jit_cache_key9device_idE"></span><span id="bbfft::jit_cache_key::device_id__std::uint64_t"></span><span class="target" id="structbbfft_1_1jit__cache__key_1a9c394158fcca048181ca50e6e59ef3f5"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">device_id</span></span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">numeric_limits</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">max</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv4N5bbfft13jit_cache_key9device_idE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Unique device id. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft18jit_cache_key_hashE">
+<span id="_CPPv3N5bbfft18jit_cache_key_hashE"></span><span id="_CPPv2N5bbfft18jit_cache_key_hashE"></span><span id="bbfft::jit_cache_key_hash"></span><span class="target" id="structbbfft_1_1jit__cache__key__hash"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jit_cache_key_hash</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft18jit_cache_key_hashE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Hash function for <a class="reference internal" href="#structbbfft_1_1jit__cache__key"><span class="std std-ref">jit_cache_key</span></a>. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft18jit_cache_key_hashclERK13jit_cache_key">
+<span id="_CPPv3NK5bbfft18jit_cache_key_hashclERK13jit_cache_key"></span><span id="_CPPv2NK5bbfft18jit_cache_key_hashclERK13jit_cache_key"></span><span id="bbfft::jit_cache_key_hash::call-operator__jit_cache_keyCRC"></span><span class="target" id="structbbfft_1_1jit__cache__key__hash_1ab632f9147963389ae5588abf3b441a9b"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">()</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">noexcept</span></span><a class="headerlink" href="#_CPPv4NK5bbfft18jit_cache_key_hashclERK13jit_cache_key" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Compute hash. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – cache key</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>hash </p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+<section id="jit-cache-all">
+<h2>JIT cache all<a class="headerlink" href="#jit-cache-all" title="Permalink to this heading">#</a></h2>
+<p>Simple cache that stores all encountered kernels.</p>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13jit_cache_allE">
+<span id="_CPPv3N5bbfft13jit_cache_allE"></span><span id="_CPPv2N5bbfft13jit_cache_allE"></span><span id="bbfft::jit_cache_all"></span><span class="target" id="classbbfft_1_1jit__cache__all"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jit_cache_all</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft9jit_cacheE" title="bbfft::jit_cache"><span class="n"><span class="pre">jit_cache</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft13jit_cache_allE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Cache that stores all kernels. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft13jit_cache_all3getERK13jit_cache_key">
+<span id="_CPPv3NK5bbfft13jit_cache_all3getERK13jit_cache_key"></span><span id="_CPPv2NK5bbfft13jit_cache_all3getERK13jit_cache_key"></span><span id="bbfft::jit_cache_all::get__jit_cache_keyCRC"></span><span class="target" id="classbbfft_1_1jit__cache__all_1ab4dde31734aa22f9910f3ccd3ebae9c1"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5bbfft13jit_cache_all3getERK13jit_cache_key" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get FFT kernel bundle. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – FFT kernel identifier</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>kernel bundle </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft13jit_cache_all5storeERK13jit_cache_key13shared_handleI15module_handle_tE">
+<span id="_CPPv3N5bbfft13jit_cache_all5storeERK13jit_cache_key13shared_handleI15module_handle_tE"></span><span id="_CPPv2N5bbfft13jit_cache_all5storeERK13jit_cache_key13shared_handleI15module_handle_tE"></span><span id="bbfft::jit_cache_all::store__jit_cache_keyCR.shared_handle:module_handle_t:"></span><span class="target" id="classbbfft_1_1jit__cache__all_1a74874b0956d2f8fee4681763af40e329"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">store</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mod</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5bbfft13jit_cache_all5storeERK13jit_cache_key13shared_handleI15module_handle_tE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Store FFT kernel bundle. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – FFT kernel identifier </p></li>
+<li><p><strong>mod</strong> – kernel bundle </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft13jit_cache_all12kernel_namesEv">
+<span id="_CPPv3NK5bbfft13jit_cache_all12kernel_namesEv"></span><span id="_CPPv2NK5bbfft13jit_cache_all12kernel_namesEv"></span><span id="bbfft::jit_cache_all::kernel_namesC"></span><span class="target" id="classbbfft_1_1jit__cache__all_1aace622f07475bc6d98e062163aa0fb8a"></span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernel_names</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">&gt;</span></span><a class="headerlink" href="#_CPPv4NK5bbfft13jit_cache_all12kernel_namesEv" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get all kernel names stored in this cache. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="ahead-of-time-cache">
+<h2>Ahead-of-time cache<a class="headerlink" href="#ahead-of-time-cache" title="Permalink to this heading">#</a></h2>
+<p>Kernels may be compiled ahead-of-time.
+The ahead-of-time “cache” is used to look-up kernels at plan creation time.</p>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9aot_cacheE">
+<span id="_CPPv3N5bbfft9aot_cacheE"></span><span id="_CPPv2N5bbfft9aot_cacheE"></span><span id="bbfft::aot_cache"></span><span class="target" id="classbbfft_1_1aot__cache"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">aot_cache</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">bbfft</span></span><span class="p"><span class="pre">::</span></span><a class="reference internal" href="#_CPPv4N5bbfft9jit_cacheE" title="bbfft::jit_cache"><span class="n"><span class="pre">jit_cache</span></span></a><a class="headerlink" href="#_CPPv4N5bbfft9aot_cacheE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Cache to look up ahead-of-time compiled FFT kernels. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK5bbfft9aot_cache3getERK13jit_cache_key">
+<span id="_CPPv3NK5bbfft9aot_cache3getERK13jit_cache_key"></span><span id="_CPPv2NK5bbfft9aot_cache3getERK13jit_cache_key"></span><span id="bbfft::aot_cache::get__jit_cache_keyCRC"></span><span class="target" id="classbbfft_1_1aot__cache_1ad3dfc669bef20070306888f267e00bbd"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">auto</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">get</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="o"><span class="pre">-&gt;</span></span><span class="w"> </span><span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4NK5bbfft9aot_cache3getERK13jit_cache_key" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Get FFT kernel bundle. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>key</strong> – FFT kernel identifier</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>kernel bundle </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9aot_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE">
+<span id="_CPPv3N5bbfft9aot_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE"></span><span id="_CPPv2N5bbfft9aot_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE"></span><span id="bbfft::aot_cache::store__jit_cache_keyCR.shared_handle:module_handle_t:"></span><span class="target" id="classbbfft_1_1aot__cache_1ae6ecbe9330ec6f1e0783ae6cd3abf361"></span><span class="k"><span class="pre">virtual</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">store</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft13jit_cache_keyE" title="bbfft::jit_cache_key"><span class="n"><span class="pre">jit_cache_key</span></span></a><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mod</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">override</span></span><a class="headerlink" href="#_CPPv4N5bbfft9aot_cache5storeERK13jit_cache_key13shared_handleI15module_handle_tE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Store FFT kernel bundle. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – FFT kernel identifier </p></li>
+<li><p><strong>mod</strong> – kernel bundle </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft9aot_cache15register_moduleE10aot_module">
+<span id="_CPPv3N5bbfft9aot_cache15register_moduleE10aot_module"></span><span id="_CPPv2N5bbfft9aot_cache15register_moduleE10aot_module"></span><span id="bbfft::aot_cache::register_module__aot_module"></span><span class="target" id="classbbfft_1_1aot__cache_1ae82a6ce79ac37972f81495de529638df"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">register_module</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N5bbfft10aot_moduleE" title="bbfft::aot_module"><span class="n"><span class="pre">aot_module</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">aot_mod</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N5bbfft9aot_cache15register_moduleE10aot_module" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>register module with this cache </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft10aot_moduleE">
+<span id="_CPPv3N5bbfft10aot_moduleE"></span><span id="_CPPv2N5bbfft10aot_moduleE"></span><span id="bbfft::aot_module"></span><span class="target" id="structbbfft_1_1aot__module"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">aot_module</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft10aot_moduleE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Collection of native module handle, set of kernel names stored in the native module, and a device identifier. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft10aot_module3modE">
+<span id="_CPPv3N5bbfft10aot_module3modE"></span><span id="_CPPv2N5bbfft10aot_module3modE"></span><span id="bbfft::aot_module::mod__shared_handle:module_handle_t:"></span><span class="target" id="structbbfft_1_1aot__module_1ac73ee2ddcdd3329fcd8e59d76c29c1f1"></span><span class="n"><span class="pre">shared_handle</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">module_handle_t</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mod</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft10aot_module3modE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Native module handle. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft10aot_module12kernel_namesE">
+<span id="_CPPv3N5bbfft10aot_module12kernel_namesE"></span><span id="_CPPv2N5bbfft10aot_module12kernel_namesE"></span><span id="bbfft::aot_module::kernel_names__std::unordered_set:ss:"></span><span class="target" id="structbbfft_1_1aot__module_1a26c09831644fb0a4ea00030e86d06529"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">unordered_set</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">kernel_names</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft10aot_module12kernel_namesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Set of kernel names. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N5bbfft10aot_module9device_idE">
+<span id="_CPPv3N5bbfft10aot_module9device_idE"></span><span id="_CPPv2N5bbfft10aot_module9device_idE"></span><span id="bbfft::aot_module::device_id__std::uint64_t"></span><span class="target" id="structbbfft_1_1aot__module_1a8660da90e4d15833726138a33f9788af"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">device_id</span></span></span><a class="headerlink" href="#_CPPv4N5bbfft10aot_module9device_idE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Device id for mod. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="utilities.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Utilities</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="online_compiler.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Online compiler</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Intel Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Kernel caching</a><ul>
+<li><a class="reference internal" href="#jit-cache-interface">JIT cache interface</a><ul>
+<li><a class="reference internal" href="#cache-keys">Cache keys</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jit-cache-all">JIT cache all</a></li>
+<li><a class="reference internal" href="#ahead-of-time-cache">Ahead-of-time cache</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>
