@@ -9,6 +9,7 @@
 
 #include <array>
 #include <cstddef>
+#include <iosfwd>
 
 namespace bbfft {
 
@@ -187,7 +188,18 @@ struct BBFFT_EXPORT configuration {
      * @param inplace Set to true for in-place transform.
      */
     void set_strides_default(bool inplace);
+    std::string to_string() const; ///< convert configuration to FFT descriptor
 };
+
+/**
+ * @brief Output configuration as FFT descriptor
+ *
+ * @param os output stream
+ * @param cfg configuration
+ *
+ * @return Reference to os
+ */
+BBFFT_EXPORT std::ostream &operator<<(std::ostream &os, configuration const &info);
 
 } // namespace bbfft
 

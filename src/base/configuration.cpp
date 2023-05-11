@@ -3,6 +3,10 @@
 
 #include "bbfft/configuration.hpp"
 
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
+
 namespace bbfft {
 
 char const *to_string(transform_type type) {
@@ -54,6 +58,105 @@ auto default_ostride(unsigned dim, std::array<std::size_t, max_tensor_dim> const
 void configuration::set_strides_default(bool inplace) {
     istride = default_istride(dim, shape, type, inplace);
     ostride = default_ostride(dim, shape, type, inplace);
+}
+
+std::string configuration::to_string() const {
+    std::ostringstream oss;
+    oss << *this;
+    return oss.str();
+}
+
+std::ostream &operator<<(std::ostream &os, configuration const &cfg) {
+    // precision
+    switch (cfg.fp) {
+    case precision::f32:
+        os << 's';
+        break;
+    case precision::f64:
+        os << 'd';
+        break;
+    default:
+        throw std::runtime_error("Unsupported precision");
+        break;
+    }
+    // domain
+    switch (cfg.type) {
+    case transform_type::c2c:
+        os << 'c';
+        break;
+    case transform_type::r2c:
+    case transform_type::c2r:
+        os << 'r';
+        break;
+    default:
+        throw std::runtime_error("Unsupported transform type");
+        break;
+    }
+    // direction
+    switch (cfg.dir) {
+    case direction::forward:
+        os << 'f';
+        break;
+    case direction::backward:
+        os << 'b';
+        break;
+    default:
+        throw std::runtime_error("Unsupported direction");
+        break;
+    }
+    if ((cfg.type == transform_type::r2c && cfg.dir == direction::backward) ||
+        (cfg.type == transform_type::c2r && cfg.dir == direction::forward)) {
+        throw std::runtime_error(
+            "r2c direction must be forward and c2r direction must be backward");
+    }
+
+    // placement
+    auto istride = cfg.istride;
+    auto ostride = cfg.ostride;
+    if (cfg.type == transform_type::r2c) {
+        for (unsigned d = 2; d < max_tensor_dim; ++d) {
+            ostride[d] *= 2;
+        }
+    } else if (cfg.type == transform_type::c2r) {
+        for (unsigned d = 2; d < max_tensor_dim; ++d) {
+            istride[d] *= 2;
+        }
+    }
+    bool inplace = true;
+    for (unsigned d = 0; d < cfg.dim + 2; ++d) {
+        inplace = inplace && (istride[d] == ostride[d]);
+    }
+    os << (inplace ? 'i' : 'o');
+
+    // shape
+    if (cfg.shape[0] != 1u) {
+        os << cfg.shape[0] << '.';
+    }
+    os << cfg.shape[1];
+    for (unsigned d = 1; d < cfg.dim; ++d) {
+        os << 'x' << cfg.shape[1 + d];
+    }
+    if (cfg.shape[cfg.dim + 1] != 1u) {
+        os << '*' << cfg.shape[cfg.dim + 1];
+    }
+
+    // istride
+    if (cfg.istride != default_istride(cfg.dim, cfg.shape, cfg.type, inplace)) {
+        os << 'i' << cfg.istride[0];
+        for (unsigned d = 1; d < cfg.dim + 2; ++d) {
+            os << ',' << cfg.istride[d];
+        }
+    }
+
+    // ostride
+    if (cfg.ostride != default_ostride(cfg.dim, cfg.shape, cfg.type, inplace)) {
+        os << 'o' << cfg.ostride[0];
+        for (unsigned d = 1; d < cfg.dim + 2; ++d) {
+            os << ',' << cfg.ostride[d];
+        }
+    }
+
+    return os;
 }
 
 } // namespace bbfft

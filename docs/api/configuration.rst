@@ -14,6 +14,8 @@ Main configuration
 .. doxygenstruct:: bbfft::configuration
    :members:
 
+.. doxygenfunction:: bbfft::operator<<(std::ostream&, configuration const&)
+
 Constants
 =========
 

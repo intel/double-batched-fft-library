@@ -87,8 +87,8 @@ Examples
    * - dcbi4.5
      - Double precision complex-to-complex 5-point FFT in backward direction with
        in-place data layout and left-batch size of 4.
-   * - dcfo5x6x7
-     - Double precision complex-to-complex 3-D FFT on :math:`5x6x7` tensor with out-of-place data layout.
+   * - drfo5x6x7
+     - Double precision real-to-complex 3-D FFT on :math:`5x6x7` tensor with out-of-place data layout.
    * - srbo4.5x6*7
      - Double precision complex-to-real 2-D FFT on :math:`5x6` tensor with left-batch size 4 and
        right-batch size 7 with out-of-place data layout.

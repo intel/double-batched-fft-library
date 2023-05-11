@@ -128,7 +128,7 @@ configuration parse_fft_descriptor(std::string_view desc) {
         break;
     }
 
-    std::array<char, max_tensor_dim - 1> ops;
+    std::array<char, max_tensor_dim - 1> ops = {};
     int dim = 0;
     cfg.shape[dim++] = parse_number();
     while (it != desc.cend()) {
@@ -137,12 +137,15 @@ configuration parse_fft_descriptor(std::string_view desc) {
                                                       std::to_string(max_tensor_dim),
                                                   false));
         }
-        ops[dim - 1] = advance();
-        if (ops[dim - 1] != '.' && ops[dim - 1] != 'x' && ops[dim - 1] != '*') {
-            fail("unrecognized operator " + std::string(1, ops[dim - 1]));
+        auto val = advance();
+        if (val != '.' && val != 'x' && val != '*') {
+            --it;
+            break;
         }
+        ops[dim - 1] = val;
         cfg.shape[dim++] = parse_number();
     }
+
     bool has_M = dim >= 2 && ops[0] == '.';
     bool has_K = dim >= 2 && ops[dim - 2] == '*';
     unsigned num_x = 0;
@@ -171,8 +174,38 @@ configuration parse_fft_descriptor(std::string_view desc) {
         cfg.shape[0] = 1u;
     }
 
-    cfg.istride = default_istride(cfg.dim, cfg.shape, cfg.type, inplace);
-    cfg.ostride = default_ostride(cfg.dim, cfg.shape, cfg.type, inplace);
+    auto const parse_stride = [&](std::array<std::size_t, max_tensor_dim> &stride) {
+        for (unsigned d = 0; d < cfg.dim + 2; ++d) {
+            stride[d] = parse_number();
+            if (d < cfg.dim + 1 && advance() != ',') {
+                expected(",");
+            }
+        }
+    };
+
+    bool custom_istride = false, custom_ostride = false;
+    while (it != desc.cend()) {
+        switch (advance()) {
+        case 'i':
+            parse_stride(cfg.istride);
+            custom_istride = true;
+            break;
+        case 'o':
+            parse_stride(cfg.ostride);
+            custom_ostride = true;
+            break;
+        default:
+            expected("'i' (istride) or 'o' (ostride)");
+            break;
+        }
+    }
+
+    if (!custom_istride) {
+        cfg.istride = default_istride(cfg.dim, cfg.shape, cfg.type, inplace);
+    }
+    if (!custom_ostride) {
+        cfg.ostride = default_ostride(cfg.dim, cfg.shape, cfg.type, inplace);
+    }
 
     return cfg;
 }
