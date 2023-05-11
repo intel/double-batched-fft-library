@@ -98,10 +98,27 @@ TEST_CASE("Code generation") {
     }
 
     SUBCASE("data type") {
+        CHECK(e2s(generic_float()) == "float");
+        CHECK(e2s(local_float(4)) == "local float4");
         CHECK(e2s(pointer_to(global_float())) == "global float*");
         CHECK(e2s(pointer_to(pointer_to(global_float()))) == "global float**");
         CHECK(e2s(pointer_to(pointer_to(global_float()), address_space::global_t)) ==
-              "global float* global*");
+              "global float**global");
+        CHECK(e2s(array_of(global_float(), 10)) == "global float[10]");
+        CHECK(e2s(array_of(pointer_to(global_float()), 10)) == "global float*[10]");
+        CHECK(e2s(array_of(array_of(pointer_to(generic_float()), 10), 12)) == "float*[12][10]");
+        CHECK(e2s(array_of(pointer_to(array_of(generic_float(), 10)), 12)) == "float(*[12])[10]");
+        CHECK(e2s(pointer_to(array_of(array_of(generic_int(), 10), 12))) == "int(*)[12][10]");
+        CHECK(e2s(pointer_to(
+                  pointer_to(array_of(array_of(generic_int(), 10), 12), address_space::global_t),
+                  address_space::local_t)) == "int(*global*local)[12][10]");
+        CHECK(e2s(pointer_to(pointer_to(array_of(pointer_to(global_float()), 10)))) ==
+              "global float*(**)[10]");
+        CHECK(e2s(cast(array_of(generic_float(), 10), a)) == "(float[10]) a");
+        std::stringstream oss;
+        oss << "global float*(** a)[10];" << std::endl;
+        CHECK(e2s(declaration(pointer_to(pointer_to(array_of(pointer_to(global_float()), 10))),
+                              a)) == oss.str());
     }
 
     SUBCASE("prototype") {

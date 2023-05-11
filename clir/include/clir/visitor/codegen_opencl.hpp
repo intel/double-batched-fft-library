@@ -16,6 +16,7 @@
 #include <iosfwd>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace clir {
@@ -25,6 +26,15 @@ class CLIR_EXPORT func;
 class CLIR_EXPORT stmt;
 class CLIR_EXPORT prog;
 
+class CLIR_EXPORT codegen_data_type {
+  public:
+    /* Data type nodes */
+    auto operator()(internal::scalar_data_type &v) -> std::pair<std::string, std::string>;
+    auto operator()(internal::vector_data_type &v) -> std::pair<std::string, std::string>;
+    auto operator()(internal::pointer &v) -> std::pair<std::string, std::string>;
+    auto operator()(internal::array &a) -> std::pair<std::string, std::string>;
+};
+
 class CLIR_EXPORT codegen_opencl {
   public:
     codegen_opencl(std::ostream &os);
@@ -32,12 +42,6 @@ class CLIR_EXPORT codegen_opencl {
 
     /* Attributes */
     void operator()(internal::attr_node &attr);
-
-    /* Data type nodes */
-    void operator()(internal::scalar_data_type &v);
-    void operator()(internal::vector_data_type &v);
-    void operator()(internal::pointer &v);
-    void operator()(internal::array &a);
 
     /* Expr nodes */
     void operator()(internal::variable &v);
@@ -91,7 +95,6 @@ class CLIR_EXPORT codegen_opencl {
     int lvl_ = 0;
     std::ostream &os_;
     std::ios_base::fmtflags stream_fmt_;
-    std::stringstream post_;
     bool inline_ = false;
     bool block_endl_ = true;
     bool definition_ = false;

@@ -23,6 +23,48 @@
 
 namespace clir {
 
+/* Data type nodes */
+auto codegen_data_type::operator()(internal::scalar_data_type &v)
+    -> std::pair<std::string, std::string> {
+    std::stringstream oss;
+    if (v.space() != address_space::generic_t) {
+        oss << v.space() << " ";
+    }
+    oss << v.type();
+    return {oss.str(), ""};
+}
+auto codegen_data_type::operator()(internal::vector_data_type &v)
+    -> std::pair<std::string, std::string> {
+    std::stringstream oss;
+    if (v.space() != address_space::generic_t) {
+        oss << v.space() << " ";
+    }
+    oss << v.type() << v.size();
+    return {oss.str(), ""};
+}
+auto codegen_data_type::operator()(internal::pointer &v) -> std::pair<std::string, std::string> {
+    auto dt = visit(*this, *v.ty());
+    std::ostringstream oss;
+    oss << dt.first;
+    // Need to wrap in parentheses if nested declaration is an array declaration.
+    // cf. https://en.cppreference.com/w/c/language/declarations
+    if (dynamic_cast<internal::array *>(v.ty().get())) {
+        oss << "(";
+        dt.second = ")" + dt.second;
+    }
+    oss << "*";
+    if (v.space() != address_space::generic_t) {
+        oss << v.space();
+    }
+    return {oss.str(), dt.second};
+}
+auto codegen_data_type::operator()(internal::array &a) -> std::pair<std::string, std::string> {
+    auto dt = visit(*this, *a.ty());
+    std::ostringstream oss;
+    oss << "[" << a.size() << "]" << dt.second;
+    return {dt.first, oss.str()};
+}
+
 codegen_opencl::codegen_opencl(std::ostream &os) : os_(os), stream_fmt_(os_.flags()) {
     os_ << std::hexfloat;
 }
@@ -33,34 +75,6 @@ void codegen_opencl::operator()(internal::attr_node &attr) {
     os_ << "__attribute__((";
     attr.print(os_);
     os_ << "))";
-}
-
-/* Data type nodes */
-void codegen_opencl::operator()(internal::scalar_data_type &v) {
-    if (v.space() != address_space::generic_t) {
-        os_ << v.space() << " ";
-    }
-    os_ << v.type();
-}
-void codegen_opencl::operator()(internal::vector_data_type &v) {
-    if (v.space() != address_space::generic_t) {
-        os_ << v.space() << " ";
-    }
-
-    os_ << v.type() << v.size();
-}
-void codegen_opencl::operator()(internal::pointer &v) {
-    visit(*this, *v.ty());
-    if (v.space() != address_space::generic_t) {
-        os_ << " " << v.space();
-    }
-    os_ << "*";
-}
-void codegen_opencl::operator()(internal::array &a) {
-    visit(*this, *a.ty());
-    auto tmp = post_.str();
-    post_.str(std::string());
-    post_ << "[" << a.size() << "]" << tmp;
 }
 
 /* Expr nodes */
@@ -133,9 +147,8 @@ void codegen_opencl::operator()(internal::call &fn) {
 }
 
 void codegen_opencl::operator()(internal::cast &c) {
-    os_ << "(";
-    visit(*this, *c.target_ty());
-    os_ << ") ";
+    auto dt = visit(codegen_data_type{}, *c.target_ty());
+    os_ << "(" << dt.first << dt.second << ") ";
     visit_check_parentheses(c, *c.term(), true);
 }
 
@@ -249,11 +262,10 @@ void codegen_opencl::operator()(internal::prototype &proto) {
     }
     os_ << "void " << proto.name() << "(";
     do_with_infix(proto.args().begin(), proto.args().end(), [this](auto x) {
-        visit(*this, *x.first);
-        os_ << " ";
+        auto dt = visit(codegen_data_type{}, *x.first);
+        os_ << dt.first << " ";
         visit(*this, *x.second);
-        os_ << post_.str();
-        post_.str(std::string());
+        os_ << dt.second;
     });
     os_ << ')';
     if (definition_) {
@@ -313,11 +325,10 @@ void codegen_opencl::end_statement() {
 }
 
 void codegen_opencl::print_declaration(internal::declaration &d) {
-    visit(*this, *d.ty());
-    os_ << " ";
+    auto dt = visit(codegen_data_type{}, *d.ty());
+    os_ << dt.first << " ";
     visit(*this, *d.variable());
-    os_ << post_.str();
-    post_.str(std::string());
+    os_ << dt.second;
     for (auto &a : d.attributes()) {
         os_ << " ";
         visit(*this, *a);
@@ -328,6 +339,9 @@ void generate_opencl(std::ostream &os, prog p) { visit(codegen_opencl(os), *p); 
 void generate_opencl(std::ostream &os, func k) { visit(codegen_opencl(os), *k); }
 void generate_opencl(std::ostream &os, stmt s) { visit(codegen_opencl(os), *s); }
 void generate_opencl(std::ostream &os, expr e) { visit(codegen_opencl(os), *e); }
-void generate_opencl(std::ostream &os, data_type d) { visit(codegen_opencl(os), *d); }
+void generate_opencl(std::ostream &os, data_type d) {
+    auto dt = visit(codegen_data_type{}, *d);
+    os << dt.first << dt.second;
+}
 
 } // namespace clir
