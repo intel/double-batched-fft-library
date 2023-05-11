@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0] - 2023-05-11
+
+* Introduce JIT caching feature
+* Support for ahead-of-time compilation of FFT kernels
+* Specialization for CPU devices added (for OpenCL CPU run-time)
+
 ## [0.3.6] - 2023-02-10
 
 * Moved clir to top-level; clir is now a self-contained project
