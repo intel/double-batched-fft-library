@@ -31,9 +31,15 @@ template <> struct build_wrapper<::sycl::backend::ext_oneapi_level_zero> {
         : native_context(::sycl::get_native<be_t, ::sycl::context>(c)),
           native_device(::sycl::get_native<be_t, ::sycl::device>(d)) {}
 
-    template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
+    auto build_module(std::string const &source, std::vector<std::string> const &options)
+        -> module_handle_t {
         return detail::cast<module_handle_t>(
-            ze::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
+            ze::build_kernel_bundle(source, native_context, native_device, options));
+    }
+    auto build_module(uint8_t const *binary, std::size_t binary_size, module_format format)
+        -> module_handle_t {
+        return detail::cast<module_handle_t>(
+            ze::build_kernel_bundle(binary, binary_size, format, native_context, native_device));
     }
     template <typename... Args> auto create_aot_module(Args &&...args) -> aot_module {
         return ze::create_aot_module(std::forward<Args>(args)..., native_context, native_device);
@@ -74,9 +80,15 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
         CL_CHECK(clReleaseDevice(native_device));
     }
 
-    template <typename... Args> auto build_module(Args &&...args) -> module_handle_t {
+    auto build_module(std::string const &source, std::vector<std::string> const &options)
+        -> module_handle_t {
         return detail::cast<module_handle_t>(
-            cl::build_kernel_bundle(std::forward<Args>(args)..., native_context, native_device));
+            cl::build_kernel_bundle(source, native_context, native_device, options));
+    }
+    auto build_module(uint8_t const *binary, std::size_t binary_size, module_format format)
+        -> module_handle_t {
+        return detail::cast<module_handle_t>(
+            cl::build_kernel_bundle(binary, binary_size, format, native_context, native_device));
     }
     template <typename... Args> auto create_aot_module(Args &&...args) -> aot_module {
         return cl::create_aot_module(std::forward<Args>(args)..., native_context, native_device);

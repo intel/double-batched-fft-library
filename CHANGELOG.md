@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.0] - 2023-XX-XX
+
+* Added compiler options to online compiler interface
+
 ## [0.4.0] - 2023-05-11
 
 * Introduce JIT caching feature

@@ -11,20 +11,26 @@
 #include <CL/cl.h>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace bbfft::cl {
 
 /**
  * @brief Compile OpenCL-C code to an OpenCL program
  *
+ * Compiler options are defined in the OpenCL standard:
+ * https://registry.khronos.org/OpenCL/specs/3.0-unified/html/OpenCL_API.html#compiler-options
+ *
  * @param source Source code
  * @param context OpenCL context
  * @param device OpenCL device
+ * @param options List of compiler options
  *
  * @return OpenCL program
  */
 BBFFT_EXPORT cl_program build_kernel_bundle(std::string const &source, cl_context context,
-                                            cl_device_id device);
+                                            cl_device_id device,
+                                            std::vector<std::string> const &options = {});
 
 /**
  * @brief Build OpenCL program from native binary

@@ -4,6 +4,7 @@
 #include "api.hpp"
 #include "build_wrapper.hpp"
 
+#include "bbfft/detail/compiler_options.hpp"
 #include "bbfft/sycl/device.hpp"
 #include "bbfft/sycl/online_compiler.hpp"
 
@@ -26,7 +27,8 @@ uint64_t api::device_id() { return get_device_id(device_); }
 
 auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
     return ::bbfft::sycl::make_shared_handle(
-        ::bbfft::sycl::build_native_module(source, context_, device_), queue_.get_backend());
+        ::bbfft::sycl::build_native_module(source, context_, device_, detail::compiler_options),
+        queue_.get_backend());
     ;
 }
 auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {

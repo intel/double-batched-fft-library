@@ -4,6 +4,7 @@
 #include "args.hpp"
 
 #include <bbfft/configuration.hpp>
+#include <bbfft/detail/compiler_options.hpp>
 #include <bbfft/device_info.hpp>
 #include <bbfft/generator.hpp>
 #include <bbfft/ze/online_compiler.hpp>
@@ -43,8 +44,9 @@ int main(int argc, char **argv) {
     auto kernel_names = generate_fft_kernels(oss, a.configurations, a.info);
 
     try {
-        auto bin = a.format == module_format::native ? ze::compile_to_native(oss.str(), a.device)
-                                                     : ze::compile_to_spirv(oss.str());
+        auto bin = a.format == module_format::native
+                       ? ze::compile_to_native(oss.str(), a.device, detail::compiler_options)
+                       : ze::compile_to_spirv(oss.str(), detail::compiler_options);
         kernel_file.write(reinterpret_cast<char *>(bin.data()), bin.size());
     } catch (std::exception const &e) {
         std::cerr << "==> Could not compile FFT kernels." << std::endl;

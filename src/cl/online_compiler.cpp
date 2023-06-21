@@ -26,13 +26,22 @@ void check_build_status(cl_program p, cl_int err, cl_device_id device) {
     }
 }
 
-cl_program build_kernel_bundle(std::string const &source, cl_context context, cl_device_id device) {
+cl_program build_kernel_bundle(std::string const &source, cl_context context, cl_device_id device,
+                               std::vector<std::string> const &options) {
     char const *c_source = source.c_str();
     cl_int err;
     cl_program p = clCreateProgramWithSource(context, 1, &c_source, nullptr, &err);
     CL_CHECK(err);
-    err = clBuildProgram(p, 0, nullptr, "-cl-mad-enable" /* -cl-intel-256-GRF-per-thread"*/,
-                         nullptr, nullptr);
+    std::string cl_options = "";
+    auto it = options.cbegin();
+    if (it != options.cend()) {
+        cl_options = *it++;
+        for (; it != options.cend(); ++it) {
+            cl_options += " ";
+            cl_options += *it;
+        }
+    }
+    err = clBuildProgram(p, 0, nullptr, cl_options.c_str(), nullptr, nullptr);
     check_build_status(p, err, device);
     return p;
 }
@@ -54,7 +63,7 @@ cl_program build_kernel_bundle(uint8_t const *binary, std::size_t binary_size, m
         throw std::runtime_error("Unknown module format");
     }
     CL_CHECK(err);
-    err = clBuildProgram(p, 1, &device, "-cl-mad-enable", nullptr, nullptr);
+    err = clBuildProgram(p, 1, &device, "", nullptr, nullptr);
     check_build_status(p, err, device);
     return p;
 }

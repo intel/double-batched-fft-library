@@ -13,20 +13,27 @@
 #include <CL/sycl.hpp>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace bbfft::sycl {
 
 /**
  * @brief Build native module of SYCL back-end
  *
+ * Compiler options are defined in the OpenCL standard:
+ * https://registry.khronos.org/OpenCL/specs/3.0-unified/html/OpenCL_API.html#compiler-options
+ *
  * @param source OpenCL-C code
  * @param context context
  * @param device device
+ * @param options List of compiler options
  *
  * @return Handle
  */
 BBFFT_EXPORT auto build_native_module(std::string const &source, ::sycl::context context,
-                                      ::sycl::device device) -> module_handle_t;
+                                      ::sycl::device device,
+                                      std::vector<std::string> const &options = {})
+    -> module_handle_t;
 
 /**
  * @brief Build native module of SYCL back-end from native binary

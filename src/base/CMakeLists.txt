@@ -13,6 +13,7 @@ set(SOURCES_PRIVATE_TEST
 set(SOURCES
     aot_cache.cpp
     bad_configuration.cpp
+    compiler_options.cpp
     configuration.cpp
     device_info.cpp
     generator.cpp
@@ -43,6 +44,7 @@ set(PUBLIC_HEADERS
     shared_handle.hpp
     user_module.hpp
     detail/cast.hpp
+    detail/compiler_options.hpp
     detail/generator_impl.hpp
     detail/plan_impl.hpp
 )

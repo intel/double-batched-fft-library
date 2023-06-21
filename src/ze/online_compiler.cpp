@@ -15,12 +15,24 @@
 namespace bbfft::ze {
 
 std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
-                                                std::string const &device_type) {
+                                                std::string const &device_type,
+                                                std::vector<std::string> const &options) {
     bool spv_only = device_type.empty();
     unsigned int num_args = 4;
-    constexpr unsigned int max_num_args = 8;
+    constexpr unsigned int max_num_args = 10;
     char const *argv[max_num_args] = {"ocloc", "compile", "-internal_options",
                                       "-cl-ext=+cl_khr_fp64"};
+    auto cl_options = std::string{};
+    if (options.size() > 0) {
+        auto it = options.cbegin();
+        cl_options = *it++;
+        for (; it != options.cend(); ++it) {
+            cl_options += " ";
+            cl_options += *it;
+        }
+        argv[num_args++] = "-options";
+        argv[num_args++] = cl_options.c_str();
+    }
     if (spv_only) {
         argv[num_args++] = "-spv_only";
     } else {
@@ -29,6 +41,7 @@ std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
     }
     argv[num_args++] = "-file";
     argv[num_args++] = "fft.cl";
+
     const uint32_t num_sources = 1;
     const uint8_t *data_sources = reinterpret_cast<const uint8_t *>(source.c_str());
     const uint64_t len_sources = source.size() + 1;
@@ -94,8 +107,9 @@ void check_build_status(ze_module_build_log_handle_t build_log, ze_result_t err)
 }
 
 ze_module_handle_t build_kernel_bundle(std::string const &source, ze_context_handle_t context,
-                                       ze_device_handle_t device) {
-    auto spirv = compile_to_spirv_or_native(source, "");
+                                       ze_device_handle_t device,
+                                       std::vector<std::string> const &options) {
+    auto spirv = compile_to_spirv_or_native(source, "", options);
     return build_kernel_bundle(spirv.data(), spirv.size(), module_format::spirv, context, device);
 }
 
@@ -134,15 +148,17 @@ ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name
     return krnl;
 }
 
-std::vector<uint8_t> compile_to_spirv(std::string const &source) {
-    return compile_to_spirv_or_native(source, "");
+std::vector<uint8_t> compile_to_spirv(std::string const &source,
+                                      std::vector<std::string> const &options) {
+    return compile_to_spirv_or_native(source, "", options);
 }
 
-std::vector<uint8_t> compile_to_native(std::string const &source, std::string const &device_type) {
+std::vector<uint8_t> compile_to_native(std::string const &source, std::string const &device_type,
+                                       std::vector<std::string> const &options) {
     if (device_type.empty()) {
         throw std::logic_error("compile_to_native: device_type must not be empty");
     }
-    return compile_to_spirv_or_native(source, device_type);
+    return compile_to_spirv_or_native(source, device_type, options);
 }
 
 aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, module_format format,

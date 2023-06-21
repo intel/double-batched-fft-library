@@ -5,6 +5,7 @@
 #include "bbfft/cl/device.hpp"
 #include "bbfft/cl/online_compiler.hpp"
 #include "bbfft/detail/cast.hpp"
+#include "bbfft/detail/compiler_options.hpp"
 
 #include <CL/cl_ext.h>
 
@@ -51,7 +52,8 @@ device_info api::info() { return get_device_info(device_); }
 uint64_t api::device_id() { return get_device_id(device_); }
 
 auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
-    cl_program mod = ::bbfft::cl::build_kernel_bundle(source, context_, device_);
+    cl_program mod =
+        ::bbfft::cl::build_kernel_bundle(source, context_, device_, detail::compiler_options);
     return shared_handle<module_handle_t>(
         detail::cast<module_handle_t>(mod),
         [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });

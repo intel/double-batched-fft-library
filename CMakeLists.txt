@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(double_batched_fft_library VERSION 0.4.0 LANGUAGES CXX)
+project(double_batched_fft_library VERSION 0.5.0 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
