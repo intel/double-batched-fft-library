@@ -7,6 +7,7 @@
 #include "argument_handler.hpp"
 #include "event_pool.hpp"
 
+#include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
@@ -24,7 +25,10 @@ namespace bbfft::ze {
 
 class api {
   public:
+    constexpr static uint32_t max_num_events_we_are_ever_going_to_need = 16;
+
     using event_type = ze_event_handle_t;
+    using plan_type = detail::plan_unmanaged_event_impl<event_type>;
     using buffer_type = void *;
     using kernel_bundle_type = ze_module_handle_t;
     using kernel_type = ze_kernel_handle_t;
@@ -39,22 +43,23 @@ class api {
     auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
     template <typename T>
-    ze_event_handle_t launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
-                                    std::array<std::size_t, 3> local_work_size,
-                                    std::vector<ze_event_handle_t> const &dep_events, T set_args) {
+    void launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
+                       std::array<std::size_t, 3> local_work_size, ze_event_handle_t signal_event,
+                       uint32_t num_wait_events, ze_event_handle_t *wait_events, T set_args) {
         auto handler = argument_handler(k);
         set_args(handler);
-        ze_event_handle_t event = pool_->create_event();
         ze_group_count_t launch_args;
         // FIXME: Must be divisible (or ceil)
         launch_args.groupCountX = global_work_size[0] / local_work_size[0];
         launch_args.groupCountY = global_work_size[1] / local_work_size[1];
         launch_args.groupCountZ = global_work_size[2] / local_work_size[2];
-        ZE_CHECK(zeCommandListAppendLaunchKernel(
-            command_list_, k, &launch_args, event, dep_events.size(),
-            const_cast<ze_event_handle_t *>(dep_events.data())));
-        return event;
+        ZE_CHECK(zeCommandListAppendLaunchKernel(command_list_, k, &launch_args, signal_event,
+                                                 num_wait_events, wait_events));
     }
+    inline void append_reset_event(ze_event_handle_t event) {
+        ZE_CHECK(zeCommandListAppendEventReset(command_list_, event));
+    }
+    ze_event_handle_t get_internal_event() { return pool_->get_event(); }
 
     void *create_device_buffer(std::size_t bytes);
     template <typename T> void *create_device_buffer(std::size_t num_T) {
@@ -66,7 +71,6 @@ class api {
         return create_twiddle_table(twiddle_table.data(), twiddle_table.size() * sizeof(T));
     }
 
-    inline void release_event(event_type e) { zeEventDestroy(e); }
     inline void release_buffer(buffer_type ptr) { zeMemFree(context_, ptr); }
     inline void release_kernel(kernel_type k) { zeKernelDestroy(k); }
 

@@ -18,12 +18,12 @@
 
 namespace bbfft {
 
-template <typename Api> class nd_fft : public detail::plan_impl<typename Api::event_type> {
+template <typename Api> class nd_fft_base : public Api::plan_type {
   public:
-    using event = typename Api::event_type;
     using buffer = typename Api::buffer_type;
+    using event = typename Api::event_type;
 
-    nd_fft(configuration const &cfg, Api api, jit_cache *cache)
+    nd_fft_base(configuration const &cfg, Api api, jit_cache *cache)
         : api_(std::move(api)), dim_(cfg.dim) {
         if (cfg.callbacks) {
             throw bad_configuration("User modules are unsuported for FFT dimension > 1.");
@@ -110,31 +110,68 @@ template <typename Api> class nd_fft : public detail::plan_impl<typename Api::ev
         }
     }
 
-    ~nd_fft() {
+    ~nd_fft_base() {
         if (tmp_) {
             api_.release_buffer(tmp_);
         }
     }
 
-    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
-        -> event override {
-        auto tmp = tmp_ ? tmp_ : out;
-        event e = plans_[0]->execute(in, tmp, dep_events);
-        for (unsigned d = 1; d < dim_ - 1; ++d) {
-            auto next_e = plans_[d]->execute(tmp, tmp, std::vector<event>{e});
-            api_.release_event(e);
-            e = next_e;
-        }
-        auto last_e = plans_[dim_ - 1]->execute(tmp, out, std::vector<event>{e});
-        api_.release_event(e);
-        return last_e;
-    }
+    nd_fft_base(nd_fft_base const &) = delete;
+    nd_fft_base(nd_fft_base &&) = delete;
+    nd_fft_base &operator=(nd_fft_base const &) = delete;
+    nd_fft_base &operator=(nd_fft_base &&) = delete;
 
-  private:
+  protected:
     Api api_;
     unsigned dim_;
-    std::array<std::shared_ptr<detail::plan_impl<event>>, max_fft_dim> plans_;
+    std::array<std::shared_ptr<typename Api::plan_type>, max_fft_dim> plans_;
     buffer tmp_ = nullptr;
+};
+
+template <typename Api, typename PlanImplT = typename Api::plan_type> class nd_fft;
+
+template <typename Api>
+class nd_fft<Api, detail::plan_impl<typename Api::event_type>> : public nd_fft_base<Api> {
+  public:
+    using nd_fft_base<Api>::nd_fft_base;
+    using event = typename Api::event_type;
+
+    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
+        -> event override {
+        auto tmp = this->tmp_ ? this->tmp_ : out;
+        event e = this->plans_[0]->execute(in, tmp, dep_events);
+        for (unsigned d = 1; d < this->dim_ - 1; ++d) {
+            auto next_e = this->plans_[d]->execute(tmp, tmp, std::vector<event>{e});
+            this->api_.release_event(e);
+            e = next_e;
+        }
+        auto last_e = this->plans_[this->dim_ - 1]->execute(tmp, out, std::vector<event>{e});
+        this->api_.release_event(e);
+        return last_e;
+    }
+};
+
+template <typename Api>
+class nd_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event_type>>
+    : public nd_fft_base<Api> {
+  public:
+    using nd_fft_base<Api>::nd_fft_base;
+    using event = typename Api::event_type;
+
+    void execute(void const *in, void *out, event signal_event, std::uint32_t num_dep_events,
+                 event *dep_events) override {
+        auto tmp = this->tmp_ ? this->tmp_ : out;
+        auto e = this->api_.get_internal_event();
+        this->plans_[0]->execute(in, tmp, e, num_dep_events, dep_events);
+        for (unsigned d = 1; d < this->dim_ - 1; ++d) {
+            auto next_e = this->api_.get_internal_event();
+            this->plans_[d]->execute(tmp, tmp, next_e, 1, &e);
+            this->api_.append_reset_event(e);
+            e = next_e;
+        }
+        this->plans_[this->dim_ - 1]->execute(tmp, out, signal_event, 1, &e);
+        this->api_.append_reset_event(e);
+    }
 };
 
 } // namespace bbfft

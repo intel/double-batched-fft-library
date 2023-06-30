@@ -18,8 +18,8 @@
 namespace bbfft {
 
 template <typename Api>
-std::shared_ptr<detail::plan_impl<typename Api::event_type>>
-select_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache) {
+auto select_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache)
+    -> std::shared_ptr<typename Api::plan_type> {
     if (cfg.dim < 1 || cfg.dim > max_fft_dim) {
         throw bad_configuration("Unsupported FFT dimension: " + std::to_string(cfg.dim));
     }

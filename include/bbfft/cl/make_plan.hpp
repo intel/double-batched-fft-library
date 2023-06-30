@@ -13,6 +13,8 @@
 
 namespace bbfft {
 
+using opencl_plan = plan<cl_event>;
+
 /**
  * @brief Create a plan for the configuration
  *
@@ -23,7 +25,7 @@ namespace bbfft {
  * @return plan
  */
 BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue,
-                            jit_cache *cache = nullptr) -> plan<cl_event>;
+                            jit_cache *cache = nullptr) -> opencl_plan;
 /**
  * @brief Create a plan for the configuration
  *
@@ -36,7 +38,7 @@ BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue,
  * @return plan
  */
 BBFFT_EXPORT auto make_plan(configuration const &cfg, cl_command_queue queue, cl_context context,
-                            cl_device_id device, jit_cache *cache = nullptr) -> plan<cl_event>;
+                            cl_device_id device, jit_cache *cache = nullptr) -> opencl_plan;
 
 } // namespace bbfft
 

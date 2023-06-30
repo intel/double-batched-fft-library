@@ -24,19 +24,18 @@
 
 namespace bbfft {
 
-template <typename Api> class factor2_slm_fft : public detail::plan_impl<typename Api::event_type> {
+template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
   public:
-    using event = typename Api::event_type;
     using buffer = typename Api::buffer_type;
     using kernel_bundle = typename Api::kernel_bundle_type;
     using kernel = typename Api::kernel_type;
 
-    factor2_slm_fft(configuration const &cfg, Api api, jit_cache *cache)
+    factor2_slm_fft_base(configuration const &cfg, Api api, jit_cache *cache)
         : api_(std::move(api)), module_(setup(cfg, cache)),
           bundle_(api_.make_kernel_bundle(module_.get())),
           k_(api_.create_kernel(bundle_, identifier_)) {}
 
-    ~factor2_slm_fft() {
+    ~factor2_slm_fft_base() {
         api_.release_kernel(k_);
         if (X1_) {
             api_.release_buffer(X1_);
@@ -44,24 +43,12 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
         api_.release_buffer(twiddle_);
     }
 
-    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
-        -> event override {
-        if (in == out && inplace_unsupported_) {
-            throw bad_configuration("The plan does not support in-place transform on the current "
-                                    "device. Please use the out-of-place transform.");
-        }
-        return api_.launch_kernel(k_, gws_, lws_, dep_events, [&](auto &h) {
-            h.set_arg(0, in);
-            h.set_arg(1, out);
-            h.set_arg(2, twiddle_);
-            h.set_arg(3, K_);
-            if (X1_) {
-                h.set_arg(4, X1_);
-            }
-        });
-    }
+    factor2_slm_fft_base(factor2_slm_fft_base const &) = delete;
+    factor2_slm_fft_base(factor2_slm_fft_base &&) = delete;
+    factor2_slm_fft_base &operator=(factor2_slm_fft_base const &) = delete;
+    factor2_slm_fft_base &operator=(factor2_slm_fft_base &&) = delete;
 
-  private:
+  protected:
     template <typename T> void create_twiddle(int direction, int N1, int N2) {
         constexpr double tau = 6.28318530717958647693;
         auto twiddle = std::vector<T>(2 * (N1 * N2));
@@ -140,7 +127,60 @@ template <typename Api> class factor2_slm_fft : public detail::plan_impl<typenam
     uint64_t K_;
     buffer twiddle_;
     buffer X1_ = nullptr;
-}; // namespace bbfft
+};
+
+template <typename Api, typename PlanImplT = typename Api::plan_type> class factor2_slm_fft;
+
+template <typename Api>
+class factor2_slm_fft<Api, detail::plan_impl<typename Api::event_type>>
+    : public factor2_slm_fft_base<Api> {
+  public:
+    using factor2_slm_fft_base<Api>::factor2_slm_fft_base;
+    using event = typename Api::event_type;
+
+    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
+        -> event override {
+        if (in == out && this->inplace_unsupported_) {
+            throw bad_configuration("The plan does not support in-place transform on the current "
+                                    "device. Please use the out-of-place transform.");
+        }
+        return this->api_.launch_kernel(this->k_, this->gws_, this->lws_, dep_events, [&](auto &h) {
+            h.set_arg(0, in);
+            h.set_arg(1, out);
+            h.set_arg(2, this->twiddle_);
+            h.set_arg(3, this->K_);
+            if (this->X1_) {
+                h.set_arg(4, this->X1_);
+            }
+        });
+    }
+};
+
+template <typename Api>
+class factor2_slm_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event_type>>
+    : public factor2_slm_fft_base<Api> {
+  public:
+    using factor2_slm_fft_base<Api>::factor2_slm_fft_base;
+    using event = typename Api::event_type;
+
+    void execute(void const *in, void *out, event signal_event, std::uint32_t num_dep_events,
+                 event *dep_events) override {
+        if (in == out && this->inplace_unsupported_) {
+            throw bad_configuration("The plan does not support in-place transform on the current "
+                                    "device. Please use the out-of-place transform.");
+        }
+        this->api_.launch_kernel(this->k_, this->gws_, this->lws_, signal_event, num_dep_events,
+                                 dep_events, [&](auto &h) {
+                                     h.set_arg(0, in);
+                                     h.set_arg(1, out);
+                                     h.set_arg(2, this->twiddle_);
+                                     h.set_arg(3, this->K_);
+                                     if (this->X1_) {
+                                         h.set_arg(4, this->X1_);
+                                     }
+                                 });
+    }
+};
 
 } // namespace bbfft
 

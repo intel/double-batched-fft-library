@@ -14,8 +14,8 @@ namespace bbfft {
 
 auto make_plan(configuration const &cfg, ze_command_list_handle_t queue,
                ze_context_handle_t context, ze_device_handle_t device, jit_cache *cache)
-    -> plan<ze_event_handle_t> {
-    return plan<ze_event_handle_t>(
+    -> level_zero_plan {
+    return level_zero_plan(
         select_fft_algorithm<ze::api>(cfg, ze::api(queue, context, device), cache));
 }
 

@@ -12,7 +12,7 @@ namespace bbfft::ze {
 api::api(ze_command_list_handle_t command_list, ze_context_handle_t context,
          ze_device_handle_t device)
     : command_list_(command_list), context_(context), device_(device),
-      pool_(std::make_shared<event_pool>(context_)) {}
+      pool_(std::make_shared<event_pool>(context_, max_num_events_we_are_ever_going_to_need)) {}
 
 device_info api::info() { return get_device_info(device_); }
 
@@ -41,17 +41,22 @@ void *api::create_device_buffer(std::size_t bytes) {
 }
 
 void *api::create_twiddle_table(void *twiddle_table, std::size_t bytes) {
+    ze_command_queue_desc_t command_list_desc = {
+        ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC, nullptr, 0, 0, 0, ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS,
+        ZE_COMMAND_QUEUE_PRIORITY_NORMAL};
+    ze_command_list_handle_t tmp_queue;
+    ZE_CHECK(zeCommandListCreateImmediate(context_, device_, &command_list_desc, &tmp_queue));
+
     void *tw = nullptr;
     ze_device_mem_alloc_desc_t device_mem_desc = {ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, nullptr,
                                                   0, 0};
-    ze_event_handle_t event = pool_->create_event();
     ZE_CHECK(zeMemAllocDevice(context_, &device_mem_desc, bytes, 0, device_, &tw));
-    ZE_CHECK(
-        zeCommandListAppendMemoryCopy(command_list_, tw, twiddle_table, bytes, event, 0, nullptr));
-    ZE_CHECK(zeCommandListClose(command_list_));
+    auto event = pool_->get_event();
+    ZE_CHECK(zeCommandListAppendMemoryCopy(tmp_queue, tw, twiddle_table, bytes, event, 0, nullptr));
     ZE_CHECK(zeEventHostSynchronize(event, UINT64_MAX));
-    release_event(event);
-    ZE_CHECK(zeCommandListReset(command_list_));
+    ZE_CHECK(zeEventHostReset(event));
+
+    ZE_CHECK(zeCommandListDestroy(tmp_queue));
     return tw;
 }
 

@@ -13,6 +13,8 @@
 
 namespace bbfft {
 
+using sycl_plan = plan<::sycl::event>;
+
 /**
  * @brief Create a plan for the configuration
  *
@@ -23,7 +25,7 @@ namespace bbfft {
  * @return plan
  */
 BBFFT_EXPORT auto make_plan(configuration const &cfg, ::sycl::queue queue,
-                            jit_cache *cache = nullptr) -> plan<::sycl::event>;
+                            jit_cache *cache = nullptr) -> sycl_plan;
 /**
  * @brief Create a plan for the configuration
  *
@@ -36,8 +38,7 @@ BBFFT_EXPORT auto make_plan(configuration const &cfg, ::sycl::queue queue,
  * @return plan
  */
 BBFFT_EXPORT auto make_plan(configuration const &cfg, ::sycl::queue queue, ::sycl::context context,
-                            ::sycl::device device, jit_cache *cache = nullptr)
-    -> plan<::sycl::event>;
+                            ::sycl::device device, jit_cache *cache = nullptr) -> sycl_plan;
 
 } // namespace bbfft
 

@@ -17,8 +17,8 @@
 namespace bbfft {
 
 template <typename Api>
-std::shared_ptr<detail::plan_impl<typename Api::event_type>>
-select_1d_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache) {
+auto select_1d_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache)
+    -> std::shared_ptr<typename Api::plan_type> {
     auto info = api.info();
     int sgs = info.min_subgroup_size();
     auto reg_space = info.register_space_max();

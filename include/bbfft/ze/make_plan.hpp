@@ -13,6 +13,8 @@
 
 namespace bbfft {
 
+using level_zero_plan = plan_unmanaged_event<ze_event_handle_t>;
+
 /**
  * @brief Create a plan for the configuration
  *
@@ -26,7 +28,7 @@ namespace bbfft {
  */
 BBFFT_EXPORT auto make_plan(configuration const &cfg, ze_command_list_handle_t queue,
                             ze_context_handle_t context, ze_device_handle_t device,
-                            jit_cache *cache = nullptr) -> plan<ze_event_handle_t>;
+                            jit_cache *cache = nullptr) -> level_zero_plan;
 
 } // namespace bbfft
 

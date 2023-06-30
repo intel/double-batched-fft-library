@@ -4,6 +4,7 @@
 #ifndef DUMMY_API_20230202_HPP
 #define DUMMY_API_20230202_HPP
 
+#include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 
 #include <array>
@@ -17,6 +18,7 @@ namespace bbfft {
 class dummy_api {
   public:
     using event_type = int;
+    using plan_type = detail::plan_impl<event_type>;
     using buffer_type = void *;
     using kernel_bundle_type = int;
     using kernel_type = int;
@@ -40,7 +42,6 @@ class dummy_api {
                              std::vector<event_type> const &, T) {
         return 0;
     }
-    inline void barrier() {}
 
     inline buffer_type create_device_buffer(std::size_t) { return nullptr; }
     template <typename T> buffer_type create_device_buffer(std::size_t) { return nullptr; }

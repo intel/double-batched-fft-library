@@ -22,32 +22,23 @@
 
 namespace bbfft {
 
-template <typename Api> class small_batch_fft : public detail::plan_impl<typename Api::event_type> {
+template <typename Api> class small_batch_fft_base : public Api::plan_type {
   public:
-    using event = typename Api::event_type;
     using kernel_bundle = typename Api::kernel_bundle_type;
     using kernel = typename Api::kernel_type;
 
-    small_batch_fft(configuration const &cfg, Api api, jit_cache *cache)
+    small_batch_fft_base(configuration const &cfg, Api api, jit_cache *cache)
         : api_(std::move(api)), module_(setup(cfg, cache)),
           bundle_(api_.make_kernel_bundle(module_.get())),
           k_(api_.create_kernel(bundle_, identifier_)) {}
-    ~small_batch_fft() { api_.release_kernel(k_); }
+    ~small_batch_fft_base() { api_.release_kernel(k_); }
 
-    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
-        -> event override {
-        if (in == out && inplace_unsupported_) {
-            throw bad_configuration("The plan does not support in-place transform on the current "
-                                    "device. Please use the out-of-place transform.");
-        }
-        return api_.launch_kernel(k_, gws_, lws_, dep_events, [&](auto &h) {
-            h.set_arg(0, in);
-            h.set_arg(1, out);
-            h.set_arg(2, K_);
-        });
-    }
+    small_batch_fft_base(small_batch_fft_base const &) = delete;
+    small_batch_fft_base(small_batch_fft_base &&) = delete;
+    small_batch_fft_base &operator=(small_batch_fft_base const &) = delete;
+    small_batch_fft_base &operator=(small_batch_fft_base &&) = delete;
 
-  private:
+  protected:
     auto setup(configuration const &cfg, jit_cache *cache) -> shared_handle<module_handle_t> {
         std::stringstream ss;
         if (cfg.callbacks) {
@@ -96,7 +87,52 @@ template <typename Api> class small_batch_fft : public detail::plan_impl<typenam
     kernel_bundle bundle_;
     kernel k_;
     uint64_t K_;
-}; // namespace bbfft
+};
+
+template <typename Api, typename PlanImplT = typename Api::plan_type> class small_batch_fft;
+
+template <typename Api>
+class small_batch_fft<Api, detail::plan_impl<typename Api::event_type>>
+    : public small_batch_fft_base<Api> {
+  public:
+    using small_batch_fft_base<Api>::small_batch_fft_base;
+    using event = typename Api::event_type;
+
+    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
+        -> event override {
+        if (in == out && this->inplace_unsupported_) {
+            throw bad_configuration("The plan does not support in-place transform on the current "
+                                    "device. Please use the out-of-place transform.");
+        }
+        return this->api_.launch_kernel(this->k_, this->gws_, this->lws_, dep_events, [&](auto &h) {
+            h.set_arg(0, in);
+            h.set_arg(1, out);
+            h.set_arg(2, this->K_);
+        });
+    }
+};
+
+template <typename Api>
+class small_batch_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event_type>>
+    : public small_batch_fft_base<Api> {
+  public:
+    using small_batch_fft_base<Api>::small_batch_fft_base;
+    using event = typename Api::event_type;
+
+    void execute(void const *in, void *out, event signal_event, std::uint32_t num_dep_events,
+                 event *dep_events) override {
+        if (in == out && this->inplace_unsupported_) {
+            throw bad_configuration("The plan does not support in-place transform on the current "
+                                    "device. Please use the out-of-place transform.");
+        }
+        this->api_.launch_kernel(this->k_, this->gws_, this->lws_, signal_event, num_dep_events,
+                                 dep_events, [&](auto &h) {
+                                     h.set_arg(0, in);
+                                     h.set_arg(1, out);
+                                     h.set_arg(2, this->K_);
+                                 });
+    }
+};
 
 } // namespace bbfft
 

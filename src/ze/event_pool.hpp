@@ -7,20 +7,30 @@
 #include <level_zero/ze_api.h>
 
 #include <cstdint>
+#include <vector>
 
 namespace bbfft::ze {
 
 class event_pool {
   public:
-    static constexpr uint32_t event_pool_size = 256;
-
-    event_pool(ze_context_handle_t context);
+    event_pool(ze_context_handle_t context, uint32_t pool_size);
     ~event_pool();
 
-    ze_event_handle_t create_event();
+    event_pool(event_pool const &) = delete;
+    event_pool(event_pool &) = delete;
+    event_pool &operator=(event_pool const &) = delete;
+    event_pool &operator=(event_pool &&) = delete;
+
+    ze_event_handle_t get_event();
+    void resize(uint32_t pool_size);
 
   private:
+    void create_pool(uint32_t pool_size);
+    void destroy_pool();
+
+    ze_context_handle_t context_;
     ze_event_pool_handle_t event_pool_;
+    std::vector<ze_event_handle_t> events_;
     uint32_t event_index_;
 };
 

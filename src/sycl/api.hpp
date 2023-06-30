@@ -4,6 +4,7 @@
 #ifndef SYCL_API_20220413_HPP
 #define SYCL_API_20220413_HPP
 
+#include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
@@ -21,6 +22,7 @@ namespace bbfft::sycl {
 class api {
   public:
     using event_type = ::sycl::event;
+    using plan_type = detail::plan_impl<event_type>;
     using buffer_type = void *;
     using kernel_bundle_type = ::sycl::kernel_bundle<::sycl::bundle_state::executable>;
     using kernel_type = ::sycl::kernel;
@@ -49,7 +51,6 @@ class api {
             h.parallel_for(::sycl::nd_range{global_range, local_range}, k);
         });
     }
-    void barrier() { queue_.wait(); }
 
     void *create_device_buffer(std::size_t bytes);
     template <typename T> void *create_device_buffer(std::size_t num_T) {

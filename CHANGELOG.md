@@ -3,6 +3,7 @@
 ## [0.5.0] - 2023-XX-XX
 
 * Added compiler options to online compiler interface
+* Introduce new API for Level Zero to support regular command lists and to better handle events
 
 ## [0.4.0] - 2023-05-11
 

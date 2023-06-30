@@ -4,6 +4,7 @@
 #ifndef PLAN_IMPL_20221205_HPP
 #define PLAN_IMPL_20221205_HPP
 
+#include <cstdint>
 #include <vector>
 
 /**
@@ -58,6 +59,34 @@ template <typename EventT> class plan_impl {
      */
     virtual auto execute(void const *in, void *out, std::vector<event_t> const &dep_events)
         -> event_t = 0;
+};
+
+/**
+ * @brief Interface for plan implementations with unmanaged events
+ *
+ * @tparam EventT Event type of underlying run-time
+ */
+template <typename EventT> class plan_unmanaged_event_impl {
+  public:
+    using event_t = EventT; ///< event type
+    /**
+     * @brief Dtor
+     */
+    virtual ~plan_unmanaged_event_impl() {}
+
+    /**
+     * @brief Execute plan
+     *
+     * @param in Pointer to input tensor
+     * @param out Pointer to output tensor
+     * @param signal_event Event signaled on FFT completion [Optional]
+     * @param num_wait_events Number of events to wait on before launch; must be zero if wait_events
+     * == nullptr [Optional]
+     * @param wait_events Pointer to events to wait on before launch; must point to at least
+     * num_wait_events [Optional]
+     */
+    virtual void execute(void const *in, void *out, event_t signal_event,
+                         std::uint32_t num_wait_events, event_t *wait_events) = 0;
 };
 } // namespace detail
 } // namespace bbfft

@@ -7,6 +7,7 @@
 #include "argument_handler.hpp"
 
 #include "bbfft/cl/error.hpp"
+#include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
@@ -23,6 +24,7 @@ namespace bbfft::cl {
 class api {
   public:
     using event_type = cl_event;
+    using plan_type = detail::plan_impl<event_type>;
     using buffer_type = cl_mem;
     using kernel_bundle_type = cl_program;
     using kernel_type = cl_kernel;
