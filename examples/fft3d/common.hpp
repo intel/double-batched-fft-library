@@ -25,7 +25,7 @@ template <typename Harness, typename T> void test_runtime(args a) {
     auto X_device = a.inplace ? x_device : h.template malloc_device<T>(size);
 
     init(x, a.N[0], a.N[1], a.N[2], a.inplace);
-    h.wait_and_release(h.copy(x, x_device, size));
+    h.copy(x, x_device, size);
 
     bbfft::configuration cfg = {3,
                                 {1, a.N[0], a.N[1], a.N[2], 1},
@@ -33,20 +33,23 @@ template <typename Harness, typename T> void test_runtime(args a) {
                                 bbfft::direction::forward,
                                 r2c ? bbfft::transform_type::r2c : bbfft::transform_type::c2c};
     cfg.set_strides_default(a.inplace);
-    auto plan = h.make_plan(cfg);
-    auto const execute3d = [&]() { h.wait_and_release(plan.execute(x_device, X_device)); };
+    h.setup_plan(cfg);
+    std::uint32_t ntimes = 1;
+    auto const execute3d = [&]() { h.run_plan(x_device, X_device, ntimes); };
 
     if (a.verbose) {
         std::cout << "Check" << std::endl;
     }
     bench(1, execute3d, a.verbose);
 
-    h.wait_and_release(h.copy(X_device, x, size));
+    h.copy(X_device, x, size);
     if (check(x, a.N[0], a.N[1], a.N[2])) {
         if (a.verbose) {
-            std::cout << "Bench" << std::endl;
+            std::cout << "Bench (" << a.nrepeat << "x)" << std::endl;
         }
+        ntimes = a.nrepeat;
         auto time = bench(10, execute3d, a.verbose);
+        time /= ntimes;
         std::cout << time << " s, " << 2 * sizeof(std::complex<T>) * size / time * 1.0e-9 << " GB/s"
                   << std::endl;
     }

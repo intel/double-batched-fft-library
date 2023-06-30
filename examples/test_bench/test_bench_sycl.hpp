@@ -6,12 +6,13 @@
 
 #include "bbfft/configuration.hpp"
 #include "bbfft/plan.hpp"
+#include "bbfft/sycl/make_plan.hpp"
 
 #include <CL/sycl.hpp>
 
 class test_bench_sycl {
   public:
-    inline test_bench_sycl() : queue_() {}
+    inline test_bench_sycl() : plan_{}, queue_{::sycl::default_selector_v} {}
 
     test_bench_sycl(test_bench_sycl const &) = delete;
     test_bench_sycl &operator=(test_bench_sycl const &) = delete;
@@ -22,27 +23,25 @@ class test_bench_sycl {
         return ::sycl::malloc_device<T>(elements, queue_);
     }
 
-    inline ::sycl::event memcpy(void *dest, const void *src, size_t bytes) {
-        return queue_.memcpy(dest, src, bytes);
+    inline void memcpy(void *dest, const void *src, size_t bytes) {
+        queue_.memcpy(dest, src, bytes).wait();
     }
 
-    template <typename T>::sycl::event copy(T const *src, T *dest, size_t count) {
-        return queue_.copy(src, dest, count);
+    template <typename T> void copy(T const *src, T *dest, size_t count) {
+        queue_.copy(src, dest, count);
     }
 
     inline void free(void *ptr) { ::sycl::free(ptr, queue_); }
-
-    inline static void wait(::sycl::event e) { e.wait(); }
-    inline static void release(::sycl::event) {}
-    inline static void wait_and_release(::sycl::event e) { wait(std::move(e)); }
 
     inline auto device() const { return queue_.get_device(); }
     inline auto context() const { return queue_.get_context(); }
     inline auto queue() const { return queue_; }
 
-    auto make_plan(bbfft::configuration const &cfg) const -> bbfft::plan<::sycl::event>;
+    void setup_plan(bbfft::configuration const &cfg);
+    void run_plan(void const *in, void *out, std::uint32_t ntimes = 1);
 
   private:
+    bbfft::sycl_plan plan_;
     ::sycl::queue queue_;
 };
 

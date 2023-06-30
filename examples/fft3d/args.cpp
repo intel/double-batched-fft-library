@@ -12,6 +12,8 @@ args parse_args(int argc, char **argv) {
     a.double_precision = false;
     a.r2c = true;
     a.verbose = false;
+    a.reuse = false;
+    a.nrepeat = 1;
 
     auto const help = []() {
         return
@@ -22,12 +24,23 @@ Options:
 -d/s    double / single precision [default: single]
 -c/r    c2c / r2c [default: r2c]
 -v      verbose
+-u      reuse command lists (level zero only) [default: false]
+-n      number of internal repetitions [default: 1]
 )HLP";
     };
 
     int positional_arg = 0;
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
+            if (i + 1 < argc && argv[i][0] != 0) {
+                switch (argv[i][1]) {
+                case 'n':
+                    a.nrepeat = std::stoi(argv[++i]);
+                    continue;
+                default:
+                    break;
+                }
+            }
             for (char *opt = &argv[i][1]; *opt != 0; ++opt) {
                 switch (*opt) {
                 case 'i':
@@ -50,6 +63,9 @@ Options:
                     break;
                 case 'v':
                     a.verbose = true;
+                    break;
+                case 'u':
+                    a.reuse = true;
                     break;
                 default:
                     throw std::invalid_argument(help());

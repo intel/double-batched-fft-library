@@ -9,7 +9,11 @@
 #include <utility>
 
 template <typename T> void test(args a) {
-    test_runtime<test_bench_level_zero, float>(std::move(a));
+    if (a.reuse) {
+        test_runtime<test_bench_level_zero_regular, real_type_t<T>>(std::move(a));
+    } else {
+        test_runtime<test_bench_level_zero_immediate, real_type_t<T>>(std::move(a));
+    }
 }
 
 template void test<float>(args);

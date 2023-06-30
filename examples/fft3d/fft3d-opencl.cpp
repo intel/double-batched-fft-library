@@ -8,7 +8,9 @@
 
 #include <utility>
 
-template <typename T> void test(args a) { test_runtime<test_bench_opencl, float>(std::move(a)); }
+template <typename T> void test(args a) {
+    test_runtime<test_bench_opencl, real_type_t<T>>(std::move(a));
+}
 
 template void test<float>(args);
 template void test<double>(args);

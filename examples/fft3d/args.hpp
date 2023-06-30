@@ -13,6 +13,8 @@ struct args {
     bool double_precision;
     bool r2c;
     bool verbose;
+    bool reuse;
+    std::size_t nrepeat;
 };
 
 args parse_args(int argc, char **argv);

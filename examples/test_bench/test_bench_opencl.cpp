@@ -3,10 +3,9 @@
 
 #include "test_bench_opencl.hpp"
 #include "bbfft/cl/error.hpp"
-#include "bbfft/cl/make_plan.hpp"
 #include "bbfft/configuration.hpp"
 
-test_bench_opencl::test_bench_opencl() {
+test_bench_opencl::test_bench_opencl() : plan_{} {
     cl_uint num_platforms = 1;
     cl_platform_id platform;
     CL_CHECK(clGetPlatformIDs(num_platforms, &platform, nullptr));
@@ -41,21 +40,26 @@ void *test_bench_opencl::malloc_device(size_t bytes) {
     return out;
 }
 
-cl_event test_bench_opencl::memcpy(void *dest, const void *src, size_t bytes) {
+void test_bench_opencl::memcpy(void *dest, const void *src, size_t bytes) {
     cl_event event;
     CL_CHECK(clEnqueueMemcpyINTEL(queue_, CL_FALSE, dest, src, bytes, 0, nullptr, &event));
-    return event;
+    CL_CHECK(clWaitForEvents(1, &event));
+    CL_CHECK(clReleaseEvent(event));
 }
 
 void test_bench_opencl::free(void *ptr) { CL_CHECK(clMemFreeINTEL(context_, ptr)); }
 
-void test_bench_opencl::wait(cl_event e) { CL_CHECK(clWaitForEvents(1, &e)); }
-void test_bench_opencl::release(cl_event e) { CL_CHECK(clReleaseEvent(e)); }
-void test_bench_opencl::wait_and_release(cl_event e) {
-    wait(e);
-    release(e);
+void test_bench_opencl::setup_plan(bbfft::configuration const &cfg) {
+    plan_ = bbfft::make_plan(cfg, queue_, context_, device_);
 }
 
-auto test_bench_opencl::make_plan(bbfft::configuration const &cfg) const -> bbfft::plan<cl_event> {
-    return bbfft::make_plan(cfg, queue_, context_, device_);
+void test_bench_opencl::run_plan(void const *in, void *out, std::uint32_t ntimes) {
+    auto event = plan_.execute(in, out);
+    for (std::uint32_t n = 1; n < ntimes; ++n) {
+        auto next_event = plan_.execute(in, out, event);
+        CL_CHECK(clReleaseEvent(event));
+        event = next_event;
+    }
+    CL_CHECK(clWaitForEvents(1, &event));
+    CL_CHECK(clReleaseEvent(event));
 }
