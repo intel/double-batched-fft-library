@@ -79,15 +79,11 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      */
     tensor_indexer(multi_idx_t shape) : shape_(std::move(shape)) {
         if constexpr (L == layout::row_major) {
-            stride_[D - 1] = 1;
-            for (int i = D - 2; i >= 0; --i) {
-                stride_[i] = stride_[i + 1] * shape_[i + 1];
-            }
-        } else {
-            stride_[0] = 1;
-            for (unsigned int i = 1; i < D; ++i) {
-                stride_[i] = stride_[i - 1] * shape_[i - 1];
-            }
+            shape_ = reversed(shape_);
+        }
+        stride_[0] = 1;
+        for (unsigned int i = 1; i < D; ++i) {
+            stride_[i] = stride_[i - 1] * shape_[i - 1];
         }
     }
 
@@ -98,7 +94,12 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      * @param stride Custom strides
      */
     tensor_indexer(multi_idx_t shape, multi_idx_t stride)
-        : shape_(std::move(shape)), stride_(std::move(stride)) {}
+        : shape_(std::move(shape)), stride_(std::move(stride)) {
+        if constexpr (L == layout::row_major) {
+            shape_ = reversed(shape_);
+            stride_ = reversed(stride_);
+        }
+    }
 
     /**
      * @brief Compute linear index for entry \f$(i_1, ..., i_D)\f$.
@@ -126,8 +127,9 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      */
     IdxT operator()(multi_idx_t const &idx) const {
         IdxT r = 0;
+
         for (unsigned int i = 0; i < D; ++i) {
-            r = r + idx[i] * stride_[i];
+            r = r + idx[i] * stride(i);
         }
         return r;
     }
@@ -137,7 +139,12 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      *
      * @return Numbers \f$N_1,\dots,N_D\f$
      */
-    auto shape() const { return shape_; }
+    auto shape() const {
+        if constexpr (L == layout::row_major) {
+            return reversed(shape_);
+        }
+        return shape_;
+    }
     /**
      * @brief Tensor shape
      *
@@ -145,13 +152,23 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      *
      * @return Number \f$N_d\f$
      */
-    auto shape(unsigned int d) const { return shape_[d]; }
+    auto shape(unsigned int d) const {
+        if constexpr (L == layout::row_major) {
+            return shape_[D - 1 - d];
+        }
+        return shape_[d];
+    }
     /**
      * @brief Strides
      *
      * @return Stride array
      */
-    auto stride() const { return stride_; }
+    auto stride() const {
+        if constexpr (L == layout::row_major) {
+            return reversed(stride_);
+        }
+        return stride_;
+    }
     /**
      * @brief Stride for d-th mode
      *
@@ -159,19 +176,18 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      *
      * @return Stride
      */
-    auto stride(unsigned int d) const { return stride_[d]; }
+    auto stride(unsigned int d) const {
+        if constexpr (L == layout::row_major) {
+            return stride_[D - 1 - d];
+        }
+        return stride_[d];
+    }
     /**
      * @brief Compute number of elements in tensor
      *
      * @return Size (multiply with element type to get number of bytes)
      */
-    IdxT size() const {
-        if constexpr (L == layout::row_major) {
-            return stride_.front() * shape_.front();
-        } else {
-            return stride_.back() * shape_.back();
-        }
-    }
+    IdxT size() const { return stride_.back() * shape_.back(); }
     /**
      * @brief Dimension
      *
@@ -195,19 +211,10 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
         static_assert(Dfrom <= Dto);
         static_assert(Dto <= D - 1);
         if constexpr (Dfrom < Dto) {
-            if constexpr (L == layout::row_major) {
-                for (unsigned int d = Dfrom + 1u; d <= Dto; ++d) {
-                    bool ok = stride_[d] * shape_[d] == stride_[d - 1];
-                    if (!ok) {
-                        return false;
-                    }
-                }
-            } else {
-                for (unsigned int d = Dfrom; d < Dto; ++d) {
-                    bool ok = stride_[d] * shape_[d] == stride_[d + 1];
-                    if (!ok) {
-                        return false;
-                    }
+            for (unsigned int d = Dfrom; d < Dto; ++d) {
+                bool ok = stride_[d] * shape_[d] == stride_[d + 1];
+                if (!ok) {
+                    return false;
                 }
             }
         }
@@ -222,7 +229,7 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      * @tparam Dfrom First fused mode
      * @tparam Dto Last fused mode
      *
-     * @return True if modes may be fused
+     * @return Fused tensor indexer
      */
     template <unsigned int Dfrom = 0, unsigned int Dto = D - 1> auto fused() const {
         static_assert(Dfrom <= D - 1);
@@ -239,14 +246,85 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
             N *= shape_[d];
         }
         new_shape[Dfrom] = N;
+        if constexpr (L == layout::row_major) {
+            new_shape = reversed(new_shape);
+            new_stride = reversed(new_stride);
+        }
         return tensor_indexer<IdxT, D - (Dto - Dfrom), L>(new_shape, new_stride);
     }
 
+    /**
+     * @brief Checks whether a mode may be reshaped
+     *
+     * "Reshaping a mode" means that one views a 1-D mode as a E-D tensor.
+     * E.g. for the tensor X_{i,j,k} of size N1 x N2 x N3 a reshape of mode 1 (= index j)
+     * with mode shape M1 x M2 means that we view the data of tensor X as the tensor
+     * X'_{i,j1,j2,k} of size N1 x M1 x M2 x N3.
+     *
+     * @tparam E reshape dimension
+     * @param mode The mode number to reshape; counting starts from 0
+     * @param mode_shape The E-D shape of the mode
+     *
+     * @return True if the mode may be reshaped
+     */
+    template <std::size_t E>
+    bool may_reshape_mode(int mode, std::array<IdxT, E> const &mode_shape) {
+        IdxT N = static_cast<IdxT>(1);
+        for (std::size_t i = 0; i < E; ++i) {
+            N *= mode_shape[i];
+        }
+        if (N != shape_[mode]) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @brief Returns a tensor indexer with reshaped mode
+     *
+     * @see may_reshape_mode()
+     *
+     * @tparam E reshape dimension
+     * @param mode The mode number to reshape; counting starts from 0
+     * @param mode_shape The E-D shape of the mode
+     *
+     * @return Reshaped tensor indexer
+     */
+    template <std::size_t E> auto reshape_mode(int mode, std::array<IdxT, E> mode_shape) {
+        auto new_shape = std::array<IdxT, D + E - 1>{};
+        if constexpr (L == layout::row_major) {
+            mode = D - 1 - mode;
+            mode_shape = reversed(mode_shape);
+        }
+        std::copy_n(shape_.begin(), mode, new_shape.begin());
+        std::copy_n(mode_shape.begin(), E, new_shape.begin() + mode);
+        std::copy_n(shape_.begin() + mode + 1, D - mode, new_shape.begin() + mode + E);
+        auto new_stride = std::array<IdxT, D + E - 1>{};
+        std::copy_n(stride_.begin(), mode + 1, new_stride.begin());
+        for (int i = 0; i < E - 1; ++i) {
+            new_stride[i + mode + 1] = mode_shape[i] * new_stride[i + mode];
+        }
+        std::copy_n(stride_.begin() + mode + 1, D - mode, new_stride.begin() + mode + E);
+        if constexpr (L == layout::row_major) {
+            new_shape = reversed(new_shape);
+            new_stride = reversed(new_stride);
+        }
+        return tensor_indexer<IdxT, D + E - 1, L>(new_shape, new_stride);
+    }
+
   private:
-    template <typename Head> IdxT linear_index(Head head) const { return head * stride_[D - 1u]; }
+    template <typename Head> IdxT linear_index(Head head) const { return head * stride(D - 1u); }
     template <typename Head, typename... Tail> IdxT linear_index(Head head, Tail... tail) const {
         constexpr auto d = (D - 1u) - sizeof...(Tail);
-        return linear_index(tail...) + head * stride_[d];
+        return linear_index(tail...) + head * stride(d);
+    }
+
+    template <std::size_t E> static auto reversed(std::array<IdxT, E> const &a) {
+        std::array<IdxT, E> a_reverse;
+        for (std::size_t i = 0; i < E; ++i) {
+            a_reverse[i] = a[E - 1 - i];
+        }
+        return a_reverse;
     }
 
     multi_idx_t shape_;
