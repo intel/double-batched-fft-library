@@ -71,13 +71,10 @@ else()
             ENV NVSDKCOMPUTE_ROOT
             ENV ATISTREAMSDKROOT
             ENV OCL_ROOT
-            ENV ONEAPI_ROOT
             "${COMPILER_PATH}/../include"
             "${COMPILER_PATH}/../include/sycl"
         PATH_SUFFIXES
             include
-            compiler/latest/linux/include
-            compiler/latest/linux/include/sycl
     )
     if(CMAKE_SIZEOF_VOID_P EQUAL 4)
         find_library(OpenCL_LIBRARY NAMES OpenCL
@@ -91,14 +88,11 @@ else()
                 ENV NVSDKCOMPUTE_ROOT
                 ENV ATISTREAMSDKROOT
                 ENV OCL_ROOT
-                ENV ONEAPI_ROOT
                 "${COMPILER_PATH}/../lib"
             PATH_SUFFIXES
                 lib/x86
                 lib32
                 lib
-                compiler/latest/linux/lib
-                compiler/latest/linux/lib/x86
         )
     elseif(CMAKE_SIZEOF_VOID_P EQUAL 8)
         find_library(OpenCL_LIBRARY NAMES OpenCL
@@ -112,15 +106,12 @@ else()
                 ENV NVSDKCOMPUTE_ROOT
                 ENV ATISTREAMSDKROOT
                 ENV OCL_ROOT
-                ENV ONEAPI_ROOT
                 "${COMPILER_PATH}/../lib"
             PATH_SUFFIXES
                 lib/x86_64
                 lib/x64
                 lib64
                 lib
-                compiler/latest/linux/lib
-                compiler/latest/linux/lib/x64
         )
     endif()
 
