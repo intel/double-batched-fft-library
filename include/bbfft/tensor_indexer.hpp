@@ -250,7 +250,8 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
             new_shape = reversed(new_shape);
             new_stride = reversed(new_stride);
         }
-        return tensor_indexer<IdxT, D - (Dto - Dfrom), L>(new_shape, new_stride);
+        return tensor_indexer<IdxT, D - (Dto - Dfrom), L>(std::move(new_shape),
+                                                          std::move(new_stride));
     }
 
     /**
@@ -268,7 +269,7 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      * @return True if the mode may be reshaped
      */
     template <std::size_t E>
-    bool may_reshape_mode(int mode, std::array<IdxT, E> const &mode_shape) {
+    bool may_reshape_mode(int mode, std::array<IdxT, E> const &mode_shape) const {
         IdxT N = static_cast<IdxT>(1);
         for (std::size_t i = 0; i < E; ++i) {
             N *= mode_shape[i];
@@ -290,7 +291,11 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      *
      * @return Reshaped tensor indexer
      */
-    template <std::size_t E> auto reshape_mode(int mode, std::array<IdxT, E> mode_shape) {
+    template <std::size_t E> auto reshaped_mode(int mode, std::array<IdxT, E> mode_shape) const {
+        static_assert(E > 0u);
+        if constexpr (E == 1u) {
+            return tensor_indexer(*this);
+        }
         auto new_shape = std::array<IdxT, D + E - 1>{};
         if constexpr (L == layout::row_major) {
             mode = D - 1 - mode;
@@ -298,25 +303,25 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
         }
         std::copy_n(shape_.begin(), mode, new_shape.begin());
         std::copy_n(mode_shape.begin(), E, new_shape.begin() + mode);
-        std::copy_n(shape_.begin() + mode + 1, D - mode, new_shape.begin() + mode + E);
+        std::copy_n(shape_.begin() + mode + 1, D - mode - 1, new_shape.begin() + mode + E);
         auto new_stride = std::array<IdxT, D + E - 1>{};
         std::copy_n(stride_.begin(), mode + 1, new_stride.begin());
-        for (int i = 0; i < E - 1; ++i) {
+        for (std::size_t i = 0; i < E - 1; ++i) {
             new_stride[i + mode + 1] = mode_shape[i] * new_stride[i + mode];
         }
-        std::copy_n(stride_.begin() + mode + 1, D - mode, new_stride.begin() + mode + E);
+        std::copy_n(stride_.begin() + mode + 1, D - mode - 1, new_stride.begin() + mode + E);
         if constexpr (L == layout::row_major) {
             new_shape = reversed(new_shape);
             new_stride = reversed(new_stride);
         }
-        return tensor_indexer<IdxT, D + E - 1, L>(new_shape, new_stride);
+        return tensor_indexer<IdxT, D + E - 1, L>(std::move(new_shape), std::move(new_stride));
     }
 
   private:
     template <typename Head> IdxT linear_index(Head head) const { return head * stride(D - 1u); }
     template <typename Head, typename... Tail> IdxT linear_index(Head head, Tail... tail) const {
         constexpr auto d = (D - 1u) - sizeof...(Tail);
-        return linear_index(tail...) + head * stride(d);
+        return head * stride(d) + linear_index(tail...);
     }
 
     template <std::size_t E> static auto reversed(std::array<IdxT, E> const &a) {

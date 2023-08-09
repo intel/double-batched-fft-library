@@ -18,6 +18,7 @@ set(SOURCES
     var.cpp
     visitor/codegen_opencl.cpp
     visitor/equal_expr.cpp
+    visitor/to_imm.cpp
     visitor/unique_names.cpp
     visitor/unsafe_simplification.cpp
 )
@@ -32,6 +33,7 @@ set(PUBLIC_HEADERS
     internal/program_node.hpp
     visitor/codegen_opencl.hpp
     visitor/equal_expr.hpp
+    visitor/to_imm.hpp
     visitor/unique_names.hpp
     visitor/unsafe_simplification.hpp
     attr.hpp

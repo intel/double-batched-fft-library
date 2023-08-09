@@ -5,6 +5,9 @@
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/tensor_indexer.hpp"
+#include "generator/snippet.hpp"
+#include "generator/tensor_accessor.hpp"
+#include "generator/tensor_view.hpp"
 #include "generator/utility.hpp"
 #include "math.hpp"
 #include "mixed_radix_fft.hpp"
@@ -165,92 +168,6 @@ void c2r_pre(block_builder &bb, precision_helper fph, expr X1, expr x, std::size
     }
 }
 
-void load_store_slm(block_builder &bb, precision_helper fph, expr X,
-                    std::array<std::size_t, 3> const &stride, expr X1, std::size_t M, expr K,
-                    std::size_t Mb, std::size_t N, std::size_t Kb, std::size_t k_stride,
-                    std::size_t k_offset, bool store, char const *callback = nullptr) {
-    auto m_local = bb.declare_assign(generic_size(), "m_local", get_local_id(0));
-    auto k_local = bb.declare_assign(generic_size(), "k_local", get_local_id(1));
-    auto m_group = bb.declare_assign(generic_size(), "m_group", get_group_id(0));
-    auto X_indexer =
-        tensor_indexer<expr, 3, layout::col_major>({1, 1, 1}, {stride[0], stride[1], stride[2]});
-    auto X1_indexer = tensor_indexer<expr, 3, layout::col_major>({Mb, N, Kb});
-    auto k_first = bb.declare_assign(generic_size(), "k_first", get_group_id(1) * k_stride * Kb);
-
-    auto i = var("i");
-    if (!store && k_offset == 1) {
-        auto k_maybe_not_written =
-            bb.declare_assign(generic_ulong(), "k_maybe_not_written", K % Kb);
-        bb.add(for_loop_builder(declaration_assignment(generic_uint(), i, k_local), i < N,
-                                add_into(i, Kb))
-                   .body([&](block_builder &bb) {
-                       bb.assign(X1[X1_indexer(m_local, i, k_maybe_not_written)], fph.zero());
-                   })
-                   .get_product());
-        bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-    }
-
-    auto mnk = var("mnk");
-    auto X_offset = var("X_offset");
-    auto const load_store = [&](block_builder &bb, expr x1, expr n_in, expr k_in) {
-        auto X_idx = X_offset + X_indexer(0, n_in, k_in);
-        if (callback) {
-            bb.assign(mnk[1], n_in);
-            bb.assign(mnk[2], k_first + k_in);
-            if (store) {
-                bb.add(call(callback, {X, X_idx, x1, mnk}));
-            } else {
-                bb.assign(x1, call(callback, {X, X_idx, mnk}));
-            }
-        } else {
-            auto x = X[X_idx];
-            if (store) {
-                bb.assign(x, x1);
-            } else {
-                bb.assign(x1, x);
-            }
-        }
-    };
-
-    // ceil((K-k_first-k_offset)/2)
-    auto kb = bb.declare_assign(generic_uint(), "kb", (K - k_first - k_offset - 1) / k_stride + 1);
-    bb.assign(kb, select(Kb, kb, kb < Kb));
-    auto make_load = [&](expr mb) {
-        auto range_check =
-            if_selection_builder(m_local < mb && k_local < kb).then([&](block_builder &bb) {
-                auto base_idx =
-                    bb.declare_assign(generic_uint(), "base_idx", m_local + k_local * mb);
-                auto m_in = bb.declare_assign(generic_uint(), "m_in", base_idx % mb);
-
-                bb.declare_assign(generic_size(), X_offset,
-                                  X_indexer(m_group * Mb + m_in, 0, k_first));
-                if (callback) {
-                    bb.declare(generic_uint(3), mnk);
-                    bb.assign(mnk[0], m_group * Mb + m_in);
-                }
-                for (std::size_t n_local = 0; n_local < N; ++n_local) {
-                    auto idx =
-                        bb.declare_assign(generic_uint(), "idx", base_idx + n_local * (mb * kb));
-                    auto n_in = idx / mb % N;
-                    auto k_in = idx / (mb * N);
-                    auto x1 = X1[X1_indexer(m_in, n_in, k_in)];
-                    load_store(bb, x1, n_in, k_offset + k_stride * k_in);
-                }
-            });
-        return range_check.get_product();
-    };
-    if (M % Mb != 0) {
-        auto mb = bb.declare_assign(generic_uint(), "mb", M - m_group * Mb);
-        bb.assign(mb, select(Mb, mb, mb < Mb));
-        auto check_mb = if_selection_builder(mb == Mb)
-                            .then([&](block_builder &bb) { bb.add(make_load(Mb)); })
-                            .otherwise([&](block_builder &bb) { bb.add(make_load(mb)); });
-        bb.add(check_mb.get_product());
-    } else {
-        bb.add(make_load(Mb));
-    }
-}
-
 void load_store_register(
     block_builder &bb, expr X1, expr x, std::size_t Mb, std::size_t N, std::size_t Kb, bool store,
     int component = -1,
@@ -276,6 +193,8 @@ void generate_small_batch_fft(std::ostream &os, small_batch_configuration const 
     auto N_in = cfg.type == transform_type::c2r ? N / 2 + 1 : N;
     auto N_out = cfg.type == transform_type::r2c ? N / 2 + 1 : N;
     auto N_slm = is_real ? N / 2 + 1 : N;
+    auto k_stride = is_real ? 2 : 1;
+
     auto factorization = trial_division(N);
 
     auto in = var("in");
@@ -301,40 +220,84 @@ void generate_small_batch_fft(std::ostream &os, small_batch_configuration const 
 
     auto xy_ty = data_type(array_of(fph.type(2), N));
 
+    std::shared_ptr<tensor_accessor> in_acc, out_acc;
+    if (cfg.load_function) {
+        in_acc = std::make_shared<callback_accessor>(in, in_ty, cfg.load_function);
+    } else {
+        in_acc = std::make_shared<array_accessor>(in, in_ty);
+    }
+    if (cfg.store_function) {
+        out_acc = std::make_shared<callback_accessor>(out, out_ty, nullptr, cfg.store_function);
+    } else {
+        out_acc = std::make_shared<array_accessor>(out, out_ty);
+    }
+
     // load in SLM from global memory, load transposed in registers from SLM
     fb.body([&](block_builder &bb) {
-        auto kk = bb.declare_assign(generic_size(), "kk", get_global_id(1));
-        auto mm = bb.declare_assign(generic_size(), "mm", get_global_id(0));
+        auto k_first =
+            bb.declare_assign(generic_size(), "k_first", get_group_id(1) * k_stride * cfg.Kb);
+
+        expr mb = nullptr;
+        if (cfg.M < cfg.Mb) {
+            mb = cfg.M;
+        } else if (cfg.M % cfg.Mb == 0) {
+            mb = cfg.Mb;
+        } else {
+            mb = bb.declare_assign(generic_uint(), "mb", cfg.M - get_group_id(0) * cfg.Mb);
+        }
+        auto kb = bb.declare_assign(generic_uint(), "kb", (K - k_first - 1) / k_stride + 1);
+        expr kb_odd = nullptr;
+        if (is_real) {
+            kb_odd = bb.declare_assign(generic_uint(), "kb_odd", kb - K % 2);
+        }
+        bb.assign(kb, select(cfg.Kb, kb, kb < cfg.Kb));
+        if (is_real) {
+            bb.assign(kb_odd, select(cfg.Kb, kb_odd, kb_odd < cfg.Kb));
+        }
+
+        auto in_view =
+            tensor_view(in_acc, {cfg.M, N_in, K},
+                        std::array<expr, 3u>{cfg.istride[0], cfg.istride[1], cfg.istride[2]})
+                .subview(bb, slice{get_group_id(0) * cfg.Mb, mb}, slice{}, slice{k_first, kb});
 
         auto X1 = bb.declare(array_of(fph.type(2, address_space::local_t), cfg.Kb * N_slm * cfg.Mb),
                              "X1");
         auto X1_in =
             bb.declare_assign(pointer_to(slm_in_ty), "X1_in", cast(pointer_to(slm_in_ty), X1));
 
-        auto const load = [&](block_builder &bb, int stride, int component) {
-            load_store_slm(bb, fph, in, cfg.istride, X1_in, cfg.M, K, cfg.Mb, N_in, cfg.Kb, stride,
-                           component, false, cfg.load_function);
+        auto X1_in_view = tensor_view(std::make_shared<array_accessor>(X1_in, slm_in_ty),
+                                      std::array<expr, 3u>{cfg.Mb, N_in, cfg.Kb});
+
+        auto const load = [&](block_builder &bb, int k_offset) {
+            auto X_src = in_view.reshaped_mode(2, std::array<expr, 2u>{k_stride, kb})
+                             .subview(bb, slice{}, slice{}, k_offset, slice{});
+            copy_mbNkb_block_on_2D_grid(bb, X_src, X1_in_view, mb, N_in,
+                                        k_offset == 1 ? kb_odd : kb);
         };
 
         auto x = bb.declare(xy_ty, "x");
         if (cfg.type == transform_type::c2r) {
-            load(bb, 2, 0);
+            load(bb, 0);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             c2r_pre(bb, fph, X1_in, x, cfg.Mb, N, cfg.Kb, 0);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            load(bb, 2, 1);
+            set_k_maybe_not_written_to_zero(bb, fph, X1_in_view, N_in, K, cfg.Kb);
+            bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
+            load(bb, 1);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             c2r_pre(bb, fph, X1_in, x, cfg.Mb, N, cfg.Kb, 1);
         } else if (cfg.type == transform_type::r2c) {
-            load(bb, 2, 0);
+            load(bb, 0);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             load_store_register(bb, X1_in, x, cfg.Mb, N_in, cfg.Kb, false, 0);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            load(bb, 2, 1);
+            set_k_maybe_not_written_to_zero(bb, fph, X1_in_view, N_in, K, cfg.Kb);
+            bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
+            load(bb, 1);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             load_store_register(bb, X1_in, x, cfg.Mb, N_in, cfg.Kb, false, 1);
         } else {
-            load(bb, 1, 0);
+            copy_mbNkb_block_on_2D_grid(bb, in_view, X1_in_view, mb, N_in, kb);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             load_store_register(bb, X1_in, x, cfg.Mb, N_in, cfg.Kb, false);
         }
@@ -342,34 +305,43 @@ void generate_small_batch_fft(std::ostream &os, small_batch_configuration const 
         generate_fft::basic_inplace(bb, cfg.fp, cfg.direction, factorization, x);
         auto P = unscrambler(factorization);
 
+        auto out_view =
+            tensor_view(out_acc, {cfg.M, N_out, K},
+                        std::array<expr, 3u>{cfg.ostride[0], cfg.ostride[1], cfg.ostride[2]})
+                .subview(bb, slice{get_group_id(0) * cfg.Mb, mb}, slice{}, slice{k_first, kb});
+
         auto X1_out =
             bb.declare_assign(pointer_to(slm_out_ty), "X1_out", cast(pointer_to(slm_out_ty), X1));
+        auto X1_out_view = tensor_view(std::make_shared<array_accessor>(X1_out, slm_out_ty),
+                                       std::array<expr, 3u>{cfg.Mb, N_out, cfg.Kb});
 
         bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-        auto const store = [&](block_builder &bb, int stride, int component) {
-            load_store_slm(bb, fph, out, cfg.ostride, X1_out, cfg.M, K, cfg.Mb, N_out, cfg.Kb,
-                           stride, component, true, cfg.store_function);
+        auto const store = [&](block_builder &bb, int k_offset) {
+            auto X_dest = out_view.reshaped_mode(2, std::array<expr, 2u>{k_stride, kb})
+                              .subview(bb, slice{}, slice{}, k_offset, slice{});
+            copy_mbNkb_block_on_2D_grid(bb, X1_out_view, X_dest, mb, N_out,
+                                        k_offset == 1 ? kb_odd : kb);
         };
         if (cfg.type == transform_type::r2c) {
             r2c_post(bb, fph, X1_out, x, cfg.Mb, N, cfg.Kb, 0, P);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            store(bb, 2, 0);
+            store(bb, 0);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             r2c_post(bb, fph, X1_out, x, cfg.Mb, N, cfg.Kb, 1, P);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            store(bb, 2, 1);
+            store(bb, 1);
         } else if (cfg.type == transform_type::c2r) {
             load_store_register(bb, X1_out, x, cfg.Mb, N_out, cfg.Kb, true, 0, P);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            store(bb, 2, 0);
+            store(bb, 0);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
             load_store_register(bb, X1_out, x, cfg.Mb, N_out, cfg.Kb, true, 1, P);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            store(bb, 2, 1);
+            store(bb, 1);
         } else {
             load_store_register(bb, X1_out, x, cfg.Mb, N_out, cfg.Kb, true, -1, P);
             bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-            store(bb, 1, 0);
+            copy_mbNkb_block_on_2D_grid(bb, X1_out_view, out_view, mb, N_out, kb);
         }
     });
 
