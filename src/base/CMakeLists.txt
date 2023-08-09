@@ -27,6 +27,8 @@ set(SOURCES
     user_module.cpp
     generator/factor2_slm_fft.cpp
     generator/small_batch_fft.cpp
+    generator/snippet.cpp
+    generator/tensor_accessor.cpp
     generator/utility.cpp
 )
 set(PUBLIC_HEADERS

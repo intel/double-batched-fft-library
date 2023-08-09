@@ -11,11 +11,14 @@
 #include "clir/visit.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/equal_expr.hpp"
+#include "clir/visitor/to_imm.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
 #include "doctest/doctest.h"
 
+#include <cstdint>
 #include <sstream>
+#include <variant>
 
 using namespace clir;
 
@@ -214,4 +217,12 @@ TEST_CASE("Unsafe expression simplification") {
     /* Builtin function test */
     CHECK(is_equivalent(unsafe_simplify(get_global_id(a + 0)), get_global_id(a)));
     CHECK(is_equivalent(unsafe_simplify(intel_sub_group_shuffle_xor(0, a)), 0));
+}
+
+TEST_CASE("To imm") {
+    expr a = 42;
+    expr b = 42.0;
+    CHECK(std::holds_alternative<int64_t>(get_imm(a)));
+    CHECK(std::holds_alternative<double>(get_imm(b)));
+    CHECK(std::holds_alternative<std::monostate>(get_imm(a + b)));
 }

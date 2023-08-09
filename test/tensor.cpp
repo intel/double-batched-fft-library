@@ -77,15 +77,15 @@ TEST_CASE("tensor indexer") {
         SUBCASE("reshape mode") {
             auto x1 = tensor_indexer<std::size_t, 4u, layout::col_major>({10, 8, 5, 10},
                                                                          {1, 12, 120, 500});
-            auto r1 = x1.reshape_mode(0, std::array<std::size_t, 2>{2, 5});
+            auto r1 = x1.reshaped_mode(0, std::array<std::size_t, 2>{2, 5});
             CHECK(r1.dim() == 5u);
             CHECK(r1.shape() == std::array<std::size_t, 5u>{2, 5, 8, 5, 10});
             CHECK(r1.stride() == std::array<std::size_t, 5u>{1, 2, 12, 120, 500});
-            auto r2 = x1.reshape_mode(1, std::array<std::size_t, 3>{2, 2, 2});
+            auto r2 = x1.reshaped_mode(1, std::array<std::size_t, 3>{2, 2, 2});
             CHECK(r2.dim() == 6u);
             CHECK(r2.shape() == std::array<std::size_t, 6u>{10, 2, 2, 2, 5, 10});
             CHECK(r2.stride() == std::array<std::size_t, 6u>{1, 12, 24, 48, 120, 500});
-            auto r3 = x1.reshape_mode(3, std::array<std::size_t, 2>{5, 2});
+            auto r3 = x1.reshaped_mode(3, std::array<std::size_t, 2>{5, 2});
             CHECK(r3.dim() == 5u);
             CHECK(r3.shape() == std::array<std::size_t, 5u>{10, 8, 5, 5, 2});
             CHECK(r3.stride() == std::array<std::size_t, 5u>{1, 12, 120, 500, 2500});
@@ -138,15 +138,15 @@ TEST_CASE("tensor indexer") {
         }
         SUBCASE("reshape mode") {
             auto x1 = tensor_indexer<std::size_t, 4u, layout::row_major>({10, 8, 5, 10});
-            auto r1 = x1.reshape_mode(0, std::array<std::size_t, 2>{2, 5});
+            auto r1 = x1.reshaped_mode(0, std::array<std::size_t, 2>{2, 5});
             CHECK(r1.dim() == 5u);
             CHECK(r1.shape() == std::array<std::size_t, 5u>{2, 5, 8, 5, 10});
             CHECK(r1.stride() == std::array<std::size_t, 5u>{2000, 400, 50, 10, 1});
-            auto r2 = x1.reshape_mode(1, std::array<std::size_t, 3>{2, 2, 2});
+            auto r2 = x1.reshaped_mode(1, std::array<std::size_t, 3>{2, 2, 2});
             CHECK(r2.dim() == 6u);
             CHECK(r2.shape() == std::array<std::size_t, 6u>{10, 2, 2, 2, 5, 10});
             CHECK(r2.stride() == std::array<std::size_t, 6u>{400, 200, 100, 50, 10, 1});
-            auto r3 = x1.reshape_mode(3, std::array<std::size_t, 2>{5, 2});
+            auto r3 = x1.reshaped_mode(3, std::array<std::size_t, 2>{5, 2});
             CHECK(r3.dim() == 5u);
             CHECK(r3.shape() == std::array<std::size_t, 5u>{10, 8, 5, 5, 2});
             CHECK(r3.stride() == std::array<std::size_t, 5u>{400, 50, 10, 2, 1});
