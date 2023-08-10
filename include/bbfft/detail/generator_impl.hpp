@@ -77,7 +77,6 @@ struct BBFFT_EXPORT factor2_slm_configuration {
     transform_type type;                 ///< transform type (c2c, r2c, c2r)
     std::array<std::size_t, 3u> istride; ///< stride of input tensor
     std::array<std::size_t, 3u> ostride; ///< stride of output tensor
-    bool external_buffer;                ///< use global memory buffer instead of slm
     bool inplace_unsupported;            ///< true if inplace not available
     char const *load_function;           ///< user provided load callback name
     char const *store_function;          ///< user provided store callback name

@@ -37,9 +37,6 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
 
     ~factor2_slm_fft_base() {
         api_.release_kernel(k_);
-        if (X1_) {
-            api_.release_buffer(X1_);
-        }
         api_.release_buffer(twiddle_);
     }
 
@@ -82,11 +79,6 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
             break;
         }
 
-        if (f2c.external_buffer) {
-            std::size_t bytes_per_complex = 2 * static_cast<std::size_t>(cfg.fp);
-            X1_ = api_.create_device_buffer(M * f2c.N1 * f2c.N2 * K_ * bytes_per_complex);
-        }
-
         std::size_t Mg = (f2c.M - 1) / f2c.Mb + 1;
         uint64_t Kng = is_real ? (K_ - 1) / 2 + 1 : K_;
         std::size_t Kg = (Kng - 1) / f2c.Kb + 1;
@@ -126,7 +118,6 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     kernel k_;
     uint64_t K_;
     buffer twiddle_;
-    buffer X1_ = nullptr;
 };
 
 template <typename Api, typename PlanImplT = typename Api::plan_type> class factor2_slm_fft;
@@ -149,9 +140,6 @@ class factor2_slm_fft<Api, detail::plan_impl<typename Api::event_type>>
             h.set_arg(1, out);
             h.set_arg(2, this->twiddle_);
             h.set_arg(3, this->K_);
-            if (this->X1_) {
-                h.set_arg(4, this->X1_);
-            }
         });
     }
 };
@@ -175,9 +163,6 @@ class factor2_slm_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event
                                      h.set_arg(1, out);
                                      h.set_arg(2, this->twiddle_);
                                      h.set_arg(3, this->K_);
-                                     if (this->X1_) {
-                                         h.set_arg(4, this->X1_);
-                                     }
                                  });
     }
 };
