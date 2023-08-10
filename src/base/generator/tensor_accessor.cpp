@@ -15,11 +15,15 @@ auto zero_accessor::subview(block_builder &, expr const &) const
     return std::make_shared<zero_accessor>(*this);
 }
 
-array_accessor::array_accessor(expr x, data_type type) : x_(std::move(x)), type_(std::move(type)) {}
+array_accessor::array_accessor(expr x, data_type type, int component)
+    : x_(std::move(x)), type_(std::move(type)), component_(component) {}
 
-expr array_accessor::operator()(expr const &offset) const { return x_[offset]; }
+expr array_accessor::operator()(expr const &offset) const {
+    auto e = x_[offset];
+    return component_ >= 0 ? e.s(component_) : e;
+}
 expr array_accessor::store(expr value, expr const &offset) const {
-    return assignment(x_[offset], std::move(value));
+    return assignment(this->operator()(offset), std::move(value));
 }
 auto array_accessor::subview(block_builder &bb, expr const &offset) const
     -> std::shared_ptr<tensor_accessor> {
