@@ -10,7 +10,6 @@
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
 
-#include <functional>
 #include <utility>
 
 namespace bbfft {
@@ -38,16 +37,20 @@ class zero_accessor : public tensor_accessor {
 
 class array_accessor : public tensor_accessor {
   public:
-    array_accessor(clir::expr x, clir::data_type type);
+    array_accessor(clir::expr x, clir::data_type type, int component = -1);
 
     clir::expr operator()(clir::expr const &offset) const override;
     clir::expr store(clir::expr value, clir::expr const &offset) const override;
     auto subview(clir::block_builder &bb, clir::expr const &offset) const
         -> std::shared_ptr<tensor_accessor> override;
 
+    inline int component() const { return component_; }
+    inline void component(int c) { component_ = c; }
+
   private:
     clir::expr x_;
     clir::data_type type_;
+    int component_;
 };
 
 class callback_accessor : public tensor_accessor {

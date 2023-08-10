@@ -49,6 +49,16 @@ void copy_mbNkb_block_on_2D_grid(block_builder &bb, tensor_view<3u> const &X_src
     }
 }
 
+void copy_N_block_with_permutation(block_builder &bb, tensor_view<1u> const &X_src,
+                                   tensor_view<1u> const &X_dest, std::size_t N,
+                                   permutation_fun src_perm, permutation_fun dest_perm) {
+    for (std::size_t j1 = 0; j1 < N; ++j1) {
+        auto j1_src = src_perm(j1);
+        auto j1_dest = dest_perm(j1);
+        bb.add(X_dest.store(X_src(j1_src), j1_dest));
+    }
+}
+
 void set_k_maybe_not_written_to_zero(block_builder &bb, precision_helper fph,
                                      tensor_view<3u> const &X1, std::size_t N, expr K,
                                      std::size_t Kb) {
