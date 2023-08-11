@@ -184,7 +184,7 @@ TEST_CASE_TEMPLATE("r2c 1d out-of-place", T, TEST_PRECISIONS) {
 
     auto KK = std::vector<std::size_t>{1, 33};
     auto MM = std::vector<std::size_t>{1, 3, 32};
-    auto NN = std::vector<std::size_t>{2, 4, 8, 16, 32, 128, 256, 512, 102, 220, 10, 26};
+    auto NN = std::vector<std::size_t>{2, 4, 5, 8, 27, 16, 32, 128, 105, 256, 512, 102, 220, 10, 26};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
@@ -195,7 +195,7 @@ TEST_CASE_TEMPLATE("r2c 1d out-of-place", T, TEST_PRECISIONS) {
 TEST_CASE_TEMPLATE("r2c 1d in-place", T, TEST_PRECISIONS) {
     auto KK = std::vector<std::size_t>{65};
     auto MM = std::vector<std::size_t>{1, 3};
-    auto NN = std::vector<std::size_t>{4, 12, 110};
+    auto NN = std::vector<std::size_t>{4, 12, 13, 110};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
@@ -299,7 +299,7 @@ void c2r_backward(std::size_t M, std::array<std::size_t, D> N, std::size_t K,
 TEST_CASE_TEMPLATE("c2r 1d out-of-place", T, TEST_PRECISIONS) {
     auto KK = std::vector<std::size_t>{33};
     auto MM = std::vector<std::size_t>{1, 5, 32};
-    auto NN = std::vector<std::size_t>{16, 96, 256, 300};
+    auto NN = std::vector<std::size_t>{11, 16, 25, 96, 256, 300, 315};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
@@ -315,7 +315,7 @@ TEST_CASE_TEMPLATE("c2r 1d in-place polluted 0", T, TEST_PRECISIONS) {
      */
     auto KK = std::vector<std::size_t>{33};
     auto MM = std::vector<std::size_t>{1};
-    auto NN = std::vector<std::size_t>{16, 48, 512};
+    auto NN = std::vector<std::size_t>{5, 16, 21, 48, 512};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);

@@ -10,9 +10,17 @@
 namespace clir {
 
 data_type::data_type(builtin_type basic_data_type, address_space as)
-    : handle(std::make_shared<internal::scalar_data_type>(basic_data_type, as)) {}
+    : handle(make_type(basic_data_type, 1, as)) {}
 data_type::data_type(builtin_type basic_data_type, short size, address_space as)
-    : handle(std::make_shared<internal::vector_data_type>(basic_data_type, size, as)) {}
+    : handle(make_type(basic_data_type, size, as)) {}
+
+auto data_type::make_type(builtin_type basic_data_type, short size, address_space as)
+    -> std::shared_ptr<internal::data_type_node> {
+    if (size > 1) {
+        return std::make_shared<internal::vector_data_type>(basic_data_type, size, as);
+    }
+    return std::make_shared<internal::scalar_data_type>(basic_data_type, as);
+}
 
 data_type pointer_to(data_type ty, address_space as) {
     return data_type(std::make_shared<internal::pointer>(std::move(ty), as));

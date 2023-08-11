@@ -4,6 +4,8 @@
 
 * Added compiler options to online compiler interface
 * Introduce new API for Level Zero to support regular command lists and to better handle events
+* Refactored FFT generator
+* Implemented real N-point FFT with N/2-point complex FFT (for even N); improved small batch real FFT performance
 
 ## [0.4.0] - 2023-05-11
 

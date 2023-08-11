@@ -3,7 +3,6 @@
 
 #include "mixed_radix_fft.hpp"
 #include "bbfft/tensor_indexer.hpp"
-#include "generator/utility.hpp"
 #include "root_of_unity.hpp"
 #include "scrambler.hpp"
 
@@ -13,15 +12,24 @@
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 
-#include <complex>
 #include <cstddef>
 #include <type_traits>
 #include <unordered_map>
-#include <utility>
 
 using namespace clir;
 
 namespace bbfft {
+
+expr complex_mul::operator()(expr c, std::complex<double> w) {
+    auto wr = fph_.constant(w.real());
+    auto wi = fph_.constant(w.imag());
+    return init_vector(fph_.type(2), {c.s(0) * wr - c.s(1) * wi, c.s(0) * wi + c.s(1) * wr});
+}
+
+expr complex_mul::operator()(expr c, expr w) {
+    return init_vector(fph_.type(2),
+                       {c.s(0) * w.s(0) - c.s(1) * w.s(1), c.s(0) * w.s(1) + c.s(1) * w.s(0)});
+}
 
 int product(std::vector<int> const &factorization) {
     int N = 1;
@@ -191,15 +199,7 @@ void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
     auto fph = precision_helper(fp);
     auto scramble = scrambler(factorization);
 
-    auto const cmul_constant = [&fph](expr c, std::complex<double> w) {
-        auto wr = fph.constant(w.real());
-        auto wi = fph.constant(w.imag());
-        return init_vector(fph.type(2), {c.s(0) * wr - c.s(1) * wi, c.s(0) * wi + c.s(1) * wr});
-    };
-    auto const cmul = [&fph](expr c, expr w) {
-        return init_vector(fph.type(2),
-                           {c.s(0) * w.s(0) - c.s(1) * w.s(1), c.s(0) * w.s(1) + c.s(1) * w.s(0)});
-    };
+    auto cmul = complex_mul(fph);
 
     for (int f = L - 1; f >= 0; --f) {
         auto Nf = factorization[f];
@@ -212,17 +212,17 @@ void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
                     expr esum = x[indexer(j, 0, k)];
                     for (int jf = 1; jf < Nf; ++jf) {
                         auto w = power_of_w(direction * kf * jf, Nf);
-                        esum = esum + cmul_constant(x[indexer(j, jf, k)], w);
+                        esum = esum + cmul(x[indexer(j, jf, k)], w);
                     }
                     bb.assign(y[kf], esum);
                     auto tw = power_of_w(direction * kf * j, J * Nf);
                     if (bool(twiddle) && f == 0) {
                         auto tw_idx = scramble(indexer(j, kf, k));
                         auto tw_tmp = bb.declare_assign(fph.type(2), "tw_tmp",
-                                                        cmul_constant(twiddle[tw_idx], tw));
+                                                        cmul(twiddle[tw_idx], tw));
                         bb.assign(y[kf], cmul(y[kf], tw_tmp));
                     } else {
-                        bb.assign(y[kf], cmul_constant(y[kf], tw));
+                        bb.assign(y[kf], cmul(y[kf], tw));
                     }
                 }
                 for (int kf = 0; kf < Nf; ++kf) {

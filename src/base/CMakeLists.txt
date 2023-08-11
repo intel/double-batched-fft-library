@@ -26,6 +26,7 @@ set(SOURCES
     root_of_unity.cpp
     user_module.cpp
     generator/factor2_slm_fft.cpp
+    generator/sbfft_gen.cpp
     generator/small_batch_fft.cpp
     generator/snippet.cpp
     generator/tensor_accessor.cpp

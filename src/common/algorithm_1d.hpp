@@ -24,6 +24,10 @@ auto select_1d_fft_algorithm(configuration const &cfg, Api api, jit_cache *cache
     auto reg_space = info.register_space_max();
     std::size_t N = cfg.shape[1];
     auto required_reg_space_for_small_batch = 2 * static_cast<int>(cfg.fp) * N * sgs;
+    // Can halve register space for real DFT with even N
+    if (cfg.type != transform_type::c2c && N % 2 == 0) {
+        required_reg_space_for_small_batch /= 2;
+    }
 
     if (required_reg_space_for_small_batch >= reg_space / 2) {
         return std::make_shared<factor2_slm_fft<Api>>(cfg, std::move(api), cache);
