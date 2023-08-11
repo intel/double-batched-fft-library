@@ -46,12 +46,16 @@ template <typename Api> class small_batch_fft_base : public Api::plan_type {
         }
         auto sbc = configure_small_batch_fft(cfg, api_.info());
 
+        auto N = cfg.shape[1];
         K_ = cfg.shape[2];
 
         std::size_t Mg = (sbc.M - 1) / sbc.Mb + 1;
         bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
-        uint64_t Kng = is_real ? (K_ - 1) / 2 + 1 : K_;
-        std::size_t Kg = (Kng - 1) / sbc.Kb + 1;
+        std::size_t Kg = (K_ - 1) / sbc.Kb + 1;
+        if (N % 2 == 1) {
+            uint64_t Kng = is_real ? (K_ - 1) / 2 + 1 : K_;
+            Kg = (Kng - 1) / sbc.Kb + 1;
+        }
         gws_ = std::array<std::size_t, 3>{Mg * sbc.Mb, Kg * sbc.Kb, 1};
         lws_ = std::array<std::size_t, 3>{sbc.Mb, sbc.Kb, 1};
         inplace_unsupported_ = sbc.inplace_unsupported;

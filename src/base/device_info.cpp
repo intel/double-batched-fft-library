@@ -51,10 +51,8 @@ std::size_t device_info::register_space_min() const {
 }
 
 std::size_t device_info::register_space_max() const {
-    if (type == device_type::gpu) {
-        // Doubled registers per thread in large GRF mode
-        return 2u * register_space_min();
-    }
+    // Large GRF mode is not beneficial so we keep the
+    // min value here.
     return register_space_min();
 }
 

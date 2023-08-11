@@ -56,6 +56,10 @@ class CLIR_EXPORT data_type : public handle<internal::data_type_node> {
     data_type(builtin_type basic_data_type, address_space as = address_space::generic_t);
     data_type(builtin_type basic_data_type, short size,
               address_space as = address_space::generic_t);
+
+  private:
+    static auto make_type(builtin_type basic_data_type, short size, address_space as)
+        -> std::shared_ptr<internal::data_type_node>;
 };
 
 CLIR_EXPORT data_type pointer_to(data_type ty, address_space as = address_space::generic_t);
