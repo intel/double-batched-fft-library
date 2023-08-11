@@ -4,6 +4,7 @@
 #include "bbfft/bad_configuration.hpp"
 #include "bbfft/detail/generator_impl.hpp"
 #include "bbfft/tensor_indexer.hpp"
+#include "generator/f2fft_gen.hpp"
 #include "generator/snippet.hpp"
 #include "generator/tensor_accessor.hpp"
 #include "generator/tensor_view.hpp"
@@ -34,9 +35,12 @@ namespace bbfft {
 
 factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
                                                     device_info const &info) {
+    bool const is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
     std::size_t N = cfg.shape[1];
+    /*if (is_real && N % 2 == 0) {
+        N /= 2;
+    }*/
     std::size_t N_slm = N;
-    bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
     if (is_real) {
         N_slm = N + 1;
     }
@@ -149,10 +153,39 @@ void c2r_pre_i(block_builder &bb, precision_helper fph, expr i, std::size_t N1, 
 
 void generate_factor2_slm_fft(std::ostream &os, factor2_slm_configuration const &cfg,
                               std::string_view name) {
+    auto N = cfg.N1 * cfg.N2;
+    /*auto gen = std::unique_ptr<f2fft_gen>{};
+    switch (cfg.type) {
+    case transform_type::c2c:
+        gen = std::make_unique<f2fft_gen_c2c>(N);
+        break;
+    case transform_type::r2c:
+        // if (cfg.N % 2 == 1) {
+        // gen = std::make_unique<f2fft_gen_r2c_double>(N);
+        //} else {
+        gen = std::make_unique<f2fft_gen_r2c_half>(2 * N);
+        //}
+        break;
+    case transform_type::c2r:
+        // if (cfg.N % 2 == 1) {
+        gen = std::make_unique<f2fft_gen_c2r_double>(N);
+        //} else {
+        // gen = std::make_unique<f2fft_gen_c2r_half>(2 * N);
+        //}
+        break;
+    default:
+        break;
+    }
+    if (!gen) {
+        throw std::logic_error("Internal logic error: Did you mess with the cfg.type field?");
+    }
+    gen->generate(os, cfg, name);
+    return;*/
+
     std::size_t N1 = cfg.N1;
     std::size_t N2 = cfg.N2;
     bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
-    auto N = N1 * N2;
+    // auto N = N1 * N2;
     auto N_in = cfg.type == transform_type::c2r ? N / 2 + 1 : N;
     auto N_out = cfg.type == transform_type::r2c ? N / 2 + 1 : N;
     auto N_slm = is_real ? N + 1 : N;

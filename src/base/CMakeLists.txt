@@ -25,6 +25,7 @@ set(SOURCES
     prime_factorization.cpp
     root_of_unity.cpp
     user_module.cpp
+    generator/f2fft_gen.cpp
     generator/factor2_slm_fft.cpp
     generator/sbfft_gen.cpp
     generator/small_batch_fft.cpp
