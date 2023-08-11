@@ -67,7 +67,6 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
         auto f2c = configure_factor2_slm_fft(cfg, api_.info());
 
-        uint64_t M = cfg.shape[0];
         K_ = cfg.shape[2];
 
         switch (cfg.fp) {
