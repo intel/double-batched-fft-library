@@ -30,6 +30,9 @@ small_batch_configuration configure_small_batch_fft(configuration const &cfg,
         auto register_space = info.register_space_max();
         for (auto sgs_i : info.subgroup_sizes) {
             auto required_register_space = 2 * sizeof_real * N * sgs_i;
+            if (cfg.type != transform_type::c2c && N % 2 == 0) {
+                required_register_space /= 2;
+            }
             if (sgs < sgs_i && required_register_space < register_space / 2) {
                 sgs = sgs_i;
             }

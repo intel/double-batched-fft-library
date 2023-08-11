@@ -46,14 +46,23 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     factor2_slm_fft_base &operator=(factor2_slm_fft_base &&) = delete;
 
   protected:
-    template <typename T> void create_twiddle(int direction, int N1, int N2) {
+    template <typename T> void create_twiddle(int direction, int N1, int N2, bool have_2N) {
         constexpr double tau = 6.28318530717958647693;
-        auto twiddle = std::vector<T>(2 * (N1 * N2));
+        auto N = N1 * N2;
+        auto twiddle = std::vector<T>(2 * (1 + have_2N) * N);
         for (int i = 0; i < N1; ++i) {
             for (int j = 0; j < N2; ++j) {
-                auto arg = direction * tau / (N1 * N2) * i * j;
+                auto arg = direction * tau / N * i * j;
                 twiddle[2 * (j + N2 * i)] = std::cos(arg);
                 twiddle[2 * (j + N2 * i) + 1] = std::sin(arg);
+            }
+        }
+        if (have_2N) {
+            for (int i = 0; i < N; ++i) {
+                auto arg = direction * tau / (2 * N) * i;
+                // pre-multiplied with sqrt(-1)
+                twiddle[2 * (N + i)] = -std::sin(arg);
+                twiddle[2 * (N + i) + 1] = std::cos(arg);
             }
         }
         twiddle_ = api_.create_twiddle_table(twiddle);
@@ -67,19 +76,26 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
         auto f2c = configure_factor2_slm_fft(cfg, api_.info());
 
+        auto N = cfg.shape[1];
         K_ = cfg.shape[2];
 
+        auto is_even = N % 2 == 0;
+        //auto have_2N = is_real && is_even;
+        auto have_2N = false;
         switch (cfg.fp) {
         case precision::f32:
-            create_twiddle<float>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2);
+            create_twiddle<float>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2, have_2N);
             break;
         case precision::f64:
-            create_twiddle<double>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2);
+            create_twiddle<double>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2, have_2N);
             break;
         }
 
         std::size_t Mg = (f2c.M - 1) / f2c.Mb + 1;
-        uint64_t Kng = is_real ? (K_ - 1) / 2 + 1 : K_;
+        std::size_t Kng = K_;
+        if (is_real /*&& !is_even*/) {
+            Kng = (K_ - 1) / 2 + 1;
+        }
         std::size_t Kg = (Kng - 1) / f2c.Kb + 1;
         gws_ = std::array<std::size_t, 3>{Mg * f2c.Mb, f2c.Nb, Kg * f2c.Kb};
         lws_ = std::array<std::size_t, 3>{f2c.Mb, f2c.Nb, f2c.Kb};
