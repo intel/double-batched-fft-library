@@ -71,6 +71,7 @@ TEST_CASE("identifier") {
     auto f2c = factor2_slm_configuration{+1,
                                          1,
                                          1,
+                                         512,
                                          16,
                                          32,
                                          16,
@@ -84,5 +85,5 @@ TEST_CASE("identifier") {
                                          nullptr,
                                          nullptr};
     CHECK(f2c.identifier() ==
-          "f2fft_p1_M1_Mb1_N116_N232_Nb16_Kb1_sgs16_f64_c2c_is1_1_512_os1_1_512_in1");
+          "f2fft_p1_M1_Mb1_N512_N116_N232_Nb16_Kb1_sgs16_f64_c2c_is1_1_512_os1_1_512_in1");
 }

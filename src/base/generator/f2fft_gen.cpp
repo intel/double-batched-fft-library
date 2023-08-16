@@ -188,24 +188,24 @@ void f2fft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
 }
 
 void f2fft_gen_r2c_half::store(block_builder &bb, copy_params cp) const {
-    cp.x_acc->component(0);
-    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 3u>{2u, cp.cfg.N2, cp.cfg.N1});
-    copy_N_block_with_permutation(bb, cp.x_view, X1_view_1d.subview(bb, 0u, cp.j1, slice{}),
-                                  cp.cfg.N1, cp.P);
-    cp.x_acc->component(1);
-    copy_N_block_with_permutation(bb, cp.x_view, X1_view_1d.subview(bb, 1u, cp.j1, slice{}),
-                                  cp.cfg.N1, cp.P);
-    cp.x_acc->component(-1);
+    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
+                          .subview(bb, cp.j1, slice{});
+    copy_N_block_with_permutation(bb, cp.x_view, X1_view_1d, cp.cfg.N1, cp.P);
 }
 
 void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params pp) const {
-    auto const N = pp.cfg.N1 * pp.cfg.N2;
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
     auto j1 = bb.declare(generic_short(), "j1");
-    bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 <= N / 2, add_into(j1, pp.cfg.Nb))
-               .body([&](block_builder &bb) {
-                   postprocess_i(bb, pp.fph, j1, pp.twiddle, N, pp.X1_view, view);
+    bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
+               .then([&](block_builder &bb) {
+                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 <= pp.cfg.N / 4,
+                                           add_into(j1, pp.cfg.Nb))
+                              .body([&](block_builder &bb) {
+                                  postprocess_i(bb, pp.fph, j1, pp.twiddle, pp.cfg.N, pp.X1_view,
+                                                view);
+                              })
+                              .get_product());
                })
                .get_product());
 }
@@ -213,15 +213,14 @@ void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params pp) const
 void f2fft_gen_r2c_half::postprocess_i(block_builder &bb, precision_helper fph, expr i,
                                        expr twiddle, std::size_t N, tensor_view<1u> const &y,
                                        tensor_view<1u> const &X) {
-    auto i_other = N - i;
-    auto i_load = i % N;
-    auto i_other_load = i_other % N;
+    auto i_other = N / 2 - i;
+    auto i_load = i % (N / 2);
+    auto i_other_load = i_other % (N / 2);
     var y1 = bb.declare_assign(fph.type(2), "yi", y(i_load));
     var y2 = bb.declare_assign(fph.type(2), "yN_i", y(i_other_load));
     bb.assign(y2, init_vector(fph.type(2), {y2.s(0), -y2.s(1)}));
     var a = bb.declare_assign(fph.type(2), "a", (y2 + y1) / fph.constant(2.0));
     var b = bb.declare_assign(fph.type(2), "b", (y2 - y1) / fph.constant(2.0));
-    bb.assign(b, init_vector(fph.type(2), {-b.s(1), b.s(0)}));
     bb.assign(b, complex_mul(fph)(b, twiddle[i]));
     bb.add(X.store(a + b, i));
     if (i != i_other) {
@@ -296,49 +295,60 @@ void f2fft_gen_r2c_double::postprocess_i(block_builder &bb, precision_helper fph
 }
 
 void f2fft_gen_c2r_half::load(block_builder &bb, copy_params cp) const {
-    // copy_mbNkb_block_on_2D_grid(bb, cp.view, cp.X1_view, cp.mb, p().N_in, cp.kb);
-    // bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-
-    // preprocess_i(bb, cp.fph, cp.X1_1d, cp.x_view, cp.cfg.N);
+    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
+                          .subview(bb, slice{}, cp.j1);
+    copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, cp.cfg.N2);
 }
 
 void f2fft_gen_c2r_half::store(block_builder &bb, copy_params cp) const {
-    // auto X1_dest = cp.X1_1d.reshaped_mode(0, std::array<expr, 2u>{2, p().N_fft});
-    // cp.x_acc->component(0);
-    // copy_N_block_with_permutation(bb, cp.x_view, X1_dest.subview(bb, 0, slice{}), p().N_fft,
-    // cp.P); cp.x_acc->component(1); copy_N_block_with_permutation(bb, cp.x_view,
-    // X1_dest.subview(bb, 1, slice{}), p().N_fft, cp.P); cp.x_acc->component(-1);
-
-    // bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-    // copy_mbNkb_block_on_2D_grid(bb, cp.X1_view, cp.view, cp.mb, p().N_out, cp.kb);
+    cp.x_acc->component(0);
+    auto src = cp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
+    global_store(bb, cp, cp.kk, src.subview(bb, slice{}, 0, slice{}, slice{}));
+    cp.x_acc->component(1);
+    global_store(bb, cp, cp.kk, src.subview(bb, slice{}, 1, slice{}, slice{}));
+    cp.x_acc->component(-1);
 }
 
-void f2fft_gen_c2r_half::preprocess_i(block_builder &bb, precision_helper fph,
-                                      tensor_view<1u> const &X1, tensor_view<1u> const &x,
-                                      std::size_t N) {
+void f2fft_gen_c2r_half::preprocess(block_builder &bb, prepost_params pp) const {
+    auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
+    auto j1 = bb.declare(generic_short(), "j1");
+    bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
+               .then([&](block_builder &bb) {
+                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 <= pp.cfg.N / 4,
+                                           add_into(j1, pp.cfg.Nb))
+                              .body([&](block_builder &bb) {
+                                  preprocess_i(bb, pp.fph, j1, pp.twiddle, pp.cfg.N, pp.cfg.N1,
+                                               pp.cfg.N2, view, pp.X1_view);
+                              })
+                              .get_product());
+               })
+               .get_product());
+    bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
+}
 
-    // for (std::size_t i = 0; i <= N / 4; ++i) {
-    // auto i_other = N / 2 - i;
-    // auto i_store = i % (N / 2);
-    // auto i_other_store = i_other % (N / 2);
+void f2fft_gen_c2r_half::preprocess_i(block_builder &bb, precision_helper fph, expr i, expr twiddle,
+                                      std::size_t N, std::size_t N1, std::size_t N2,
+                                      tensor_view<1u> const &x, tensor_view<1u> const &X1) {
+    auto i_other = N / 2 - i;
+    // Write transposed
+    auto i_store = i / N1 + i % N1 * N2;
+    auto i_other_store = i_other / N1 + i_other % N1 * N2;
 
-    // var x1 = bb.declare_assign(fph.type(2), "xi", X1(i));
-    //// ensure that imaginary part of zero-frequency term is zero
-    // if (i == 0) {
-    // bb.assign(x1.s(1), fph.zero());
-    //}
-    // var x2 = bb.declare_assign(fph.type(2), "xN_i", X1(i_other));
-    // bb.assign(x2, init_vector(fph.type(2), {x2.s(0), -x2.s(1)}));
-    // var a = bb.declare_assign(fph.type(2), "a", x1 + x2);
-    // var b = bb.declare_assign(fph.type(2), "b", x1 - x2);
-    // auto tw = power_of_w(i, N) * std::complex<double>{0.0, 1.0};
-    // bb.assign(b, complex_mul(fph)(b, tw));
-    // bb.add(x.store(a + b, i_store));
-    // if (i_store != i_other_store) {
-    // expr x_other = init_vector(fph.type(2), {a.s(0) - b.s(0), b.s(1) - a.s(1)});
-    // bb.add(x.store(x_other, i_other_store));
-    //}
-    //}
+    var x1 = bb.declare_assign(fph.type(2), "xi", x(i));
+    // ensure that imaginary part of zero-frequency term is zero
+    bb.assign(x1.s(1), select(x1.s(1), fph.zero(), cast(fph.select_type(), i == 0)));
+    var x2 = bb.declare_assign(fph.type(2), "xN_i", x(i_other));
+    bb.assign(x2, init_vector(fph.type(2), {x2.s(0), -x2.s(1)}));
+    var a = bb.declare_assign(fph.type(2), "a", x1 + x2);
+    var b = bb.declare_assign(fph.type(2), "b", x1 - x2);
+    bb.assign(b, complex_mul(fph)(b, twiddle[i]));
+    bb.add(X1.store(a + b, i_store));
+    bb.add(if_selection_builder(i != 0)
+               .then([&](block_builder &bb) {
+                   expr x_other = init_vector(fph.type(2), {a.s(0) - b.s(0), b.s(1) - a.s(1)});
+                   bb.add(X1.store(x_other, i_other_store));
+               })
+               .get_product());
 }
 
 void f2fft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {

@@ -65,15 +65,17 @@ BBFFT_EXPORT void generate_small_batch_fft(std::ostream &os, small_batch_configu
  * @attention Do not set values directly but use ::configure_factor2_slm_fft
  */
 struct BBFFT_EXPORT factor2_slm_configuration {
-    int direction;                       ///< -1 or +1
-    std::size_t M;                       ///< M
-    std::size_t Mb;                      ///< M block size
-    std::size_t N1;                      ///< First factor in N=N1*N2
-    std::size_t N2;                      ///< Second factor in N=N1*N2
-    std::size_t Nb;                      ///< Number of parallel FFTs in factor
-    std::size_t Kb;                      ///< K block size
-    std::size_t sgs;                     ///< sub group size
-    precision fp;                        ///< floating-point precision
+    int direction;   ///< -1 or +1
+    std::size_t M;   ///< M
+    std::size_t Mb;  ///< M block size
+    std::size_t N;   ///< Number of points in DFT
+    std::size_t N1;  ///< First factor in scale_even_r2c(N)=N1*N2, where scale_even_r2c(N) = N/2 if
+                     ///< mode == r2c and N%2 == 0 else N
+    std::size_t N2;  ///< Second factor in scale_even_r2c(N)=N1*N2
+    std::size_t Nb;  ///< Number of parallel FFTs in factor
+    std::size_t Kb;  ///< K block size
+    std::size_t sgs; ///< sub group size
+    precision fp;    ///< floating-point precision
     transform_type type;                 ///< transform type (c2c, r2c, c2r)
     std::array<std::size_t, 3u> istride; ///< stride of input tensor
     std::array<std::size_t, 3u> ostride; ///< stride of output tensor

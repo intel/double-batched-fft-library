@@ -80,8 +80,7 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         K_ = cfg.shape[2];
 
         auto is_even = N % 2 == 0;
-        //auto have_2N = is_real && is_even;
-        auto have_2N = false;
+        auto have_2N = is_real && is_even;
         switch (cfg.fp) {
         case precision::f32:
             create_twiddle<float>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2, have_2N);
@@ -93,7 +92,7 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
 
         std::size_t Mg = (f2c.M - 1) / f2c.Mb + 1;
         std::size_t Kng = K_;
-        if (is_real /*&& !is_even*/) {
+        if (is_real && !is_even) {
             Kng = (K_ - 1) / 2 + 1;
         }
         std::size_t Kg = (Kng - 1) / f2c.Kb + 1;
