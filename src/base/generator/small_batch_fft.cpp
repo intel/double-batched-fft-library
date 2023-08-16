@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/configuration.hpp"
+#include "bbfft/detail/generator_impl.hpp"
 #include "generator/sbfft_gen.hpp"
 #include "math.hpp"
 
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
-
-using namespace clir;
 
 namespace bbfft {
 

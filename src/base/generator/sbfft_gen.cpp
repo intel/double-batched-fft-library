@@ -189,8 +189,7 @@ void sbfft_gen_r2c_half::postprocess(block_builder &bb, precision_helper fph,
         bb.assign(y2, init_vector(fph.type(2), {y2.s(0), -y2.s(1)}));
         var a = bb.declare_assign(fph.type(2), "a", (y2 + y1) / fph.constant(2.0));
         var b = bb.declare_assign(fph.type(2), "b", (y2 - y1) / fph.constant(2.0));
-        bb.assign(b, init_vector(fph.type(2), {-b.s(1), b.s(0)}));
-        auto tw = power_of_w(-i, N);
+        auto tw = power_of_w(-i, N) * std::complex<double>{0.0, 1.0};
         bb.assign(b, complex_mul(fph)(b, tw));
         bb.add(X1.store(a + b, i));
         if (i != i_other) {

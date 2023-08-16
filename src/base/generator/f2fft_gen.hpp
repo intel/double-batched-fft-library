@@ -131,10 +131,12 @@ class f2fft_gen_c2r_half : public f2fft_gen_c2r {
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
     void store(clir::block_builder &bb, copy_params cp) const override;
+    void preprocess(clir::block_builder &bb, prepost_params pp) const override;
 
   private:
-    static void preprocess_i(clir::block_builder &bb, precision_helper fph,
-                             tensor_view<1u> const &X1, tensor_view<1u> const &x, std::size_t N);
+    static void preprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
+                             clir::expr twiddle, std::size_t N, std::size_t N1, std::size_t N2,
+                             tensor_view<1u> const &x, tensor_view<1u> const &X1);
 };
 
 class f2fft_gen_c2r_double : public f2fft_gen_c2r {
