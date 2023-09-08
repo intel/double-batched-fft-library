@@ -119,7 +119,7 @@ template <typename T, std::size_t D> class harness {
                     if (nds[0] < N_[0]) {
                         T ref = outer_product(
                             [&m, &k](auto nd, auto Nd) {
-                                return cos((T(tau) / Nd) * basis_no(m, k, Nd) * nd);
+                                return std::cos((T(tau) / Nd) * basis_no(m, k, Nd) * nd);
                             },
                             nds, N_);
                         ref *= scale(k, K);
