@@ -53,23 +53,27 @@ TEST_CASE_TEMPLATE("load callback", T, TEST_PRECISIONS) {
     auto plan_ref = make_plan(cfg_ref, Q);
 
     char const load_template[] = R"OpenCL(
-%s2 load(global %s2* in, size_t offset, uint3 mnk) {
-    if (mnk.y < %lu) {
-        return in[offset];
+%s2 load(global %s2* in, size_t offset) {
+    uint n = offset / %lu %% %lu;
+    if (n < %lu) {
+        uint k = offset / %lu;
+        return in[offset - k * %lu];
     }
     return 0;
 })OpenCL";
     char load[1024];
     char const *real_type = std::is_same_v<double, T> ? "double" : "float";
     std::size_t length =
-        snprintf(load, sizeof(load), load_template, real_type, real_type, Xi.shape(1));
+        snprintf(load, sizeof(load), load_template, real_type, real_type, Xi_ref.shape(0),
+                 Xi_ref.shape(1), Xi.shape(1), Xi_ref.shape(0) * Xi_ref.shape(1),
+                 Xi_ref.shape(0) * (Xi_ref.shape(1) - Xi.shape(1)));
 
     configuration cfg = {1,
                          {M, N_ext, K},
                          to_precision_v<T>,
                          direction::backward,
                          transform_type::c2r,
-                         fit_array<max_tensor_dim>(Xi.stride()),
+                         fit_array<max_tensor_dim>(Xi_ref.stride()),
                          fit_array<max_tensor_dim>(xi.stride()),
                          {load, length, "load"}};
     auto plan = make_plan(cfg, Q);
@@ -145,15 +149,19 @@ TEST_CASE_TEMPLATE("store callback", T, TEST_PRECISIONS) {
     auto plan_ref = make_plan(cfg_ref, Q);
 
     char const store_template[] = R"OpenCL(
-void store(global %s2* out, size_t offset, %s2 value, uint3 mnk) {
-    if (mnk.y < %lu) {
-        out[offset] = value * ((%s) %a);
+void store(global %s2* out, size_t offset, %s2 value) {
+    uint n = offset / %lu %% %lu;
+    if (n < %lu) {
+        uint k = offset / %lu;
+        out[offset - k * %lu] = value * ((%s) %a);
     }
 })OpenCL";
     char store[1024];
     char const *real_type = std::is_same_v<double, T> ? "double" : "float";
-    std::size_t length = snprintf(store, sizeof(store), store_template, real_type, real_type,
-                                  Xi.shape(1), real_type, 1.0 / N);
+    std::size_t length =
+        snprintf(store, sizeof(store), store_template, real_type, real_type, Xi_ref.shape(0),
+                 Xi_ref.shape(1), Xi.shape(1), Xi_ref.shape(0) * Xi_ref.shape(1),
+                 Xi_ref.shape(0) * (Xi_ref.shape(1) - Xi.shape(1)), real_type, 1.0 / N);
 
     configuration cfg = {1,
                          {M, N, K},
@@ -161,7 +169,7 @@ void store(global %s2* out, size_t offset, %s2 value, uint3 mnk) {
                          direction::forward,
                          transform_type::r2c,
                          fit_array<bbfft::max_tensor_dim>(xi.stride()),
-                         fit_array<bbfft::max_tensor_dim>(Xi.stride()),
+                         fit_array<bbfft::max_tensor_dim>(Xi_ref.stride()),
                          {store, length, nullptr, "store"}};
     auto plan = make_plan(cfg, Q);
 
