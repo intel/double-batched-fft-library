@@ -61,7 +61,7 @@ template <std::size_t D> class tensor_view {
             if constexpr (std::is_same_v<slice, std::decay_t<decltype(entry)>>) {
                 return entry;
             } else {
-                return slice{entry, entry + 1};
+                return slice{entry, 1};
             }
         };
         auto region = std::array<slice, sizeof...(Entry)>{to_slice(entry)...};
