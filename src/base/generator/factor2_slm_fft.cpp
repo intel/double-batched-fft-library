@@ -6,6 +6,7 @@
 #include "math.hpp"
 #include "prime_factorization.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
@@ -24,16 +25,27 @@ factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
     if (is_real) {
         N_slm = N_fft + 1;
     }
-    auto fac2 = factor2(N_fft);
-    std::size_t N1 = fac2.first;
-    std::size_t N2 = fac2.second;
-    auto M = cfg.shape[0];
-    std::size_t sizeof_real = static_cast<std::size_t>(cfg.fp);
 
     std::size_t sgs = info.min_subgroup_size();
+    std::size_t sizeof_real = static_cast<std::size_t>(cfg.fp);
+    unsigned max_N_in_registers_without_spilling =
+        (info.register_space_max() / 2) / (2 * sizeof_real) / sgs;
+
+    auto factorization = std::vector<unsigned>{};
+    for (unsigned index = 2; index <= 4; ++index) {
+        factorization = factor(N_fft, index);
+        auto fmax = *std::max_element(factorization.begin(), factorization.end());
+        if (fmax <= max_N_in_registers_without_spilling || is_prime(fmax)) {
+            break;
+        }
+    }
+    auto Nf_max = *std::max_element(factorization.begin(), factorization.end());
+    auto N_parallel_max = product(factorization.begin(), factorization.end(), 1) / Nf_max;
+    auto M = cfg.shape[0];
+
     std::size_t work_group_size_limit = info.max_subgroup_size();
 
-    std::size_t Nb = min_power_of_2_greater_equal(N1);
+    std::size_t Nb = min_power_of_2_greater_equal(N_parallel_max);
     std::size_t max_compute_Mb = info.max_work_group_size / Nb;
     std::size_t max_slm_Mb = info.local_memory_size / (2 * N_slm * sizeof_real);
     std::size_t max_Mb = std::min(max_compute_Mb, max_slm_Mb);
@@ -52,30 +64,37 @@ factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
 
     std::stringstream ss;
     return {
-        static_cast<int>(cfg.dir),   // direction
-        M,                           // M
-        Mb,                          // Mb
-        N,                           // N
-        N1,                          // N1
-        N2,                          // N2
-        Nb,                          // Nb
-        Kb,                          // Kb
-        sgs,                         // sgs
-        cfg.fp,                      // precision
-        cfg.type,                    // transform_type
-        istride,                     // istride
-        ostride,                     // ostride
-        inplace_unsupported,         // inplace_unsupported
-        cfg.callbacks.load_function, // load_function
-        cfg.callbacks.store_function // store_function
+        static_cast<int>(cfg.dir),                                    // direction
+        M,                                                            // M
+        Mb,                                                           // Mb
+        N,                                                            // N
+        std::vector<int>(factorization.begin(), factorization.end()), // factorization
+        Nb,                                                           // Nb
+        Kb,                                                           // Kb
+        sgs,                                                          // sgs
+        cfg.fp,                                                       // precision
+        cfg.type,                                                     // transform_type
+        istride,                                                      // istride
+        ostride,                                                      // ostride
+        inplace_unsupported,                                          // inplace_unsupported
+        cfg.callbacks.load_function,                                  // load_function
+        cfg.callbacks.store_function                                  // store_function
     };
 }
 
 std::string factor2_slm_configuration::identifier() const {
     std::ostringstream oss;
     oss << "f2fft_" << (direction < 0 ? 'm' : 'p') << std::abs(direction) << "_M" << M << "_Mb"
-        << Mb << "_N" << N << "_N1" << N1 << "_N2" << N2 << "_Nb" << Nb << "_Kb" << Kb << "_sgs"
-        << sgs << "_f" << static_cast<int>(fp) * 8 << '_' << to_string(type) << "_is";
+        << Mb << "_N" << N << "_factorization";
+    auto it = factorization.begin();
+    if (it != factorization.end()) {
+        oss << *it++;
+        for (; it != factorization.end(); ++it) {
+            oss << "x" << *it;
+        }
+    }
+    oss << "_Nb" << Nb << "_Kb" << Kb << "_sgs" << sgs << "_f" << static_cast<int>(fp) * 8 << '_'
+        << to_string(type) << "_is";
     for (auto const &is : istride) {
         oss << is << "_";
     }

@@ -39,10 +39,10 @@ bool check(unsigned int N, tensor<V, 3u> data) {
                     auto old_prec = std::cerr.precision();
                     std::cerr << std::setprecision(16) << "FFT error (" << m << ", " << n << ", "
                               << k << "): " << data(k, n, m) << " != " << ref << std::endl;
-                    std::cerr << "data: ";
-                    for (unsigned int n = 0; n < NN; ++n) {
-                        std::cerr << data(k, n, m) << " ";
-                    }
+                    //std::cerr << "data: ";
+                    //for (unsigned int n = 0; n < NN; ++n) {
+                        //std::cerr << data(k, n, m) << " ";
+                    //}
                     std::cerr << std::endl << std::setprecision(old_prec);
                     return false;
                 }

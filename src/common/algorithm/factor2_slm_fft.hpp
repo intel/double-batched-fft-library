@@ -46,23 +46,44 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     factor2_slm_fft_base &operator=(factor2_slm_fft_base &&) = delete;
 
   protected:
-    template <typename T> void create_twiddle(int direction, int N1, int N2, bool have_2N) {
+    template <typename T>
+    void create_twiddle(int direction, std::vector<int> const &factorization, bool have_2N) {
         constexpr double tau = 6.28318530717958647693;
-        auto N = N1 * N2;
-        auto twiddle = std::vector<T>(2 * (1 + have_2N) * N);
-        for (int i = 0; i < N1; ++i) {
-            for (int j = 0; j < N2; ++j) {
-                auto arg = direction * tau / N * i * j;
-                twiddle[2 * (j + N2 * i)] = std::cos(arg);
-                twiddle[2 * (j + N2 * i) + 1] = std::sin(arg);
+        if (factorization.size() < 2) {
+            throw bad_configuration("At least 2 factors are required.");
+        }
+
+        int N = factorization[0] * factorization[1];
+        int tw_size = N;
+        auto const L = factorization.size();
+        for (std::size_t k = 2; k < L; ++k) {
+            N *= factorization[k];
+            tw_size += N;
+        }
+        tw_size += have_2N * N;
+        tw_size *= 2;
+
+        auto twiddle = std::vector<T>(tw_size);
+        auto tw_ptr = twiddle.data();
+        int J1 = N;
+        for (int f = L - 1; f >= 1; --f) {
+            auto const Nf = factorization[f];
+            J1 /= Nf;
+            for (int i = 0; i < J1; ++i) {
+                for (int j = 0; j < Nf; ++j) {
+                    auto arg = direction * tau / (J1 * Nf) * i * j;
+                    tw_ptr[2 * (j + Nf * i)] = std::cos(arg);
+                    tw_ptr[2 * (j + Nf * i) + 1] = std::sin(arg);
+                }
             }
+            tw_ptr += 2 * J1 * Nf;
         }
         if (have_2N) {
             for (int i = 0; i < N; ++i) {
                 auto arg = direction * tau / (2 * N) * i;
                 // pre-multiplied with sqrt(-1)
-                twiddle[2 * (N + i)] = -std::sin(arg);
-                twiddle[2 * (N + i) + 1] = std::cos(arg);
+                tw_ptr[2 * i] = -std::sin(arg);
+                tw_ptr[2 * i + 1] = std::cos(arg);
             }
         }
         twiddle_ = api_.create_twiddle_table(twiddle);
@@ -83,10 +104,10 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         auto have_2N = is_real && is_even;
         switch (cfg.fp) {
         case precision::f32:
-            create_twiddle<float>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2, have_2N);
+            create_twiddle<float>(static_cast<int>(cfg.dir), f2c.factorization, have_2N);
             break;
         case precision::f64:
-            create_twiddle<double>(static_cast<int>(cfg.dir), f2c.N1, f2c.N2, have_2N);
+            create_twiddle<double>(static_cast<int>(cfg.dir), f2c.factorization, have_2N);
             break;
         }
 
