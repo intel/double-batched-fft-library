@@ -7,7 +7,8 @@ include(GitVersion)
 include(InstallLib)
 
 set(SOURCES_PRIVATE_TEST
-    scrambler.cpp
+    math.cpp
+    prime_factorization.cpp
 )
 
 set(SOURCES
@@ -19,10 +20,8 @@ set(SOURCES
     generator.cpp
     jit_cache.cpp
     jit_cache_all.cpp
-    math.cpp
     mixed_radix_fft.cpp
     parser.cpp
-    prime_factorization.cpp
     root_of_unity.cpp
     user_module.cpp
     generator/f2fft_gen.cpp
@@ -58,6 +57,7 @@ add_library(bbfft-private-test OBJECT ${SOURCES_PRIVATE_TEST})
 target_include_directories(bbfft-private-test PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
 )
+set_property(TARGET bbfft-private-test PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_library(bbfft-base ${SOURCES} $<TARGET_OBJECTS:bbfft-private-test>)
 add_library(bbfft::bbfft-base ALIAS bbfft-base)

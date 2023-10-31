@@ -9,6 +9,7 @@
 #include "generator/tensor_accessor.hpp"
 #include "generator/tensor_view.hpp"
 #include "generator/utility.hpp"
+#include "scrambler.hpp"
 
 #include "clir/builder.hpp"
 #include "clir/expr.hpp"
@@ -45,7 +46,6 @@ class f2fft_gen {
         clir::expr kk;
         clir::expr K;
         clir::expr j1;
-        permutation_fun P = identity;
     };
     struct prepost_params {
         factor2_slm_configuration const &cfg;
@@ -57,17 +57,15 @@ class f2fft_gen {
         clir::expr kk;
         clir::expr K;
         clir::expr twiddle = nullptr;
+        unscrambler<clir::expr> unscramble = unscrambler<clir::expr>({});
     };
 
     virtual void preprocess(clir::block_builder &, prepost_params) const {}
     virtual void load(clir::block_builder &bb, copy_params cp) const = 0;
-    virtual void store(clir::block_builder &bb, copy_params cp) const = 0;
-    virtual void postprocess(clir::block_builder &, prepost_params) const {}
+    virtual void postprocess(clir::block_builder &, prepost_params) const = 0;
 
-    void global_load(clir::block_builder &bb, copy_params cp, clir::expr k,
+    void global_load(clir::block_builder &bb, copy_params const &cp, clir::expr k,
                      tensor_view<3u> const &view) const;
-    void global_store(clir::block_builder &bb, copy_params cp, clir::expr k,
-                      tensor_view<3u> const &view) const;
 
   private:
     gen_cfg p_;
@@ -79,7 +77,7 @@ class f2fft_gen_c2c : public f2fft_gen {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
 };
 
 class f2fft_gen_r2c : public f2fft_gen {
@@ -94,13 +92,12 @@ class f2fft_gen_r2c_half : public f2fft_gen_r2c {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
     void postprocess(clir::block_builder &bb, prepost_params pp) const override;
 
   private:
     static void postprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
                               clir::expr twiddle, std::size_t N, tensor_view<1u> const &y,
-                              tensor_view<1u> const &X);
+                              tensor_view<1u> const &X, unscrambler<clir::expr> const &unscramble);
 };
 
 class f2fft_gen_r2c_double : public f2fft_gen_r2c {
@@ -109,13 +106,12 @@ class f2fft_gen_r2c_double : public f2fft_gen_r2c {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
     void postprocess(clir::block_builder &bb, prepost_params pp) const override;
 
   private:
     static void postprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
                               std::size_t N, tensor_view<1u> const &x, tensor_view<1u> const &ya,
-                              tensor_view<1u> const &yb);
+                              tensor_view<1u> const &yb, unscrambler<clir::expr> const &unscramble);
 };
 
 class f2fft_gen_c2r : public f2fft_gen {
@@ -130,13 +126,13 @@ class f2fft_gen_c2r_half : public f2fft_gen_c2r {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
     void preprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
 
   private:
     static void preprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
-                             clir::expr twiddle, std::size_t N, std::size_t N1, std::size_t N2,
-                             tensor_view<1u> const &x, tensor_view<1u> const &X1);
+                             clir::expr twiddle, std::size_t N, tensor_view<1u> const &x,
+                             tensor_view<1u> const &X1);
 };
 
 class f2fft_gen_c2r_double : public f2fft_gen_c2r {
@@ -145,13 +141,13 @@ class f2fft_gen_c2r_double : public f2fft_gen_c2r {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
     void preprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
 
   private:
     static void preprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
-                             std::size_t N1, std::size_t N2, tensor_view<1u> const &xa,
-                             tensor_view<1u> const &xb, tensor_view<1u> const &y);
+                             std::size_t N, tensor_view<1u> const &xa, tensor_view<1u> const &xb,
+                             tensor_view<1u> const &y);
 };
 
 } // namespace bbfft

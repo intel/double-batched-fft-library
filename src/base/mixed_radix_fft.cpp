@@ -3,6 +3,7 @@
 
 #include "mixed_radix_fft.hpp"
 #include "bbfft/tensor_indexer.hpp"
+#include "math.hpp"
 #include "root_of_unity.hpp"
 #include "scrambler.hpp"
 
@@ -29,14 +30,6 @@ expr complex_mul::operator()(expr c, std::complex<double> w) {
 expr complex_mul::operator()(expr c, expr w) {
     return init_vector(fph_.type(2),
                        {c.s(0) * w.s(0) - c.s(1) * w.s(1), c.s(0) * w.s(1) + c.s(1) * w.s(0)});
-}
-
-int product(std::vector<int> const &factorization) {
-    int N = 1;
-    for (auto f : factorization) {
-        N *= f;
-    }
-    return N;
 }
 
 expr multiply_imaginary_unit(precision_helper fph, expr x, expr is_odd) {
@@ -67,7 +60,7 @@ expr sub_group_xy(precision_helper fph, expr x, std::complex<double> y, expr &is
 void generate_fft::with_cse(block_builder &bb, precision fp, int direction,
                             std::vector<int> factorization, var &x, var &y, expr is_odd) {
     int L = factorization.size();
-    int N = product(factorization);
+    int N = product(factorization.begin(), factorization.end(), 1);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
@@ -132,7 +125,7 @@ void generate_fft::basic(block_builder &bb, precision fp, int direction,
                          std::vector<int> factorization, var &x, var &y, expr is_odd,
                          expr twiddle) {
     int L = factorization.size();
-    int N = product(factorization);
+    int N = product(factorization.begin(), factorization.end(), 1);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
@@ -193,7 +186,7 @@ void generate_fft::basic(block_builder &bb, precision fp, int direction,
 void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
                                  std::vector<int> factorization, var x, expr twiddle) {
     int L = factorization.size();
-    int N = product(factorization);
+    int N = product(factorization.begin(), factorization.end(), 1);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);
@@ -218,8 +211,8 @@ void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
                     auto tw = power_of_w(direction * kf * j, J * Nf);
                     if (bool(twiddle) && f == 0) {
                         auto tw_idx = scramble(indexer(j, kf, k));
-                        auto tw_tmp = bb.declare_assign(fph.type(2), "tw_tmp",
-                                                        cmul(twiddle[tw_idx], tw));
+                        auto tw_tmp =
+                            bb.declare_assign(fph.type(2), "tw_tmp", cmul(twiddle[tw_idx], tw));
                         bb.assign(y[kf], cmul(y[kf], tw_tmp));
                     } else {
                         bb.assign(y[kf], cmul(y[kf], tw));
@@ -238,7 +231,7 @@ void generate_fft::basic_inplace_subgroup(block_builder &bb, precision fp, int d
                                           std::vector<int> factorization, var x, expr is_odd,
                                           expr twiddle) {
     int L = factorization.size();
-    int N = product(factorization);
+    int N = product(factorization.begin(), factorization.end(), 1);
     int J = N;
     int K = 1;
     auto fph = precision_helper(fp);

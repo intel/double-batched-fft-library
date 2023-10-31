@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "f2fft_gen.hpp"
+#include "bbfft/bad_configuration.hpp"
+#include "math.hpp"
 #include "mixed_radix_fft.hpp"
 #include "prime_factorization.hpp"
 #include "root_of_unity.hpp"
-#include "scrambler.hpp"
 
 #include "clir/attr_defs.hpp"
 #include "clir/builder.hpp"
@@ -18,6 +19,7 @@
 #include "clir/visitor/unique_names.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
+#include <cassert>
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
@@ -29,13 +31,24 @@ namespace bbfft {
 
 void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
                          std::string_view name) const {
-    std::size_t N1 = cfg.N1;
-    std::size_t N2 = cfg.N2;
+    if (cfg.factorization.size() < 2) {
+        throw bad_configuration("At least 2 factors are required.");
+    }
 
     auto in = var("in");
     auto out = var("out");
     auto twiddle = var("twiddle");
     auto K = var("K");
+
+    auto const tw2N_offset = [](std::vector<int> const &factorization) {
+        int N = factorization[0] * factorization[1];
+        int offset = N;
+        for (std::size_t k = 2; k < factorization.size(); ++k) {
+            N *= factorization[k];
+            offset += N;
+        }
+        return offset;
+    };
 
     auto fph = precision_helper{cfg.fp};
     auto in_ty = fph.type(p_.in_components, address_space::global_t);
@@ -75,70 +88,80 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
                                    std::array<expr, 3u>{cfg.Mb, p_.N_slm, cfg.Kb})
                            .subview(bb, get_local_id(0), slice{}, get_local_id(2));
 
-        auto j1 = bb.declare(generic_short(), "j1");
-
-        auto parallel_n2 = [&](block_builder &bb, expr loop_var, std::size_t Nk, auto kernel) {
-            if (Nk == cfg.Nb) {
-                bb.assign(loop_var, n_local);
-                bb.add(block_builder{}.body(kernel).get_product());
-            } else {
-                bb.add(for_loop_builder(assignment(loop_var, n_local), loop_var < Nk,
-                                        add_into(loop_var, cfg.Nb))
-                           .body(kernel)
-                           .get_product());
-            }
-        };
-
         auto in_view =
             tensor_view(in_acc, {cfg.M, p_.N_in, K},
                         std::array<expr, 3u>{cfg.istride[0], cfg.istride[1], cfg.istride[2]});
-        preprocess(
-            bb, prepost_params{cfg, fph, in_view, X1_view, mm, n_local, kk, K, twiddle + N1 * N2});
-        auto compute_fac1 = [&](block_builder &bb) {
-            auto xy_ty_N2 = data_type(array_of(fph.type(2), N2));
-            auto x = bb.declare(xy_ty_N2, "x");
-            auto x_acc = std::make_shared<array_accessor>(x, xy_ty_N2);
-            auto x_view = tensor_view(x_acc, std::array<expr, 1u>{N2});
-
-            load(bb, copy_params{cfg, fph, in_view, X1_view, x_view, x_acc, mm, kk, K, j1});
-
-            var tw_n2 = var("tw_n2");
-            bb.declare_assign(pointer_to(fph.type(2, address_space::constant_t)), tw_n2,
-                              twiddle + j1 * N2);
-            auto factor = trial_division(N2);
-            fft_inplace(bb, cfg.fp, cfg.direction, factor, x, tw_n2);
-
-            auto X1_view_1d =
-                X1_view.reshaped_mode(0, std::array<expr, 2u>{N2, N1}).subview(bb, slice{}, j1);
-            copy_N_block_with_permutation(bb, x_view, X1_view_1d, N2, unscrambler(factor));
-        };
-        parallel_n2(bb, j1, N1, compute_fac1);
-
-        bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-        auto n2 = bb.declare(generic_short(), "n2");
-
         auto out_view =
             tensor_view(out_acc, {cfg.M, p_.N_out, K},
                         std::array<expr, 3u>{cfg.ostride[0], cfg.ostride[1], cfg.ostride[2]});
-        auto compute_fac2 = [&](block_builder &bb) {
-            auto xy_ty_N1 = data_type(array_of(fph.type(2), N1));
-            auto x = bb.declare(xy_ty_N1, "x");
-            auto x_acc = std::make_shared<array_accessor>(x, xy_ty_N1);
-            auto x_view = tensor_view(x_acc, std::array<expr, 1u>{N1});
 
-            auto X1_view_1d =
-                X1_view.reshaped_mode(0, std::array<expr, 2u>{N2, N1}).subview(bb, n2, slice{});
-            copy_N_block_with_permutation(bb, X1_view_1d, x_view, N1);
+        auto compute_stage = [&](block_builder &bb, int const f, int const J1, int const Nf,
+                                 int const J2, expr &j1, expr &j2, int const tw_offset) {
+            auto xy_ty_Nf = data_type(array_of(fph.type(2), Nf));
+            auto x = bb.declare(xy_ty_Nf, "x");
+            auto x_acc = std::make_shared<array_accessor>(x, xy_ty_Nf);
+            auto x_view = tensor_view(x_acc, std::array<expr, 1u>{Nf});
 
-            auto factor = trial_division(N1);
-            fft_inplace(bb, cfg.fp, cfg.direction, factor, x, nullptr);
+            if (f == static_cast<int>(cfg.factorization.size() - 1)) {
+                load(bb, copy_params{cfg, fph, in_view, X1_view, x_view, x_acc, mm, kk, K, j1});
+            } else {
+                auto X1_view_1d = X1_view.reshaped_mode(0, std::array<expr, 3u>{J1, Nf, J2})
+                                      .subview(bb, j1, slice{}, j2);
+                copy_N_block_with_permutation(bb, X1_view_1d, x_view, Nf);
+            }
 
-            store(bb, copy_params{cfg, fph, out_view, X1_view, x_view, x_acc, mm, kk, K, n2,
-                                  unscrambler(factor)});
+            auto factor = trial_division(Nf);
+            expr tw_j1 = nullptr;
+            if (f > 0) {
+                tw_j1 = bb.declare_assign(pointer_to(fph.type(2, address_space::constant_t)),
+                                          "tw_j1", twiddle + tw_offset + j1 * Nf);
+            }
+            fft_inplace(bb, cfg.fp, cfg.direction, factor, x, tw_j1);
+
+            auto X1_view_1d = X1_view.reshaped_mode(0, std::array<expr, 3u>{J1, Nf, J2})
+                                  .subview(bb, j1, slice{}, j2);
+            copy_N_block_with_permutation(bb, x_view, X1_view_1d, Nf, unscrambler(factor));
         };
-        parallel_n2(bb, n2, N2, compute_fac2);
-        postprocess(
-            bb, prepost_params{cfg, fph, out_view, X1_view, mm, n_local, kk, K, twiddle + N1 * N2});
+
+        preprocess(bb, prepost_params{cfg, fph, in_view, X1_view, mm, n_local, kk, K,
+                                      twiddle + tw2N_offset(cfg.factorization)});
+
+        int J1 = product(cfg.factorization.begin(), cfg.factorization.end(), 1);
+        int J2 = 1;
+        int tw_offset = 0;
+        int const L = cfg.factorization.size();
+        for (int f = L - 1; f >= 0; --f) {
+            int const Nf = cfg.factorization[f];
+            J1 /= Nf;
+
+            auto body_builder = [&](expr &loop_var) {
+                return [&](block_builder &bb) {
+                    auto j1 = bb.declare_assign(generic_short(), "j1", loop_var % J1);
+                    auto j2 = bb.declare_assign(generic_short(), "j2", loop_var / J1);
+                    compute_stage(bb, f, J1, Nf, J2, j1, j2, tw_offset);
+                };
+            };
+            if (J1 * J2 == static_cast<int>(cfg.Nb)) {
+                bb.add(block_builder{}.body(body_builder(n_local)).get_product());
+            } else {
+                auto j1j2 = var("j1j2");
+                bb.add(for_loop_builder(declaration_assignment(generic_short(), j1j2, n_local),
+                                        j1j2 < J1 * J2, add_into(j1j2, cfg.Nb))
+                           .body(body_builder(j1j2))
+                           .get_product());
+            }
+
+            J2 *= Nf;
+            tw_offset += J1 * Nf;
+            bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
+        }
+
+        auto unscramble =
+            unscrambler<clir::expr>(cfg.factorization.begin(), cfg.factorization.end());
+        unscramble.in0toN(true);
+        postprocess(bb, prepost_params{cfg, fph, out_view, X1_view, mm, n_local, kk, K,
+                                       twiddle + tw2N_offset(cfg.factorization),
+                                       std::move(unscramble)});
     });
 
     auto f = fb.get_product();
@@ -148,24 +171,16 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
     generate_opencl(os, f);
 }
 
-void f2fft_gen::global_load(block_builder &bb, copy_params cp, expr k,
+void f2fft_gen::global_load(block_builder &bb, copy_params const &cp, expr k,
                             tensor_view<3u> const &view) const {
+    auto const &f = cp.cfg.factorization;
+    auto const J1 = product(f.begin(), f.begin() + f.size() - 1, 1);
+    auto const Nf = f.back();
     bb.add(if_selection_builder(cp.mm < cp.cfg.M && k < cp.K)
                .then([&](block_builder &bb) {
-                   auto view_sub = view.reshaped_mode(1, std::array<expr, 2u>{cp.cfg.N1, cp.cfg.N2})
+                   auto view_sub = view.reshaped_mode(1, std::array<expr, 2u>{J1, Nf})
                                        .subview(bb, cp.mm, cp.j1, slice{}, k);
-                   copy_N_block_with_permutation(bb, view_sub, cp.x_view, cp.cfg.N2);
-               })
-               .get_product());
-}
-
-void f2fft_gen::global_store(block_builder &bb, copy_params cp, expr k,
-                             tensor_view<3u> const &view) const {
-    bb.add(if_selection_builder(cp.mm < cp.cfg.M && k < cp.K)
-               .then([&](block_builder &bb) {
-                   auto view_sub = view.reshaped_mode(1, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
-                                       .subview(bb, cp.mm, cp.j1, slice{}, k);
-                   copy_N_block_with_permutation(bb, cp.x_view, view_sub, cp.cfg.N1, cp.P);
+                   copy_N_block_with_permutation(bb, view_sub, cp.x_view, Nf);
                })
                .get_product());
 }
@@ -174,8 +189,19 @@ void f2fft_gen_c2c::load(block_builder &bb, copy_params cp) const {
     global_load(bb, cp, cp.kk, cp.view);
 }
 
-void f2fft_gen_c2c::store(block_builder &bb, copy_params cp) const {
-    global_store(bb, cp, cp.kk, cp.view);
+void f2fft_gen_c2c::postprocess(block_builder &bb, prepost_params pp) const {
+    bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
+               .then([&](block_builder &bb) {
+                   auto j1 = bb.declare(generic_short(), "j1");
+                   auto view_sub = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
+                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 < p().N_fft,
+                                           add_into(j1, pp.cfg.Nb))
+                              .body([&](block_builder &bb) {
+                                  bb.add(view_sub.store(pp.X1_view(pp.unscramble(j1)), j1));
+                              })
+                              .get_product());
+               })
+               .get_product());
 }
 
 void f2fft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
@@ -187,23 +213,19 @@ void f2fft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
     cp.x_acc->component(-1);
 }
 
-void f2fft_gen_r2c_half::store(block_builder &bb, copy_params cp) const {
-    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
-                          .subview(bb, cp.j1, slice{});
-    copy_N_block_with_permutation(bb, cp.x_view, X1_view_1d, cp.cfg.N1, cp.P);
-}
-
 void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params pp) const {
-    bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
-    auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
-    auto j1 = bb.declare(generic_short(), "j1");
+    auto unscramble =
+        unscrambler<clir::expr>(pp.cfg.factorization.begin(), pp.cfg.factorization.end());
+    unscramble.in0toN(true);
     bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
                .then([&](block_builder &bb) {
+                   auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
+                   auto j1 = bb.declare(generic_short(), "j1");
                    bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 <= pp.cfg.N / 4,
                                            add_into(j1, pp.cfg.Nb))
                               .body([&](block_builder &bb) {
                                   postprocess_i(bb, pp.fph, j1, pp.twiddle, pp.cfg.N, pp.X1_view,
-                                                view);
+                                                view, pp.unscramble);
                               })
                               .get_product());
                })
@@ -212,12 +234,13 @@ void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params pp) const
 
 void f2fft_gen_r2c_half::postprocess_i(block_builder &bb, precision_helper fph, expr i,
                                        expr twiddle, std::size_t N, tensor_view<1u> const &y,
-                                       tensor_view<1u> const &X) {
+                                       tensor_view<1u> const &X,
+                                       unscrambler<clir::expr> const &unscramble) {
     auto i_other = N / 2 - i;
-    auto i_load = i % (N / 2);
-    auto i_other_load = i_other % (N / 2);
-    var y1 = bb.declare_assign(fph.type(2), "yi", y(i_load));
-    var y2 = bb.declare_assign(fph.type(2), "yN_i", y(i_other_load));
+    auto i_load = bb.declare_assign(generic_short(), "i_load", i % (N / 2));
+    auto i_other_load = bb.declare_assign(generic_short(), "i_other_load", i_other % (N / 2));
+    var y1 = bb.declare_assign(fph.type(2), "yi", y(unscramble(i_load)));
+    var y2 = bb.declare_assign(fph.type(2), "yN_i", y(unscramble(i_other_load)));
     bb.assign(y2, init_vector(fph.type(2), {y2.s(0), -y2.s(1)}));
     var a = bb.declare_assign(fph.type(2), "a", (y2 + y1) / fph.constant(2.0));
     var b = bb.declare_assign(fph.type(2), "b", (y2 - y1) / fph.constant(2.0));
@@ -233,28 +256,21 @@ void f2fft_gen_r2c_double::load(block_builder &bb, copy_params cp) const {
     cp.x_acc->component(0);
     global_load(bb, cp, 2 * cp.kk, cp.view);
     cp.x_acc->component(1);
-    auto zero =
-        tensor_view(std::make_shared<zero_accessor>(cp.cfg.fp), std::array<expr, 1u>{cp.cfg.N2});
-    copy_N_block_with_permutation(bb, zero, cp.x_view, cp.cfg.N2);
+    auto const Nf = cp.cfg.factorization.back();
+    auto zero = tensor_view(std::make_shared<zero_accessor>(cp.cfg.fp), std::array<expr, 1u>{Nf});
+    copy_N_block_with_permutation(bb, zero, cp.x_view, Nf);
     global_load(bb, cp, 2 * cp.kk + 1, cp.view);
     cp.x_acc->component(-1);
 }
 
-void f2fft_gen_r2c_double::store(block_builder &bb, copy_params cp) const {
-    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
-                          .subview(bb, cp.j1, slice{});
-    copy_N_block_with_permutation(bb, cp.x_view, X1_view_1d, cp.cfg.N1, cp.P);
-}
-
 void f2fft_gen_r2c_double::postprocess(block_builder &bb, prepost_params pp) const {
-    auto const N = pp.cfg.N1 * pp.cfg.N2;
-    bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
+    auto const N = p().N_fft;
     auto store_fac = [&](block_builder &bb, tensor_view<1u> const &view_a,
                          tensor_view<1u> const &view_b) {
         auto j1 = bb.declare(generic_short(), "j1");
         bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 <= N / 2, add_into(j1, pp.cfg.Nb))
                    .body([&](block_builder &bb) {
-                       postprocess_i(bb, pp.fph, j1, N, pp.X1_view, view_a, view_b);
+                       postprocess_i(bb, pp.fph, j1, N, pp.X1_view, view_a, view_b, pp.unscramble);
                    })
                    .get_product());
     };
@@ -279,11 +295,12 @@ void f2fft_gen_r2c_double::postprocess(block_builder &bb, prepost_params pp) con
 
 void f2fft_gen_r2c_double::postprocess_i(block_builder &bb, precision_helper fph, expr i,
                                          std::size_t N, tensor_view<1u> const &x,
-                                         tensor_view<1u> const &ya, tensor_view<1u> const &yb) {
-    expr i_other = (N - i) % N;
+                                         tensor_view<1u> const &ya, tensor_view<1u> const &yb,
+                                         unscrambler<clir::expr> const &unscramble) {
+    auto i_other = bb.declare_assign(generic_short(), "i_other", (N - i) % N);
     auto number_type = fph.type(2);
-    var y1 = bb.declare_assign(number_type, "yi", x(i));
-    var y2 = bb.declare_assign(number_type, "yN_i", x(i_other));
+    var y1 = bb.declare_assign(number_type, "yi", x(unscramble(i)));
+    var y2 = bb.declare_assign(number_type, "yN_i", x(unscramble(i_other)));
     bb.assign(y2, init_vector(number_type, {y2.s(0), -y2.s(1)}));
     var tmp = bb.declare_assign(number_type, "tmp", (y2 + y1) / fph.constant(2.0));
     bb.add(ya.store(tmp, i));
@@ -294,31 +311,16 @@ void f2fft_gen_r2c_double::postprocess_i(block_builder &bb, precision_helper fph
     }
 }
 
-void f2fft_gen_c2r_half::load(block_builder &bb, copy_params cp) const {
-    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
-                          .subview(bb, slice{}, cp.j1);
-    copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, cp.cfg.N2);
-}
-
-void f2fft_gen_c2r_half::store(block_builder &bb, copy_params cp) const {
-    cp.x_acc->component(0);
-    auto src = cp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
-    global_store(bb, cp, cp.kk, src.subview(bb, slice{}, 0, slice{}, slice{}));
-    cp.x_acc->component(1);
-    global_store(bb, cp, cp.kk, src.subview(bb, slice{}, 1, slice{}, slice{}));
-    cp.x_acc->component(-1);
-}
-
 void f2fft_gen_c2r_half::preprocess(block_builder &bb, prepost_params pp) const {
-    auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
-    auto j1 = bb.declare(generic_short(), "j1");
     bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
                .then([&](block_builder &bb) {
+                   auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
+                   auto j1 = bb.declare(generic_short(), "j1");
                    bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 <= pp.cfg.N / 4,
                                            add_into(j1, pp.cfg.Nb))
                               .body([&](block_builder &bb) {
-                                  preprocess_i(bb, pp.fph, j1, pp.twiddle, pp.cfg.N, pp.cfg.N1,
-                                               pp.cfg.N2, view, pp.X1_view);
+                                  preprocess_i(bb, pp.fph, j1, pp.twiddle, pp.cfg.N, view,
+                                               pp.X1_view);
                               })
                               .get_product());
                })
@@ -327,12 +329,11 @@ void f2fft_gen_c2r_half::preprocess(block_builder &bb, prepost_params pp) const 
 }
 
 void f2fft_gen_c2r_half::preprocess_i(block_builder &bb, precision_helper fph, expr i, expr twiddle,
-                                      std::size_t N, std::size_t N1, std::size_t N2,
-                                      tensor_view<1u> const &x, tensor_view<1u> const &X1) {
+                                      std::size_t N, tensor_view<1u> const &x,
+                                      tensor_view<1u> const &X1) {
     auto i_other = N / 2 - i;
-    // Write transposed
-    auto i_store = i / N1 + i % N1 * N2;
-    auto i_other_store = i_other / N1 + i_other % N1 * N2;
+    auto i_store = i;
+    auto i_other_store = i_other;
 
     var x1 = bb.declare_assign(fph.type(2), "xi", x(i));
     // ensure that imaginary part of zero-frequency term is zero
@@ -351,30 +352,44 @@ void f2fft_gen_c2r_half::preprocess_i(block_builder &bb, precision_helper fph, e
                .get_product());
 }
 
-void f2fft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {
-    auto X1_view_1d = cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{cp.cfg.N2, cp.cfg.N1})
-                          .subview(bb, slice{}, cp.j1);
-    copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, cp.cfg.N2);
+void f2fft_gen_c2r_half::load(block_builder &bb, copy_params cp) const {
+    auto const &f = cp.cfg.factorization;
+    auto const J1 = product(f.begin(), f.begin() + f.size() - 1, 1);
+    auto const Nf = f.back();
+    auto X1_view_1d =
+        cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{J1, Nf}).subview(bb, cp.j1, slice{});
+    copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, Nf);
 }
 
-void f2fft_gen_c2r_double::store(block_builder &bb, copy_params cp) const {
-    cp.x_acc->component(0);
-    global_store(bb, cp, 2 * cp.kk, cp.view);
-    cp.x_acc->component(1);
-    global_store(bb, cp, 2 * cp.kk + 1, cp.view);
-    cp.x_acc->component(-1);
+void f2fft_gen_c2r_half::postprocess(block_builder &bb, prepost_params pp) const {
+    bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
+               .then([&](block_builder &bb) {
+                   auto j1 = bb.declare(generic_short(), "j1");
+                   auto view_4d = pp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
+                   auto view_sub1 = view_4d.subview(bb, pp.mm, 0, slice{}, pp.kk);
+                   auto view_sub2 = view_4d.subview(bb, pp.mm, 1, slice{}, pp.kk);
+                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 < p().N_fft,
+                                           add_into(j1, pp.cfg.Nb))
+                              .body([&](block_builder &bb) {
+                                  auto y = bb.declare_assign(pp.fph.type(2), "y",
+                                                             pp.X1_view(pp.unscramble(j1)));
+                                  bb.add(view_sub1.store(y.s(0), j1));
+                                  bb.add(view_sub2.store(y.s(1), j1));
+                              })
+                              .get_product());
+               })
+               .get_product());
 }
 
 void f2fft_gen_c2r_double::preprocess(block_builder &bb, prepost_params pp) const {
-    auto N = pp.cfg.N1 * pp.cfg.N2;
+    auto N = p().N_fft;
     auto load_fac2 = [&](block_builder &bb, tensor_view<1u> const &view_a,
                          tensor_view<1u> const &view_b) {
         auto i = var("i");
         bb.add(for_loop_builder(declaration_assignment(generic_short(), i, pp.n_local), i <= N / 2,
                                 add_into(i, pp.cfg.Nb))
                    .body([&](block_builder &bb) {
-                       preprocess_i(bb, pp.fph, i, pp.cfg.N1, pp.cfg.N2, view_a, view_b,
-                                    pp.X1_view);
+                       preprocess_i(bb, pp.fph, i, N, view_a, view_b, pp.X1_view);
                    })
                    .get_product());
     };
@@ -399,14 +414,13 @@ void f2fft_gen_c2r_double::preprocess(block_builder &bb, prepost_params pp) cons
 }
 
 void f2fft_gen_c2r_double::preprocess_i(block_builder &bb, precision_helper fph, expr i,
-                                        std::size_t N1, std::size_t N2, tensor_view<1u> const &xa,
+                                        std::size_t N, tensor_view<1u> const &xa,
                                         tensor_view<1u> const &xb, tensor_view<1u> const &y) {
     data_type cast_type = fph.select_type();
     auto number_type = fph.type(2);
-    std::size_t N = N1 * N2;
     expr i_other = N - i;
-    expr i_out = i / N1 + i % N1 * N2;
-    expr i_other_out = i_other / N1 + i_other % N1 * N2;
+    expr i_out = i;
+    expr i_other_out = i_other;
     var ai = bb.declare_assign(number_type, "ai", xa(i));
     var bi = bb.declare_assign(number_type, "bi", xb(i));
     // ensure that imaginary part of zero-frequency term is zero
@@ -414,10 +428,43 @@ void f2fft_gen_c2r_double::preprocess_i(block_builder &bb, precision_helper fph,
     bb.assign(bi.s(1), select(bi.s(1), fph.zero(), cast(cast_type, i == 0)));
     bb.assign(bi, init_vector(number_type, {-bi.s(1), bi.s(0)}));
     bb.add(y.store(ai + bi, i_out));
-    bb.add(if_selection_builder(i_other < N1 * N2)
+    bb.add(if_selection_builder(i_other < N)
                .then([&](block_builder &bb) {
                    auto tmp = bb.declare_assign(number_type, "tmp", ai - bi);
                    bb.add(y.store(init_vector(number_type, {tmp.s(0), -tmp.s(1)}), i_other_out));
+               })
+               .get_product());
+}
+
+void f2fft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {
+    auto const &f = cp.cfg.factorization;
+    auto const J1 = product(f.begin(), f.begin() + f.size() - 1, 1);
+    auto const Nf = f.back();
+    auto X1_view_1d =
+        cp.X1_view.reshaped_mode(0, std::array<expr, 2u>{J1, Nf}).subview(bb, cp.j1, slice{});
+    copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, Nf);
+}
+
+void f2fft_gen_c2r_double::postprocess(block_builder &bb, prepost_params pp) const {
+    bb.add(if_selection_builder(pp.mm < pp.cfg.M && 2 * pp.kk < pp.K)
+               .then([&](block_builder &bb) {
+                   auto j1 = bb.declare(generic_short(), "j1");
+                   auto view_4d = pp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
+                   auto view_sub1 = pp.view.subview(bb, pp.mm, slice{}, 2 * pp.kk);
+                   auto view_sub2 = pp.view.subview(bb, pp.mm, slice{}, 2 * pp.kk + 1);
+                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 < p().N_fft,
+                                           add_into(j1, pp.cfg.Nb))
+                              .body([&](block_builder &bb) {
+                                  auto y = bb.declare_assign(pp.fph.type(2), "y",
+                                                             pp.X1_view(pp.unscramble(j1)));
+                                  bb.add(view_sub1.store(y.s(0), j1));
+                                  bb.add(if_selection_builder(2 * pp.kk + 1 < pp.K)
+                                             .then([&](block_builder &bb) {
+                                                 bb.add(view_sub2.store(y.s(1), j1));
+                                             })
+                                             .get_product());
+                              })
+                              .get_product());
                })
                .get_product());
 }

@@ -18,24 +18,14 @@ namespace bbfft {
  */
 std::vector<int> trial_division(int n);
 
-/**
- * @brief Computes floor(sqrt(n))
- */
-int isqrt(int n);
+unsigned update_factor(unsigned n, unsigned index, unsigned *factors);
 
 /**
- * @brief Factorizes integer n in 2 factors that are ideally equal
+ * @brief Factors "n" into "index" number of integers such that the product is n
  *
- * Examples:
- * 32: returns [4,8]
- * 36: returns [6,6]
- * 11 (prime): return [1,11]
- *
- * @param n Integer to factorize
- *
- * @return [a,b] such that n=a*b and a <= b
+ * @return Vector of factors
  */
-std::pair<int, int> factor2(int n);
+std::vector<unsigned> factor(unsigned n, unsigned index);
 
 } // namespace bbfft
 

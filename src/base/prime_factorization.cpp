@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "prime_factorization.hpp"
+#include "math.hpp"
+
+#include <algorithm>
 
 namespace bbfft {
 
@@ -19,22 +22,37 @@ std::vector<int> trial_division(int n) {
     return factorization;
 }
 
-int isqrt(int n) {
-    int a = n;
-    int b = (n + 1) / 2;
-    while (b < a) {
-        a = b;
-        b = (a * a + n) / (2 * a);
+unsigned update_factor(unsigned n, unsigned index, unsigned *factors) {
+    if (index == 1) {
+        return 1;
     }
-    return a;
+    unsigned r = iroot(n, index);
+    auto p = ipow(r, index - 1);
+    std::fill(factors, factors + (index - 1), r);
+    while (n % p) {
+        --factors[0];
+        if (n % factors[0] == 0) {
+            p = update_factor(n / factors[0], index - 1, factors + 1);
+            p *= factors[0];
+        } else {
+            p = p / (factors[0] + 1) * factors[0];
+        }
+    }
+    return p;
 }
 
-std::pair<int, int> factor2(int n) {
-    auto r = isqrt(n);
-    while (n % r) {
-        --r;
+std::vector<unsigned> factor(unsigned n, unsigned index) {
+    if (n == 0) {
+        return std::vector<unsigned>(index, 0);
     }
-    return std::make_pair(r, n / r);
+    if (index == 0) {
+        return {};
+    }
+    auto result = std::vector<unsigned>(index);
+    auto p = update_factor(n, index, result.data());
+    result.back() = n / p;
+    std::sort(result.begin(), result.end());
+    return result;
 }
 
 } // namespace bbfft
