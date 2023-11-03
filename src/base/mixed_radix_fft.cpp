@@ -13,6 +13,7 @@
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <type_traits>
 #include <unordered_map>
@@ -21,7 +22,7 @@ using namespace clir;
 
 namespace bbfft {
 
-expr complex_mul::operator()(expr c, std::complex<double> w) {
+expr complex_mul::operator()(expr c, std::complex<double> const &w) {
     auto wr = fph_.constant(w.real());
     auto wi = fph_.constant(w.imag());
     return init_vector(fph_.type(2), {c.s(0) * wr - c.s(1) * wi, c.s(0) * wi + c.s(1) * wr});
@@ -30,6 +31,98 @@ expr complex_mul::operator()(expr c, std::complex<double> w) {
 expr complex_mul::operator()(expr c, expr w) {
     return init_vector(fph_.type(2),
                        {c.s(0) * w.s(0) - c.s(1) * w.s(1), c.s(0) * w.s(1) + c.s(1) * w.s(0)});
+}
+
+expr complex_mul::pair_real(clir::expr x1, clir::expr x2, std::complex<double> const &w) {
+    auto wr = fph_.constant(w.real());
+    return wr * (x1 + x2);
+}
+
+expr complex_mul::pair_imag(clir::expr x1, clir::expr x2, std::complex<double> const &w) {
+    auto wi = fph_.constant(w.imag());
+    return wi * init_vector(fph_.type(2), {x2.s(1) - x1.s(1), x1.s(0) - x2.s(0)});
+}
+
+clir::expr basic_esum::operator()(block_builder &, int kf) {
+    expr esum = x_(0);
+    for (int jf = 1; jf < Nf_; ++jf) {
+        auto w = power_of_w(direction_ * kf * jf, Nf_);
+        esum = esum + cmul_(x_(jf), w);
+    }
+    return esum;
+}
+
+/*
+ * Suppose we have a pair
+ *
+ * p1 = w_N(k) * x(j1) + w_N(-k) * x(j2)
+ *
+ * and let wr_N(k) = Re(w_N(k)), wi_N(j) = Im(w_N(k))
+ *
+ * then we have
+ *
+ * p1 = wr_N(k) * x(j1) + wi_N(k) * i * x(j1) + wr_N(k) * x(j2) - wi_N(k) * i * x(j2)
+ *    = wr_N(k) * (x(j1) + x(j2)) + wi_N(k) * i * (x(j1) - x(j2))
+ *    = p11 + p12
+ *
+ * where p11 := wr_N(k) * (x(j1) + x(j2)), p12 :=  wi_N(k) * i * (x(j1) - x(j2))
+ *
+ * Hence, instead of 8 mults and 10 adds we only need 6 adds and 4 mults.
+ *
+ * Moreover, we have
+ *
+ * p2 = w_N(-k) * x(j1) + w_N(k) * x(j2)
+ *    = wr_N(k) * (x(j1) + x(j2)) + wi_N(k) * i * (x(j2) - x(j1))
+ *    = p11 - p12
+ */
+clir::expr pair_optimization_esum::operator()(block_builder &bb, int kf) {
+    if (kf == 0) {
+        return basic_esum::operator()(bb, 0);
+    }
+    expr esum = x_(0);
+    auto singletons = std::vector<product>{};
+    auto pairs = std::vector<std::pair<product, product>>{};
+    for (int jf = 1; jf < Nf_; ++jf) {
+        auto w_arg = simplify_power_of_w(direction_ * kf * jf, Nf_);
+        auto w_arg_other = std::make_pair(-w_arg.first, w_arg.second);
+        if (auto it = std::find_if(std::begin(singletons), std::end(singletons),
+                                   [&](product const &p) { return w_arg_other == p.w_arg; });
+            it != std::end(singletons)) {
+            pairs.push_back(std::make_pair(*it, product{w_arg, jf}));
+            singletons.erase(it);
+        } else {
+            singletons.push_back(product{w_arg, jf});
+        }
+    }
+
+    for (auto const &s : singletons) {
+        auto w = power_of_w(s.w_arg);
+        esum = esum + cmul_(x_(s.jf), w);
+    }
+    for (auto const &p : pairs) {
+        auto p1 = p.first;
+        auto p2 = p.second;
+        p1.w_arg.first *= -1;
+        p2.w_arg.first *= -1;
+        auto other_pair = std::make_pair(p1, p2);
+        if (auto it = available_pairs_.find(other_pair); it != available_pairs_.end()) {
+            esum = esum + it->second.first - it->second.second;
+        } else {
+            p1 = p.first;
+            p2 = p.second;
+            if (p1.w_arg.first < 0) {
+                std::swap(p1, p2);
+            }
+            auto x1 = x_(p1.jf);
+            auto x2 = x_(p2.jf);
+            auto w = power_of_w(p1.w_arg);
+            auto v1 = bb.declare_assign(cmul_.fph().type(2), "p1", cmul_.pair_real(x1, x2, w));
+            auto v2 = bb.declare_assign(cmul_.fph().type(2), "p2", cmul_.pair_imag(x1, x2, w));
+            available_pairs_[p] = std::make_pair(v1, v2);
+            esum = esum + v1 + v2;
+        }
+    }
+    return esum;
 }
 
 expr multiply_imaginary_unit(precision_helper fph, expr x, expr is_odd) {
@@ -55,70 +148,6 @@ expr sub_group_xy(precision_helper fph, expr x, std::complex<double> y, expr &is
     auto xc = sub_group_xc(fph, x, y);
     auto xs = sub_group_xs(fph, x, y, is_odd);
     return xc + xs;
-}
-
-void generate_fft::with_cse(block_builder &bb, precision fp, int direction,
-                            std::vector<int> factorization, var &x, var &y, expr is_odd) {
-    int L = factorization.size();
-    int N = product(factorization.begin(), factorization.end(), 1);
-    int J = N;
-    int K = 1;
-    auto fph = precision_helper(fp);
-
-    for (int f = L - 1; f >= 0; --f) {
-        auto Nf = factorization[f];
-        J /= Nf;
-        auto source = tensor_indexer<int, 3>({Nf, J, K});
-        auto target = tensor_indexer<int, 3>({J, Nf, K});
-        for (int j = 0; j < J; ++j) {
-            for (int k = 0; k < K; ++k) {
-
-                for (int kf = 0; kf < Nf; ++kf) {
-                    bb.assign(y[target(j, kf, k)], x[source(0, j, k)]);
-                }
-                for (int jf = 1; jf < Nf; ++jf) {
-                    auto pair_hash = [Nf](std::pair<int, int> const &p) {
-                        return p.first * Nf + p.second;
-                    };
-                    auto unique_products =
-                        std::unordered_map<std::pair<int, int>, std::pair<var, var>,
-                                           decltype(pair_hash)>(Nf * Nf, pair_hash);
-
-                    for (int kf = 0; kf < Nf; ++kf) {
-                        auto [zz, NN] = simplify_power_of_w(direction * kf * jf, Nf);
-                        auto absZZ = std::make_pair(abs(zz), NN);
-
-                        auto ref = unique_products.find(absZZ);
-                        if (ref == unique_products.end()) {
-                            auto w = power_of_w(absZZ);
-                            auto xc = var("xc");
-                            auto xs = var("xs");
-                            bb.declare_assign(fph.type(), xc,
-                                              sub_group_xc(fph, x[source(jf, j, k)], w));
-                            bb.declare_assign(fph.type(), xs,
-                                              sub_group_xs(fph, x[source(jf, j, k)], w, is_odd));
-
-                            unique_products[absZZ] = std::make_pair(std::move(xc), std::move(xs));
-                            ref = unique_products.find(absZZ);
-                        }
-                        bb.add(add_into(y[target(j, kf, k)],
-                                        add_copy_sign(ref->second.first, ref->second.second, zz)));
-                    }
-                }
-                for (int kf = 0; kf < Nf; ++kf) {
-                    auto w = power_of_w(direction * kf * j, J * Nf);
-                    if (w.real() != 1.0f || w.imag() != 0.0f) {
-                        bb.assign(y[target(j, kf, k)],
-                                  sub_group_xy(fph, y[target(j, kf, k)], w, is_odd));
-                    }
-                }
-            }
-        }
-        K *= Nf;
-        std::swap(x, y);
-    }
-    // ensure x=input and y=output
-    std::swap(x, y);
 }
 
 void generate_fft::basic(block_builder &bb, precision fp, int direction,
@@ -183,8 +212,9 @@ void generate_fft::basic(block_builder &bb, precision fp, int direction,
     std::swap(x, y);
 }
 
-void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
-                                 std::vector<int> factorization, var x, expr twiddle) {
+template <typename ESum>
+void inplace(clir::block_builder &bb, precision fp, int direction, std::vector<int> factorization,
+             clir::var x, clir::expr twiddle = nullptr) {
     int L = factorization.size();
     int N = product(factorization.begin(), factorization.end(), 1);
     int J = N;
@@ -201,13 +231,9 @@ void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
         auto indexer = tensor_indexer<int, 3, layout::col_major>({J, Nf, K});
         for (int j = 0; j < J; ++j) {
             for (int k = 0; k < K; ++k) {
+                auto esum = ESum(fph, direction, Nf, [&](int jf) { return x[indexer(j, jf, k)]; });
                 for (int kf = 0; kf < Nf; ++kf) {
-                    expr esum = x[indexer(j, 0, k)];
-                    for (int jf = 1; jf < Nf; ++jf) {
-                        auto w = power_of_w(direction * kf * jf, Nf);
-                        esum = esum + cmul(x[indexer(j, jf, k)], w);
-                    }
-                    bb.assign(y[kf], esum);
+                    bb.assign(y[kf], esum(bb, kf));
                     auto tw = power_of_w(direction * kf * j, J * Nf);
                     if (bool(twiddle) && f == 0) {
                         auto tw_idx = scramble(indexer(j, kf, k));
@@ -225,6 +251,18 @@ void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
         }
         K *= Nf;
     }
+}
+
+void generate_fft::basic_inplace(block_builder &bb, precision fp, int direction,
+                                 std::vector<int> factorization, var x, expr twiddle) {
+    inplace<basic_esum>(bb, std::move(fp), std::move(direction), std::move(factorization),
+                        std::move(x), std::move(twiddle));
+}
+
+void generate_fft::pair_optimization_inplace(block_builder &bb, precision fp, int direction,
+                                             std::vector<int> factorization, var x, expr twiddle) {
+    inplace<pair_optimization_esum>(bb, std::move(fp), std::move(direction),
+                                    std::move(factorization), std::move(x), std::move(twiddle));
 }
 
 void generate_fft::basic_inplace_subgroup(block_builder &bb, precision fp, int direction,
