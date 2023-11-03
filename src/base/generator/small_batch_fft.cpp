@@ -25,19 +25,6 @@ small_batch_configuration configure_small_batch_fft(configuration const &cfg,
     }
 
     std::size_t sgs = info.min_subgroup_size();
-    if (M == 1) {
-        auto register_space = info.register_space_max();
-        for (auto sgs_i : info.subgroup_sizes) {
-            auto required_register_space = 2 * sizeof_real * N * sgs_i;
-            if (cfg.type != transform_type::c2c && N % 2 == 0) {
-                required_register_space /= 2;
-            }
-            if (sgs < sgs_i && required_register_space < register_space / 2) {
-                sgs = sgs_i;
-            }
-        }
-    }
-
     std::size_t Mb = 1;
     std::size_t max_work_group_size = std::min(std::size_t(128), info.max_work_group_size);
     std::size_t work_group_size_limit = info.max_subgroup_size();
