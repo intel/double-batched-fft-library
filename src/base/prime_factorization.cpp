@@ -5,6 +5,8 @@
 #include "math.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
 
 namespace bbfft {
 
@@ -22,23 +24,41 @@ std::vector<int> trial_division(int n) {
     return factorization;
 }
 
-unsigned update_factor(unsigned n, unsigned index, unsigned *factors) {
+std::pair<unsigned, double> update_factor(unsigned n, unsigned index, double const target,
+                                          unsigned *factors, unsigned *workspace) {
     if (index == 1) {
-        return 1;
+        factors[0] = n;
+        auto const diff = target - n;
+        return {n, diff * diff};
     }
     unsigned r = iroot(n, index);
-    auto p = ipow(r, index - 1);
-    std::fill(factors, factors + (index - 1), r);
-    while (n % p) {
-        --factors[0];
-        if (n % factors[0] == 0) {
-            p = update_factor(n / factors[0], index - 1, factors + 1);
-            p *= factors[0];
-        } else {
-            p = p / (factors[0] + 1) * factors[0];
+    auto p = ipow(r, index);
+    std::fill(factors, factors + index, r);
+    double err_best = std::numeric_limits<double>::max();
+    unsigned prod_best = 0;
+    for (unsigned f0 = r; f0 > 0; --f0) {
+        if (n % f0 == 0) {
+            auto [prod, err] =
+                update_factor(n / f0, index - 1, target, factors + 1, workspace + index);
+            prod *= f0;
+            if (n == prod) {
+                auto const diff = target - f0;
+                err += diff * diff;
+                if (err < err_best) {
+                    workspace[0] = f0;
+                    for (int i = 1; i < index; ++i) {
+                        workspace[i] = factors[i];
+                        err_best = err;
+                        prod_best = prod;
+                    }
+                }
+            }
         }
     }
-    return p;
+    for (int i = 0; i < index; ++i) {
+        factors[i] = workspace[i];
+    }
+    return {prod_best, err_best};
 }
 
 std::vector<unsigned> factor(unsigned n, unsigned index) {
@@ -48,11 +68,12 @@ std::vector<unsigned> factor(unsigned n, unsigned index) {
     if (index == 0) {
         return {};
     }
-    auto result = std::vector<unsigned>(index);
-    auto p = update_factor(n, index, result.data());
-    result.back() = n / p;
-    std::sort(result.begin(), result.end());
-    return result;
+    auto factors = std::vector<unsigned>(index);
+    auto workspace = std::vector<unsigned>(index * (index + 1) / 2);
+    double const target = std::pow(n, 1. / index);
+    auto [p, err] = update_factor(n, index, target, factors.data(), workspace.data());
+    std::sort(factors.begin(), factors.end());
+    return factors;
 }
 
 } // namespace bbfft

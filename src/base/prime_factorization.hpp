@@ -18,7 +18,8 @@ namespace bbfft {
  */
 std::vector<int> trial_division(int n);
 
-unsigned update_factor(unsigned n, unsigned index, unsigned *factors);
+std::pair<unsigned, double> update_factor(unsigned n, unsigned index, double const target,
+                                          unsigned *factors, unsigned *workspace);
 
 /**
  * @brief Factors "n" into "index" number of integers such that the product is n

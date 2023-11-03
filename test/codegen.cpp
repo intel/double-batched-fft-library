@@ -111,6 +111,10 @@ TEST_CASE("prime factorization") {
     CHECK(factor(3465, 3) == std::vector<unsigned>{11, 15, 21});
     CHECK(factor(3465, 4) == std::vector<unsigned>{5, 7, 9, 11});
 
+    CHECK(factor(9216, 2) == std::vector<unsigned>{96, 96});
+    CHECK(factor(9216, 3) == std::vector<unsigned>{16, 24, 24});
+    CHECK(factor(9216, 4) == std::vector<unsigned>{8, 8, 12, 12});
+
     CHECK(factor(64536, 2) == std::vector<unsigned>{24, 2689});
     CHECK(factor(64536, 3) == std::vector<unsigned>{1, 24, 2689});
     CHECK(factor(64536, 4) == std::vector<unsigned>{1, 2, 12, 2689});
