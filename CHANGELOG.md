@@ -6,6 +6,9 @@
 * Introduce new API for Level Zero to support regular command lists and to better handle events
 * Refactored FFT generator
 * Implemented real N-point FFT with N/2-point complex FFT (for even N); improved small batch real FFT and factor2 slm FFT performance
+*  "uint3 mnk" was removed from the callback signature. Codes that used the (undocumented and experimental) callback feature need to update their callbacks and compute mnk from offset.
+* Extended factor2 slm algorithm to support more than 2 factors.
+* Added new in-register FFT algorithm that needs less multiplications.
 
 ## [0.4.0] - 2023-05-11
 
