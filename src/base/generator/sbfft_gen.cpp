@@ -105,7 +105,7 @@ void sbfft_gen::generate(std::ostream &os, small_batch_configuration const &cfg,
                              kb_odd});
 
         auto factorization = trial_division(p_.N_fft);
-        generate_fft::basic_inplace(bb, cfg.fp, cfg.direction, factorization, x);
+        generate_fft::pair_optimization_inplace(bb, cfg.fp, cfg.direction, factorization, x);
         auto P = unscrambler(factorization);
 
         bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));

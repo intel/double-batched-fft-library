@@ -29,6 +29,20 @@ using namespace clir;
 
 namespace bbfft {
 
+template <typename BodyBuilder>
+void parallel_2d_loop(block_builder &bb, expr n_local, std::size_t Nb, std::size_t N,
+                      BodyBuilder &&builder, std::string var_name = "j1j2") {
+    if (N == Nb) {
+        bb.add(block_builder{}.body(builder(n_local)).get_product());
+    } else {
+        auto loop_var = var(var_name);
+        bb.add(for_loop_builder(declaration_assignment(generic_short(), loop_var, n_local),
+                                loop_var < static_cast<short>(N), add_into(loop_var, Nb))
+                   .body(builder(loop_var))
+                   .get_product());
+    }
+}
+
 void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
                          std::string_view name) const {
     if (cfg.factorization.size() < 2) {
@@ -55,7 +69,7 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
     auto out_ty = fph.type(p_.out_components, address_space::global_t);
     auto slm_ty = fph.type(2, address_space::local_t);
 
-    auto fft_inplace = &generate_fft::basic_inplace;
+    auto fft_inplace = &generate_fft::pair_optimization_inplace;
 
     auto fb = kernel_builder{name.empty() ? cfg.identifier() : std::string(name)};
     fb.argument(pointer_to(in_ty), in);
@@ -96,7 +110,7 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
                         std::array<expr, 3u>{cfg.ostride[0], cfg.ostride[1], cfg.ostride[2]});
 
         auto compute_stage = [&](block_builder &bb, int const f, int const J1, int const Nf,
-                                 int const J2, expr &j1, expr &j2, int const tw_offset) {
+                                 int const J2, expr j1, expr j2, int const tw_offset) {
             auto xy_ty_Nf = data_type(array_of(fph.type(2), Nf));
             auto x = bb.declare(xy_ty_Nf, "x");
             auto x_acc = std::make_shared<array_accessor>(x, xy_ty_Nf);
@@ -134,22 +148,19 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
             int const Nf = cfg.factorization[f];
             J1 /= Nf;
 
-            auto body_builder = [&](expr &loop_var) {
+            parallel_2d_loop(bb, n_local, cfg.Nb, J1 * J2, [&](expr &loop_var) {
                 return [&](block_builder &bb) {
-                    auto j1 = bb.declare_assign(generic_short(), "j1", loop_var % J1);
-                    auto j2 = bb.declare_assign(generic_short(), "j2", loop_var / J1);
-                    compute_stage(bb, f, J1, Nf, J2, j1, j2, tw_offset);
+                    if (J2 == 1) {
+                        compute_stage(bb, f, J1, Nf, J2, loop_var, 0, tw_offset);
+                    } else if (J1 == 1) {
+                        compute_stage(bb, f, J1, Nf, J2, 0, loop_var, tw_offset);
+                    } else {
+                        auto j1 = bb.declare_assign(generic_short(), "j1", loop_var % J1);
+                        auto j2 = bb.declare_assign(generic_short(), "j2", loop_var / J1);
+                        compute_stage(bb, f, J1, Nf, J2, j1, j2, tw_offset);
+                    }
                 };
-            };
-            if (J1 * J2 == static_cast<int>(cfg.Nb)) {
-                bb.add(block_builder{}.body(body_builder(n_local)).get_product());
-            } else {
-                auto j1j2 = var("j1j2");
-                bb.add(for_loop_builder(declaration_assignment(generic_short(), j1j2, n_local),
-                                        j1j2 < J1 * J2, add_into(j1j2, cfg.Nb))
-                           .body(body_builder(j1j2))
-                           .get_product());
-            }
+            });
 
             J2 *= Nf;
             tw_offset += J1 * Nf;
@@ -190,18 +201,28 @@ void f2fft_gen_c2c::load(block_builder &bb, copy_params cp) const {
 }
 
 void f2fft_gen_c2c::postprocess(block_builder &bb, prepost_params pp) const {
-    bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
-               .then([&](block_builder &bb) {
-                   auto j1 = bb.declare(generic_short(), "j1");
-                   auto view_sub = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
-                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 < p().N_fft,
-                                           add_into(j1, pp.cfg.Nb))
-                              .body([&](block_builder &bb) {
-                                  bb.add(view_sub.store(pp.X1_view(pp.unscramble(j1)), j1));
-                              })
-                              .get_product());
-               })
-               .get_product());
+    auto const &f = pp.cfg.factorization;
+    auto const Nf = f.front();
+    auto const J2 = product(f.begin() + 1, f.end(), 1);
+    auto unscramble = unscrambler<clir::expr>(f.begin() + 1, f.end());
+    unscramble.in0toN(true);
+    parallel_2d_loop(
+        bb, pp.n_local, pp.cfg.Nb, J2,
+        [&](expr &j2) {
+            return [&](block_builder &bb) {
+                auto X1_view_1d = pp.X1_view.reshaped_mode(0, std::array<expr, 2u>{Nf, J2})
+                                      .subview(bb, slice{}, unscramble(j2));
+                bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
+                           .then([&](block_builder &bb) {
+                               auto view_sub =
+                                   pp.view.reshaped_mode(1, std::array<expr, 2u>{J2, Nf})
+                                       .subview(bb, pp.mm, j2, slice{}, pp.kk);
+                               copy_N_block_with_permutation(bb, X1_view_1d, view_sub, Nf);
+                           })
+                           .get_product());
+            };
+        },
+        "j2");
 }
 
 void f2fft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
@@ -214,9 +235,6 @@ void f2fft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
 }
 
 void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params pp) const {
-    auto unscramble =
-        unscrambler<clir::expr>(pp.cfg.factorization.begin(), pp.cfg.factorization.end());
-    unscramble.in0toN(true);
     bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
                .then([&](block_builder &bb) {
                    auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
@@ -362,23 +380,32 @@ void f2fft_gen_c2r_half::load(block_builder &bb, copy_params cp) const {
 }
 
 void f2fft_gen_c2r_half::postprocess(block_builder &bb, prepost_params pp) const {
-    bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
-               .then([&](block_builder &bb) {
-                   auto j1 = bb.declare(generic_short(), "j1");
-                   auto view_4d = pp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
-                   auto view_sub1 = view_4d.subview(bb, pp.mm, 0, slice{}, pp.kk);
-                   auto view_sub2 = view_4d.subview(bb, pp.mm, 1, slice{}, pp.kk);
-                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 < p().N_fft,
-                                           add_into(j1, pp.cfg.Nb))
-                              .body([&](block_builder &bb) {
-                                  auto y = bb.declare_assign(pp.fph.type(2), "y",
-                                                             pp.X1_view(pp.unscramble(j1)));
-                                  bb.add(view_sub1.store(y.s(0), j1));
-                                  bb.add(view_sub2.store(y.s(1), j1));
-                              })
-                              .get_product());
-               })
-               .get_product());
+    auto const &f = pp.cfg.factorization;
+    auto const Nf = f.front();
+    auto const J2 = product(f.begin() + 1, f.end(), 1);
+    auto unscramble = unscrambler<clir::expr>(f.begin() + 1, f.end());
+    unscramble.in0toN(true);
+    auto view_4d = pp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
+    parallel_2d_loop(
+        bb, pp.n_local, pp.cfg.Nb, J2,
+        [&](expr &j2) {
+            return [&](block_builder &bb) {
+                auto X1_view_1d = pp.X1_view.reshaped_mode(0, std::array<expr, 2u>{Nf, J2})
+                                      .subview(bb, slice{}, unscramble(j2));
+                bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
+                           .then([&](block_builder &bb) {
+                               auto view_sub =
+                                   view_4d.reshaped_mode(2, std::array<expr, 2u>{J2, Nf})
+                                       .subview(bb, pp.mm, slice{}, j2, slice{}, pp.kk);
+                               for (int j1 = 0; j1 < Nf; ++j1) {
+                                   bb.add(view_sub.store(X1_view_1d(j1).s(0), 0, j1));
+                                   bb.add(view_sub.store(X1_view_1d(j1).s(1), 1, j1));
+                               }
+                           })
+                           .get_product());
+            };
+        },
+        "j2");
 }
 
 void f2fft_gen_c2r_double::preprocess(block_builder &bb, prepost_params pp) const {
@@ -446,27 +473,32 @@ void f2fft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {
 }
 
 void f2fft_gen_c2r_double::postprocess(block_builder &bb, prepost_params pp) const {
-    bb.add(if_selection_builder(pp.mm < pp.cfg.M && 2 * pp.kk < pp.K)
-               .then([&](block_builder &bb) {
-                   auto j1 = bb.declare(generic_short(), "j1");
-                   auto view_4d = pp.view.reshaped_mode(1, std::array<expr, 2u>{2, p().N_fft});
-                   auto view_sub1 = pp.view.subview(bb, pp.mm, slice{}, 2 * pp.kk);
-                   auto view_sub2 = pp.view.subview(bb, pp.mm, slice{}, 2 * pp.kk + 1);
-                   bb.add(for_loop_builder(assignment(j1, pp.n_local), j1 < p().N_fft,
-                                           add_into(j1, pp.cfg.Nb))
-                              .body([&](block_builder &bb) {
-                                  auto y = bb.declare_assign(pp.fph.type(2), "y",
-                                                             pp.X1_view(pp.unscramble(j1)));
-                                  bb.add(view_sub1.store(y.s(0), j1));
-                                  bb.add(if_selection_builder(2 * pp.kk + 1 < pp.K)
-                                             .then([&](block_builder &bb) {
-                                                 bb.add(view_sub2.store(y.s(1), j1));
-                                             })
-                                             .get_product());
-                              })
-                              .get_product());
-               })
-               .get_product());
+    auto const &f = pp.cfg.factorization;
+    auto const Nf = f.front();
+    auto const J2 = product(f.begin() + 1, f.end(), 1);
+    auto unscramble = unscrambler<clir::expr>(f.begin() + 1, f.end());
+    unscramble.in0toN(true);
+    parallel_2d_loop(
+        bb, pp.n_local, pp.cfg.Nb, J2,
+        [&](expr &j2) {
+            return [&](block_builder &bb) {
+                auto X1_view_1d = pp.X1_view.reshaped_mode(0, std::array<expr, 2u>{Nf, J2})
+                                      .subview(bb, slice{}, unscramble(j2));
+                auto view_4d = pp.view.reshaped_mode(1, std::array<expr, 2u>{J2, Nf});
+                for (int c = 0; c < 2; ++c) {
+                    bb.add(if_selection_builder(pp.mm < pp.cfg.M && 2 * pp.kk + c < pp.K)
+                               .then([&](block_builder &bb) {
+                                   auto view_sub =
+                                       view_4d.subview(bb, pp.mm, j2, slice{}, 2 * pp.kk + c);
+                                   for (int j1 = 0; j1 < Nf; ++j1) {
+                                       bb.add(view_sub.store(X1_view_1d(j1).s(c), j1));
+                                   }
+                               })
+                               .get_product());
+                }
+            };
+        },
+        "j2");
 }
 
 } // namespace bbfft

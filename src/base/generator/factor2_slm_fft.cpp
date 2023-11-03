@@ -35,7 +35,7 @@ factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
     for (unsigned index = 2; index <= 4; ++index) {
         factorization = factor(N_fft, index);
         auto fmax = *std::max_element(factorization.begin(), factorization.end());
-        if (fmax <= max_N_in_registers_without_spilling || is_prime(fmax)) {
+        if (fmax < max_N_in_registers_without_spilling || is_prime(fmax)) {
             break;
         }
     }
