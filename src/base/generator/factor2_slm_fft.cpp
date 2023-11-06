@@ -49,6 +49,9 @@ factor2_slm_configuration configure_factor2_slm_fft(configuration const &cfg,
     std::size_t max_compute_Mb = info.max_work_group_size / Nb;
     std::size_t max_slm_Mb = info.local_memory_size / (2 * N_slm * sizeof_real);
     std::size_t max_Mb = std::min(max_compute_Mb, max_slm_Mb);
+    if (max_Mb >= sgs) {
+        max_Mb = max_Mb / sgs * sgs;
+    }
     max_Mb = std::min(max_Mb, work_group_size_limit);
     std::size_t Mb = std::min(max_Mb, min_power_of_2_greater_equal(M));
     std::size_t max_compute_Kb = std::max(std::size_t(1), info.max_work_group_size / (Mb * Nb));
