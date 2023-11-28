@@ -121,7 +121,7 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
             } else {
                 auto X1_view_1d = X1_view.reshaped_mode(0, std::array<expr, 3u>{J1, Nf, J2})
                                       .subview(bb, j1, slice{}, j2);
-                copy_N_block_with_permutation(bb, X1_view_1d, x_view, Nf);
+                copy_N_block(bb, X1_view_1d, x_view, Nf, Nf);
             }
 
             auto factor = trial_division(Nf);
@@ -191,7 +191,7 @@ void f2fft_gen::global_load(block_builder &bb, copy_params const &cp, expr k,
                .then([&](block_builder &bb) {
                    auto view_sub = view.reshaped_mode(1, std::array<expr, 2u>{J1, Nf})
                                        .subview(bb, cp.mm, cp.j1, slice{}, k);
-                   copy_N_block_with_permutation(bb, view_sub, cp.x_view, Nf);
+                   copy_N_block(bb, view_sub, cp.x_view, Nf, Nf);
                })
                .get_product());
 }
@@ -217,7 +217,7 @@ void f2fft_gen_c2c::postprocess(block_builder &bb, prepost_params pp) const {
                                auto view_sub =
                                    pp.view.reshaped_mode(1, std::array<expr, 2u>{J2, Nf})
                                        .subview(bb, pp.mm, j2, slice{}, pp.kk);
-                               copy_N_block_with_permutation(bb, X1_view_1d, view_sub, Nf);
+                               copy_N_block(bb, X1_view_1d, view_sub, Nf);
                            })
                            .get_product());
             };

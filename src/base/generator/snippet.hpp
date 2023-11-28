@@ -22,6 +22,9 @@ void copy_mbNkb_block_on_2D_grid(clir::block_builder &bb, tensor_view<3u> const 
                                  tensor_view<3u> const &X_dest, clir::expr mb, std::size_t N,
                                  clir::expr kb);
 
+void copy_N_block(clir::block_builder &bb, tensor_view<1u> const &X_src,
+                  tensor_view<1u> const &X_dest, int N, int unroll_factor = 2);
+
 void copy_N_block_with_permutation(clir::block_builder &bb, tensor_view<1u> const &X_src,
                                    tensor_view<1u> const &X_dest, std::size_t N,
                                    permutation_fun src_perm = identity,

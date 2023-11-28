@@ -3,6 +3,7 @@
 
 #include "snippet.hpp"
 
+#include "clir/attr_defs.hpp"
 #include "clir/builtin_function.hpp"
 #include "clir/data_type.hpp"
 #include "clir/visitor/to_imm.hpp"
@@ -47,6 +48,15 @@ void copy_mbNkb_block_on_2D_grid(block_builder &bb, tensor_view<3u> const &X_src
                             .otherwise([&](block_builder &bb) { make_copy(bb, mb); });
         bb.add(check_mb.get_product());
     }
+}
+
+void copy_N_block(block_builder &bb, tensor_view<1u> const &X_src, tensor_view<1u> const &X_dest,
+                  int N, int unroll_factor) {
+    auto j1 = var("j1");
+    bb.add(for_loop_builder(declaration_assignment(generic_short(), j1, 0), j1 < N, ++j1)
+               .body([&](block_builder &bb) { bb.add(X_dest.store(X_src(j1), j1)); })
+               .attribute(opencl_unroll_hint(unroll_factor))
+               .get_product());
 }
 
 void copy_N_block_with_permutation(block_builder &bb, tensor_view<1u> const &X_src,
