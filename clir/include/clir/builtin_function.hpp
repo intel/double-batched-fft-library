@@ -297,6 +297,36 @@
     X(intel_sub_group_block_write4, 2, 3)                                                          \
     X(intel_sub_group_block_write8, 2, 3)
 
+#define CLIR_EXTENSION_INTEL_SUBGROUPS_LONG(X)                                                     \
+    X(intel_sub_group_block_read_ul, 1, 2)                                                         \
+    X(intel_sub_group_block_read_ul2, 1, 2)                                                        \
+    X(intel_sub_group_block_read_ul4, 1, 2)                                                        \
+    X(intel_sub_group_block_read_ul8, 1, 2)                                                        \
+    X(intel_sub_group_block_write_ul, 2, 3)                                                        \
+    X(intel_sub_group_block_write_ul2, 2, 3)                                                       \
+    X(intel_sub_group_block_write_ul4, 2, 3)                                                       \
+    X(intel_sub_group_block_write_ul8, 2, 3)                                                       \
+    X(intel_sub_group_block_read_ui, 1, 2)                                                         \
+    X(intel_sub_group_block_read_ui2, 1, 2)                                                        \
+    X(intel_sub_group_block_read_ui4, 1, 2)                                                        \
+    X(intel_sub_group_block_read_ui8, 1, 2)                                                        \
+    X(intel_sub_group_block_write_ui, 2, 3)                                                        \
+    X(intel_sub_group_block_write_ui2, 2, 3)                                                       \
+    X(intel_sub_group_block_write_ui4, 2, 3)                                                       \
+    X(intel_sub_group_block_write_ui8, 2, 3)
+
+#define CLIR_EXTENSION_INTEL_SUBGROUPS_SHORT(X)                                                    \
+    X(intel_sub_group_block_read_us, 1, 2)                                                         \
+    X(intel_sub_group_block_read_us2, 1, 2)                                                        \
+    X(intel_sub_group_block_read_us4, 1, 2)                                                        \
+    X(intel_sub_group_block_read_us8, 1, 2)                                                        \
+    X(intel_sub_group_block_read_us16, 1, 2)                                                       \
+    X(intel_sub_group_block_write_us, 2, 3)                                                        \
+    X(intel_sub_group_block_write_us2, 2, 3)                                                       \
+    X(intel_sub_group_block_write_us4, 2, 3)                                                       \
+    X(intel_sub_group_block_write_us8, 2, 3)                                                       \
+    X(intel_sub_group_block_write_us16, 2, 3)
+
 #define CLIR_DECLARE_BUILTIN_FUNCTION_0_0(NAME) CLIR_EXPORT expr NAME();
 #define CLIR_DECLARE_BUILTIN_FUNCTION_1_1(NAME) CLIR_EXPORT expr NAME(expr e1);
 #define CLIR_DECLARE_BUILTIN_FUNCTION_2_2(NAME) CLIR_EXPORT expr NAME(expr e1, expr e2);
@@ -314,7 +344,9 @@
 
 #define CLIR_BUILTIN_FUNCTION(X)                                                                   \
     CLIR_STANDARD_BUILTIN_FUNCTION(X)                                                              \
-    CLIR_EXTENSION_INTEL_SUBGROUPS(X)
+    CLIR_EXTENSION_INTEL_SUBGROUPS(X)                                                              \
+    CLIR_EXTENSION_INTEL_SUBGROUPS_LONG(X)                                                         \
+    CLIR_EXTENSION_INTEL_SUBGROUPS_SHORT(X)
 
 namespace clir {
 
