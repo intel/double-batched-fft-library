@@ -1,10 +1,10 @@
 // Copyright (C) 2022 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "bbfft/ze/online_compiler.hpp"
 #include "bbfft/detail/cast.hpp"
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
-#include "bbfft/ze/online_compiler.hpp"
 
 #include "ocloc_api.h"
 #include <cstdio>
@@ -16,7 +16,7 @@
 namespace bbfft::ze {
 
 std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
-                                                std::string const &device_type,
+                                                std::string const &device_type, bool spv_only,
                                                 std::vector<std::string> const &options,
                                                 std::vector<std::string> const &extensions) {
     auto format_ext_list = [](auto const &extensions) -> std::string {
@@ -31,7 +31,6 @@ std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
         }
         return oss.str();
     };
-    bool spv_only = device_type.empty();
     unsigned int num_args = 2;
     constexpr unsigned int max_num_args = 10;
     char const *argv[max_num_args] = {"ocloc", "compile"};
@@ -51,11 +50,15 @@ std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
         argv[num_args++] = "-options";
         argv[num_args++] = cl_options.c_str();
     }
-    if (spv_only) {
-        argv[num_args++] = "-spv_only";
-    } else {
+    if (!device_type.empty()) {
         argv[num_args++] = "-device";
         argv[num_args++] = device_type.c_str();
+    } else {
+        // force SPIR-V output without device name
+        spv_only = true;
+    }
+    if (spv_only) {
+        argv[num_args++] = "-spv_only";
     }
     argv[num_args++] = "-file";
     argv[num_args++] = "fft.cl";
@@ -128,7 +131,7 @@ ze_module_handle_t build_kernel_bundle(std::string const &source, ze_context_han
                                        ze_device_handle_t device,
                                        std::vector<std::string> const &options,
                                        std::vector<std::string> const &extensions) {
-    auto spirv = compile_to_spirv_or_native(source, "", options, extensions);
+    auto spirv = compile_to_spirv_or_native(source, "", true, options, extensions);
     return build_kernel_bundle(spirv.data(), spirv.size(), module_format::spirv, context, device);
 }
 
@@ -190,10 +193,10 @@ ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name
     return krnl;
 }
 
-std::vector<uint8_t> compile_to_spirv(std::string const &source,
+std::vector<uint8_t> compile_to_spirv(std::string const &source, std::string const &device_type,
                                       std::vector<std::string> const &options,
                                       std::vector<std::string> const &extensions) {
-    return compile_to_spirv_or_native(source, "", options, extensions);
+    return compile_to_spirv_or_native(source, device_type, true, options, extensions);
 }
 
 std::vector<uint8_t> compile_to_native(std::string const &source, std::string const &device_type,
@@ -202,7 +205,7 @@ std::vector<uint8_t> compile_to_native(std::string const &source, std::string co
     if (device_type.empty()) {
         throw std::logic_error("compile_to_native: device_type must not be empty");
     }
-    return compile_to_spirv_or_native(source, device_type, options, extensions);
+    return compile_to_spirv_or_native(source, device_type, false, options, extensions);
 }
 
 aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, module_format format,

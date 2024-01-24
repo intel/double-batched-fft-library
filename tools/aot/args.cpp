@@ -18,6 +18,7 @@ args parse_args(int argc, char **argv) {
     args a = {};
     a.format = module_format::native;
     a.info = {};
+    a.device = {};
 
     int positional_arg = 0;
     for (int i = 1; i < argc; ++i) {

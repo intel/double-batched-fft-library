@@ -63,13 +63,17 @@ BBFFT_EXPORT ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::strin
 /**
  * @brief Takes OpenCL-C code and outputs SPIR-V
  *
+ * Note: some OpenCL extensions require the device type even for SPIR-V-only compilation
+ *
  * @param source OpenCL-C source code
+ * @param device_type Target device type; see ocloc compile --help for possible targets
  * @param options List of compiler options
  * @param extensions List of OpenCL-C extensions
  *
  * @return binary
  */
 BBFFT_EXPORT std::vector<uint8_t> compile_to_spirv(std::string const &source,
+                                                   std::string const &device_type = "",
                                                    std::vector<std::string> const &options = {},
                                                    std::vector<std::string> const &extensions = {});
 /**
