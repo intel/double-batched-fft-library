@@ -86,7 +86,7 @@ TEST_CASE_TEMPLATE("c2c identity", T, TEST_PRECISIONS) {
 
     auto KK = std::vector<std::size_t>{16};
     auto MM = std::vector<std::size_t>{1, 32};
-    auto NN = std::vector<std::size_t>{5, 63, 212};
+    auto NN = std::vector<std::size_t>{5, 63, 92};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);

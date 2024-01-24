@@ -1,27 +1,45 @@
 // Copyright (C) 2022 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "bbfft/ze/online_compiler.hpp"
 #include "bbfft/detail/cast.hpp"
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
+#include "bbfft/ze/online_compiler.hpp"
 
 #include "ocloc_api.h"
 #include <cstdio>
 #include <cstring>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 
 namespace bbfft::ze {
 
 std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
                                                 std::string const &device_type,
-                                                std::vector<std::string> const &options) {
+                                                std::vector<std::string> const &options,
+                                                std::vector<std::string> const &extensions) {
+    auto format_ext_list = [](auto const &extensions) -> std::string {
+        if (extensions.empty()) {
+            return {};
+        }
+        auto oss = std::ostringstream{};
+        auto ext_it = extensions.begin();
+        oss << "-cl-ext=+" << *ext_it++;
+        for (; ext_it != extensions.end(); ++ext_it) {
+            oss << ",+" << *ext_it;
+        }
+        return oss.str();
+    };
     bool spv_only = device_type.empty();
-    unsigned int num_args = 4;
+    unsigned int num_args = 2;
     constexpr unsigned int max_num_args = 10;
-    char const *argv[max_num_args] = {"ocloc", "compile", "-internal_options",
-                                      "-cl-ext=+cl_khr_fp64"};
+    char const *argv[max_num_args] = {"ocloc", "compile"};
+    auto ext_list = format_ext_list(extensions);
+    if (!ext_list.empty()) {
+        argv[num_args++] = "-internal_options";
+        argv[num_args++] = ext_list.c_str();
+    }
     auto cl_options = std::string{};
     if (options.size() > 0) {
         auto it = options.cbegin();
@@ -108,8 +126,9 @@ void check_build_status(ze_module_build_log_handle_t build_log, ze_result_t err)
 
 ze_module_handle_t build_kernel_bundle(std::string const &source, ze_context_handle_t context,
                                        ze_device_handle_t device,
-                                       std::vector<std::string> const &options) {
-    auto spirv = compile_to_spirv_or_native(source, "", options);
+                                       std::vector<std::string> const &options,
+                                       std::vector<std::string> const &extensions) {
+    auto spirv = compile_to_spirv_or_native(source, "", options, extensions);
     return build_kernel_bundle(spirv.data(), spirv.size(), module_format::spirv, context, device);
 }
 
@@ -142,23 +161,48 @@ ze_module_handle_t build_kernel_bundle(uint8_t const *binary, std::size_t binary
 
 ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::string const &name) {
     char const *c_name = name.c_str();
+
     ze_kernel_desc_t kernel_desc = {ZE_STRUCTURE_TYPE_KERNEL_DESC, nullptr, 0, c_name};
     ze_kernel_handle_t krnl;
     ZE_CHECK(zeKernelCreate(mod, &kernel_desc, &krnl));
+
+    /*char const *sched_hint = getenv("BBFFT_SCHEDULING_HINT");
+    if (sched_hint) {
+        ze_scheduling_hint_exp_flag_t flag;
+        switch (atoi(sched_hint)) {
+        case 0:
+            flag = ZE_SCHEDULING_HINT_EXP_FLAG_OLDEST_FIRST;
+            break;
+        case 1:
+            flag = ZE_SCHEDULING_HINT_EXP_FLAG_ROUND_ROBIN;
+            break;
+        case 2:
+            flag = ZE_SCHEDULING_HINT_EXP_FLAG_STALL_BASED_ROUND_ROBIN;
+            break;
+        default:
+            flag = ZE_SCHEDULING_HINT_EXP_FLAG_ROUND_ROBIN;
+            break;
+        }
+        ze_scheduling_hint_exp_desc_t hint = {ZE_STRUCTURE_TYPE_SCHEDULING_HINT_EXP_DESC, nullptr,
+                                              flag};
+        ZE_CHECK(zeKernelSchedulingHintExp(krnl, &hint));
+    }*/
     return krnl;
 }
 
 std::vector<uint8_t> compile_to_spirv(std::string const &source,
-                                      std::vector<std::string> const &options) {
-    return compile_to_spirv_or_native(source, "", options);
+                                      std::vector<std::string> const &options,
+                                      std::vector<std::string> const &extensions) {
+    return compile_to_spirv_or_native(source, "", options, extensions);
 }
 
 std::vector<uint8_t> compile_to_native(std::string const &source, std::string const &device_type,
-                                       std::vector<std::string> const &options) {
+                                       std::vector<std::string> const &options,
+                                       std::vector<std::string> const &extensions) {
     if (device_type.empty()) {
         throw std::logic_error("compile_to_native: device_type must not be empty");
     }
-    return compile_to_spirv_or_native(source, device_type, options);
+    return compile_to_spirv_or_native(source, device_type, options, extensions);
 }
 
 aot_module create_aot_module(uint8_t const *binary, std::size_t binary_size, module_format format,

@@ -27,12 +27,14 @@ namespace bbfft::sycl {
  * @param context context
  * @param device device
  * @param options List of compiler options
+ * @param extensions List of OpenCL-C extensions
  *
  * @return Handle
  */
 BBFFT_EXPORT auto build_native_module(std::string const &source, ::sycl::context context,
                                       ::sycl::device device,
-                                      std::vector<std::string> const &options = {})
+                                      std::vector<std::string> const &options = {},
+                                      std::vector<std::string> const &extensions = {})
     -> module_handle_t;
 
 /**

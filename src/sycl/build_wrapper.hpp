@@ -31,10 +31,10 @@ template <> struct build_wrapper<::sycl::backend::ext_oneapi_level_zero> {
         : native_context(::sycl::get_native<be_t, ::sycl::context>(c)),
           native_device(::sycl::get_native<be_t, ::sycl::device>(d)) {}
 
-    auto build_module(std::string const &source, std::vector<std::string> const &options)
-        -> module_handle_t {
+    auto build_module(std::string const &source, std::vector<std::string> const &options,
+                      std::vector<std::string> const &extensions) -> module_handle_t {
         return detail::cast<module_handle_t>(
-            ze::build_kernel_bundle(source, native_context, native_device, options));
+            ze::build_kernel_bundle(source, native_context, native_device, options, extensions));
     }
     auto build_module(uint8_t const *binary, std::size_t binary_size, module_format format)
         -> module_handle_t {
@@ -80,10 +80,10 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
         CL_CHECK(clReleaseDevice(native_device));
     }
 
-    auto build_module(std::string const &source, std::vector<std::string> const &options)
-        -> module_handle_t {
+    auto build_module(std::string const &source, std::vector<std::string> const &options,
+                      std::vector<std::string> const &extensions) -> module_handle_t {
         return detail::cast<module_handle_t>(
-            cl::build_kernel_bundle(source, native_context, native_device, options));
+            cl::build_kernel_bundle(source, native_context, native_device, options, extensions));
     }
     auto build_module(uint8_t const *binary, std::size_t binary_size, module_format format)
         -> module_handle_t {

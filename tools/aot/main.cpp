@@ -45,8 +45,10 @@ int main(int argc, char **argv) {
 
     try {
         auto bin = a.format == module_format::native
-                       ? ze::compile_to_native(oss.str(), a.device, detail::compiler_options)
-                       : ze::compile_to_spirv(oss.str(), detail::compiler_options);
+                       ? ze::compile_to_native(oss.str(), a.device, detail::compiler_options,
+                                               detail::required_extensions)
+                       : ze::compile_to_spirv(oss.str(), detail::compiler_options,
+                                              detail::required_extensions);
         kernel_file.write(reinterpret_cast<char *>(bin.data()), bin.size());
     } catch (std::exception const &e) {
         std::cerr << "==> Could not compile FFT kernels." << std::endl;

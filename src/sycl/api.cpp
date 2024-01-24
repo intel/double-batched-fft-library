@@ -26,7 +26,8 @@ uint64_t api::device_id() { return get_device_id(device_); }
 
 auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
     return ::bbfft::sycl::make_shared_handle(
-        ::bbfft::sycl::build_native_module(source, context_, device_, detail::compiler_options),
+        ::bbfft::sycl::build_native_module(source, context_, device_, detail::compiler_options,
+                                           detail::required_extensions),
         queue_.get_backend());
 }
 auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {

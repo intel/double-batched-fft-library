@@ -46,9 +46,10 @@ auto dispatch(backend b, Fun &&f, TL<Bs...>) {
 }
 
 auto build_native_module(std::string const &source, context c, device d,
-                         std::vector<std::string> const &options) -> module_handle_t {
+                         std::vector<std::string> const &options,
+                         std::vector<std::string> const &extensions) -> module_handle_t {
     auto const f = [&](auto b) {
-        return build_wrapper<decltype(b)::value>(c, d).build_module(source, options);
+        return build_wrapper<decltype(b)::value>(c, d).build_module(source, options, extensions);
     };
     return dispatch(c.get_backend(), f, supported_backends{});
 }

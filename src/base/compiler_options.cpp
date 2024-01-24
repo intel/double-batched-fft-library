@@ -6,5 +6,6 @@
 namespace bbfft::detail {
 
 const std::vector<std::string> compiler_options{"-cl-mad-enable"};
+const std::vector<std::string> required_extensions{"cl_khr_fp64"};
 
 } // namespace bbfft::detail

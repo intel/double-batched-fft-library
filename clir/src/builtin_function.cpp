@@ -46,15 +46,54 @@
     DEFINE_BUILTIN_FUNCTION_2_2(NAME) DEFINE_BUILTIN_FUNCTION_3_3(NAME)
 #define DEFINE_BUILTIN_FUNCTION(NAME, A, B) DEFINE_BUILTIN_FUNCTION_##A##_##B(NAME)
 
+#define BUILTIN_FN_CASE_3(x, y, z) case builtin_function::x:
+
 namespace clir {
+
+extension get_extension(builtin_function fn) {
+    switch (fn) {
+        CLIR_STANDARD_BUILTIN_FUNCTION(BUILTIN_FN_CASE_3)
+        return extension::builtin;
+        CLIR_EXTENSION_INTEL_SUBGROUPS(BUILTIN_FN_CASE_3)
+        return extension::cl_intel_subgroups;
+        CLIR_EXTENSION_INTEL_SUBGROUPS_LONG(BUILTIN_FN_CASE_3)
+        return extension::cl_intel_subgroups_long;
+        CLIR_EXTENSION_INTEL_SUBGROUPS_SHORT(BUILTIN_FN_CASE_3)
+        return extension::cl_intel_subgroups_short;
+    }
+    return extension::unknown;
+}
 
 static const char *builtin_function_strings[] = {CLIR_BUILTIN_FUNCTION(CLIR_STRING_LIST_3)};
 
 char const *to_string(builtin_function fn) {
     return builtin_function_strings[static_cast<int>(fn)];
 }
-std::ostream &operator<<(std::ostream &os, builtin_function fn) { return os << to_string(fn); }
+char const *to_string(extension ext) {
+    switch (ext) {
+    case extension::cl_intel_subgroups:
+        return "cl_intel_subgroups";
+    case extension::cl_intel_subgroups_long:
+        return "cl_intel_subgroups_long";
+    case extension::cl_intel_subgroups_short:
+        return "cl_intel_subgroups_short";
+    case extension::builtin:
+        return "builtin";
+    case extension::unknown:
+        break;
+    };
+    return "unknown";
+}
 
 CLIR_BUILTIN_FUNCTION(DEFINE_BUILTIN_FUNCTION)
 
 } // namespace clir
+
+namespace std {
+std::ostream &operator<<(std::ostream &os, clir::builtin_function fn) {
+    return os << clir::to_string(fn);
+}
+std::ostream &operator<<(std::ostream &os, clir::extension ext) {
+    return os << clir::to_string(ext);
+}
+} // namespace std

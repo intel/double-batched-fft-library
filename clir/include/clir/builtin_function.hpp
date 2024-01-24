@@ -352,13 +352,27 @@ namespace clir {
 
 class CLIR_EXPORT expr;
 
-enum class builtin_function { CLIR_BUILTIN_FUNCTION(CLIR_NAME_LIST_3) };
+enum class builtin_function : int { CLIR_BUILTIN_FUNCTION(CLIR_NAME_LIST_3) };
+enum class extension { // values must be contiguous and start from 0
+    builtin,
+    cl_intel_subgroups,
+    cl_intel_subgroups_long,
+    cl_intel_subgroups_short,
+    unknown // must be last
+};
+
+CLIR_EXPORT extension get_extension(builtin_function fn);
 
 CLIR_EXPORT char const *to_string(builtin_function fn);
-CLIR_EXPORT std::ostream &operator<<(std::ostream &os, builtin_function fn);
+CLIR_EXPORT char const *to_string(extension ext);
 
 CLIR_BUILTIN_FUNCTION(CLIR_DECLARE_BUILTIN_FUNCTION)
 
 } // namespace clir
+
+namespace std {
+CLIR_EXPORT std::ostream &operator<<(std::ostream &os, clir::builtin_function fn);
+CLIR_EXPORT std::ostream &operator<<(std::ostream &os, clir::extension ext);
+} // namespace std
 
 #endif // BUILTIN_FUNCTION_20220405_HPP

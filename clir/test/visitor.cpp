@@ -11,6 +11,7 @@
 #include "clir/visit.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/equal_expr.hpp"
+#include "clir/visitor/required_extensions.hpp"
 #include "clir/visitor/to_imm.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
@@ -225,4 +226,16 @@ TEST_CASE("To imm") {
     CHECK(std::holds_alternative<int64_t>(get_imm(a)));
     CHECK(std::holds_alternative<double>(get_imm(b)));
     CHECK(std::holds_alternative<std::monostate>(get_imm(a + b)));
+}
+
+TEST_CASE("Required extensions") {
+    auto fb = function_builder("test");
+    fb.body([](block_builder &bb) {
+        bb.declare_assign(generic_int(), "a", intel_sub_group_shuffle(0, 0));
+        bb.declare_assign(generic_int(), "b", intel_sub_group_block_read_us(0));
+    });
+    auto ext = get_required_extensions(fb.get_product());
+    CHECK(ext.size() == 2);
+    CHECK(ext == std::vector<extension>{extension::cl_intel_subgroups,
+                                        extension::cl_intel_subgroups_short});
 }

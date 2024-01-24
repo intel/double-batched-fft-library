@@ -26,13 +26,13 @@ namespace bbfft::ze {
  * @param context Level Zero context
  * @param device Level Zero device
  * @param options List of compiler options
+ * @param extensions List of OpenCL-C extensions
  *
  * @return Level Zero module
  */
-BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(std::string const &source,
-                                                    ze_context_handle_t context,
-                                                    ze_device_handle_t device,
-                                                    std::vector<std::string> const &options = {});
+BBFFT_EXPORT ze_module_handle_t build_kernel_bundle(
+    std::string const &source, ze_context_handle_t context, ze_device_handle_t device,
+    std::vector<std::string> const &options = {}, std::vector<std::string> const &extensions = {});
 
 /**
  * @brief Build Level Zero module from native binary
@@ -65,11 +65,13 @@ BBFFT_EXPORT ze_kernel_handle_t create_kernel(ze_module_handle_t mod, std::strin
  *
  * @param source OpenCL-C source code
  * @param options List of compiler options
+ * @param extensions List of OpenCL-C extensions
  *
  * @return binary
  */
 BBFFT_EXPORT std::vector<uint8_t> compile_to_spirv(std::string const &source,
-                                                   std::vector<std::string> const &options = {});
+                                                   std::vector<std::string> const &options = {},
+                                                   std::vector<std::string> const &extensions = {});
 /**
  * @brief Takes OpenCL-C code and outputs the native device binary
  *
@@ -78,12 +80,14 @@ BBFFT_EXPORT std::vector<uint8_t> compile_to_spirv(std::string const &source,
  * @param source OpenCL-C source code
  * @param device_type Target device type; see ocloc compile --help for possible targets
  * @param options List of compiler options
+ * @param extensions List of OpenCL-C extensions
  *
  * @return binary
  */
-BBFFT_EXPORT std::vector<uint8_t> compile_to_native(std::string const &source,
-                                                    std::string const &device_type,
-                                                    std::vector<std::string> const &options = {});
+BBFFT_EXPORT std::vector<uint8_t>
+compile_to_native(std::string const &source, std::string const &device_type,
+                  std::vector<std::string> const &options = {},
+                  std::vector<std::string> const &extensions = {});
 
 /**
  * @brief Build module for ahead-of-time kernel cache (aot_cache)

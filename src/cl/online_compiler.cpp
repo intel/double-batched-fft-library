@@ -7,6 +7,7 @@
 #include "bbfft/detail/cast.hpp"
 
 #include <cstdio>
+#include <sstream>
 #include <stdexcept>
 
 namespace bbfft::cl {
@@ -27,10 +28,23 @@ void check_build_status(cl_program p, cl_int err, cl_device_id device) {
 }
 
 cl_program build_kernel_bundle(std::string const &source, cl_context context, cl_device_id device,
-                               std::vector<std::string> const &options) {
-    char const *c_source = source.c_str();
+                               std::vector<std::string> const &options,
+                               std::vector<std::string> const &extensions) {
     cl_int err;
-    cl_program p = clCreateProgramWithSource(context, 1, &c_source, nullptr, &err);
+    cl_program p;
+    if (extensions.empty()) {
+        char const *c_source = source.c_str();
+        p = clCreateProgramWithSource(context, 1, &c_source, nullptr, &err);
+    } else {
+        auto oss = std::ostringstream{};
+        for (auto const &ext : extensions) {
+            oss << "#pragma OPENCL EXTENSION " << ext << " : enable" << std::endl;
+        }
+        oss << source;
+        auto ext_source = oss.str();
+        char const *c_source = ext_source.c_str();
+        p = clCreateProgramWithSource(context, 1, &c_source, nullptr, &err);
+    }
     CL_CHECK(err);
     std::string cl_options = "";
     auto it = options.cbegin();

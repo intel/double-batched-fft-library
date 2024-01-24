@@ -52,8 +52,8 @@ device_info api::info() { return get_device_info(device_); }
 uint64_t api::device_id() { return get_device_id(device_); }
 
 auto api::build_module(std::string const &source) -> shared_handle<module_handle_t> {
-    cl_program mod =
-        ::bbfft::cl::build_kernel_bundle(source, context_, device_, detail::compiler_options);
+    cl_program mod = ::bbfft::cl::build_kernel_bundle(
+        source, context_, device_, detail::compiler_options, detail::required_extensions);
     return shared_handle<module_handle_t>(
         detail::cast<module_handle_t>(mod),
         [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });

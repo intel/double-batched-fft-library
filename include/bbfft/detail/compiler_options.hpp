@@ -12,6 +12,7 @@
 namespace bbfft::detail {
 
 BBFFT_EXPORT extern const std::vector<std::string> compiler_options;
+BBFFT_EXPORT extern const std::vector<std::string> required_extensions;
 
 } // namespace bbfft::detail
 

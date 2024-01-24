@@ -25,12 +25,14 @@ namespace bbfft::cl {
  * @param context OpenCL context
  * @param device OpenCL device
  * @param options List of compiler options
+ * @param extensions List of OpenCL-C extensions
  *
  * @return OpenCL program
  */
 BBFFT_EXPORT cl_program build_kernel_bundle(std::string const &source, cl_context context,
                                             cl_device_id device,
-                                            std::vector<std::string> const &options = {});
+                                            std::vector<std::string> const &options = {},
+                                            std::vector<std::string> const &extensions = {});
 
 /**
  * @brief Build OpenCL program from native binary
