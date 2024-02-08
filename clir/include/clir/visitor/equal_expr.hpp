@@ -15,6 +15,7 @@ namespace clir {
 class CLIR_EXPORT equal_expr {
   public:
     /* Data type nodes */
+    bool operator()(internal::data_type_node &a, internal::data_type_node &b);
     bool operator()(internal::scalar_data_type &a, internal::scalar_data_type &b);
     bool operator()(internal::vector_data_type &a, internal::vector_data_type &b);
     bool operator()(internal::pointer &a, internal::pointer &b);

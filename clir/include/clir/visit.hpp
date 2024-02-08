@@ -28,9 +28,16 @@ template <typename U, typename V> struct copy_cv_qualifiers {
 template <typename Source, typename Target>
 using copy_cv_qualifiers_t = typename copy_cv_qualifiers<Source, Target>::type;
 
-template <std::size_t Index, typename VTL, typename... VTLs>
-using dispatch_type_at = copy_cv_qualifiers_t<
-    VTL, typename VTL::template type_at<unflatten<Index, type_index<VTL, VTLs...>(), VTLs...>()>>;
+template <std::size_t Index, std::size_t Mode, typename VTL, typename... VTLs>
+using dispatch_type_at =
+    copy_cv_qualifiers_t<VTL, typename VTL::template type_at<unflatten<Index, Mode, VTLs...>()>>;
+
+template <std::size_t Index, typename Visitor, typename... VTLs, std::size_t... Modes>
+constexpr auto dispatch(Visitor &&visitor, VTLs &...ts, std::index_sequence<Modes...>) {
+    return visitor(
+        static_cast<copy_cv_qualifiers_t<VTLs, dispatch_type_at<Index, Modes, VTLs, VTLs...>> &>(
+            ts)...);
+}
 
 template <typename Functional, std::size_t... Is>
 auto compile_time_switch(Functional f, std::size_t i, std::index_sequence<Is...>) {
@@ -56,9 +63,9 @@ namespace clir {
 template <typename Visitor, typename... VTLs> auto visit(Visitor &&visitor, VTLs &...ts) {
     constexpr std::size_t table_size = (std::decay_t<VTLs>::number_of_types() * ...);
     return internal::compile_time_switch(
-        [&](auto index) -> auto{
-            return visitor(static_cast<internal::copy_cv_qualifiers_t<
-                               VTLs, internal::dispatch_type_at<index, VTLs, VTLs...>> &>(ts)...);
+        [&](auto index) -> auto {
+            return internal::dispatch<index, Visitor, VTLs...>(
+                std::forward<Visitor>(visitor), ts..., std::make_index_sequence<sizeof...(VTLs)>{});
         },
         internal::flatten(ts...), std::make_index_sequence<table_size>{});
 }

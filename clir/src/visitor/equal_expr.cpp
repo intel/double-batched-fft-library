@@ -9,6 +9,9 @@
 namespace clir {
 
 /* Data type nodes */
+bool equal_expr::operator()(internal::data_type_node &, internal::data_type_node &) {
+    return false;
+}
 bool equal_expr::operator()(internal::scalar_data_type &a, internal::scalar_data_type &b) {
     return a.type() == b.type() && a.space() == b.space();
 }
