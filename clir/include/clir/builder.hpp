@@ -77,6 +77,10 @@ class CLIR_EXPORT for_loop_builder {
         body_ = bb.get_product();
         return *this;
     }
+    inline for_loop_builder &set_body(stmt body) {
+        body_ = std::move(body);
+        return *this;
+    }
 
   private:
     stmt start_;
@@ -98,11 +102,19 @@ class CLIR_EXPORT if_selection_builder {
         then_ = bb.get_product();
         return *this;
     }
+    inline if_selection_builder &set_then(stmt body) {
+        then_ = std::move(body);
+        return *this;
+    }
 
     template <typename F> if_selection_builder &otherwise(F &&f) {
         auto bb = block_builder{};
         f(bb);
         otherwise_ = bb.get_product();
+        return *this;
+    }
+    inline if_selection_builder &set_otherwise(stmt body) {
+        otherwise_ = std::move(body);
         return *this;
     }
 
