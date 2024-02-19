@@ -42,6 +42,9 @@
     }
 #define DEFINE_BUILTIN_FUNCTION_1_2(NAME)                                                          \
     DEFINE_BUILTIN_FUNCTION_1_1(NAME) DEFINE_BUILTIN_FUNCTION_2_2(NAME)
+#define DEFINE_BUILTIN_FUNCTION_1_3(NAME)                                                          \
+    DEFINE_BUILTIN_FUNCTION_1_1(NAME)                                                              \
+    DEFINE_BUILTIN_FUNCTION_2_2(NAME) DEFINE_BUILTIN_FUNCTION_3_3(NAME)
 #define DEFINE_BUILTIN_FUNCTION_2_3(NAME)                                                          \
     DEFINE_BUILTIN_FUNCTION_2_2(NAME) DEFINE_BUILTIN_FUNCTION_3_3(NAME)
 #define DEFINE_BUILTIN_FUNCTION(NAME, A, B) DEFINE_BUILTIN_FUNCTION_##A##_##B(NAME)

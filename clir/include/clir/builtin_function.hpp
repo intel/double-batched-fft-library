@@ -209,6 +209,18 @@
     X(vec_step, 1, 1)                                                                              \
     X(shuffle, 2, 2)                                                                               \
     X(shuffle2, 3, 3)                                                                              \
+    X(work_group_all, 1, 1)                                                                        \
+    X(work_group_any, 1, 1)                                                                        \
+    X(work_group_broadcast, 1, 3)                                                                  \
+    X(work_group_reduce_add, 1, 1)                                                                 \
+    X(work_group_reduce_min, 1, 1)                                                                 \
+    X(work_group_reduce_max, 1, 1)                                                                 \
+    X(work_group_scan_exclusive_add, 1, 1)                                                         \
+    X(work_group_scan_exclusive_min, 1, 1)                                                         \
+    X(work_group_scan_exclusive_max, 1, 1)                                                         \
+    X(work_group_scan_inclusive_add, 1, 1)                                                         \
+    X(work_group_scan_inclusive_min, 1, 1)                                                         \
+    X(work_group_scan_inclusive_max, 1, 1)                                                         \
     X(sub_group_all, 1, 1)                                                                         \
     X(sub_group_any, 1, 1)                                                                         \
     X(sub_group_broadcast, 2, 2)                                                                   \
@@ -338,6 +350,9 @@
 #define CLIR_DECLARE_BUILTIN_FUNCTION_0_inf(NAME) CLIR_EXPORT expr NAME(std::vector<expr> args);
 #define CLIR_DECLARE_BUILTIN_FUNCTION_1_2(NAME)                                                    \
     CLIR_DECLARE_BUILTIN_FUNCTION_1_1(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_2_2(NAME)
+#define CLIR_DECLARE_BUILTIN_FUNCTION_1_3(NAME)                                                    \
+    CLIR_DECLARE_BUILTIN_FUNCTION_1_1(NAME)                                                        \
+    CLIR_DECLARE_BUILTIN_FUNCTION_2_2(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_3_3(NAME)
 #define CLIR_DECLARE_BUILTIN_FUNCTION_2_3(NAME)                                                    \
     CLIR_DECLARE_BUILTIN_FUNCTION_2_2(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_3_3(NAME)
 #define CLIR_DECLARE_BUILTIN_FUNCTION(NAME, A, B) CLIR_DECLARE_BUILTIN_FUNCTION_##A##_##B(NAME)
