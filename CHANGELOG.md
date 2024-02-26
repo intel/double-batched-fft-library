@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.5.0] - 2023-XX-XX
+## [0.5.0] - 2024-02-26
 
 * Added compiler options to online compiler interface
 * Introduce new API for Level Zero to support regular command lists and to better handle events
