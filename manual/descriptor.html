@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API reference" href="../api/index.html" /><link rel="prev" title="Kernel caching" href="caching.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>Descriptor format - Double-Batched FFT Library documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -155,7 +155,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User manual</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="build.html">Building and linking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plans.html">Creating and using plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data-layout.html">Understanding data layouts</a></li>
@@ -164,7 +164,7 @@
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Descriptor format</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/plan.html">Plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/generator.html">Offline generation</a></li>
@@ -208,7 +208,7 @@
         </div>
         <article role="main">
           <section id="descriptor-format">
-<span id="descriptor"></span><h1>Descriptor format<a class="headerlink" href="#descriptor-format" title="Permalink to this heading">#</a></h1>
+<span id="descriptor"></span><h1>Descriptor format<a class="headerlink" href="#descriptor-format" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">bbfft-aot-generate</span></code> and <code class="docutils literal notranslate"><span class="pre">bbfft-offline-generate</span></code> tools use a short FFT descriptor format.
 The general form of a FFT descriptor is (in <a class="reference external" href="https://www.ietf.org/rfc/rfc5234.txt">ABNF syntax</a>):</p>
 <div class="highlight-abnf notranslate"><div class="highlight"><pre><span></span>fft_<span class="nc">descriptor</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="nc">precision</span><span class="w"> </span><span class="nc">domain</span><span class="w"> </span><span class="nc">direction</span><span class="w"> </span><span class="nc">placement</span><span class="w"> </span><span class="nc">shape</span><span class="w"> </span><span class="p">[</span><span class="nc">istride</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="nc">ostride</span><span class="p">]</span>
@@ -282,7 +282,7 @@ The length of the sequence of numbers must be equal to the FFT dimension plus tw
 need to be given.</p>
 </div>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
 <div class="table-wrapper colwidths-given docutils container">
 <table class="docutils align-default">
 <colgroup>
@@ -391,10 +391,10 @@ and input stride override (20 complex numbers between batch elements in input te
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

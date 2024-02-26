@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Understanding data layouts" href="data-layout.html" /><link rel="prev" title="Building and linking" href="build.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>Creating and using plans - Double-Batched FFT Library documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -155,7 +155,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User manual</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="build.html">Building and linking</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Creating and using plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data-layout.html">Understanding data layouts</a></li>
@@ -164,7 +164,7 @@
 <li class="toctree-l2"><a class="reference internal" href="descriptor.html">Descriptor format</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/plan.html">Plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/generator.html">Offline generation</a></li>
@@ -208,7 +208,7 @@
         </div>
         <article role="main">
           <section id="creating-and-using-plans">
-<h1>Creating and using plans<a class="headerlink" href="#creating-and-using-plans" title="Permalink to this heading">#</a></h1>
+<h1>Creating and using plans<a class="headerlink" href="#creating-and-using-plans" title="Link to this heading">#</a></h1>
 <p>Complex-valued tensors are the default input and output of a Fast Fourier Transform,
 that is, the <span class="math notranslate nohighlight">\(N_1\times\dots\times N_D\)</span> complex-valued tensor <span class="math notranslate nohighlight">\(x\)</span> is mapped to the same-sized complex
 output tensor <span class="math notranslate nohighlight">\(X\)</span> by the following formula:</p>
@@ -250,7 +250,7 @@ reused for multiple FFT invocations of the same type.</p>
 <p>Code samples in the following assume you have <code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">namespace</span> <span class="pre">bbfft;</span></code> in your code.</p>
 </div>
 <section id="one-dimension">
-<h2>One dimension<a class="headerlink" href="#one-dimension" title="Permalink to this heading">#</a></h2>
+<h2>One dimension<a class="headerlink" href="#one-dimension" title="Link to this heading">#</a></h2>
 <p>Let <span class="math notranslate nohighlight">\(x\)</span> be the input tensor of shape <span class="math notranslate nohighlight">\(M \times N \times K\)</span>,
 where the FFT is taken over the second mode (N-mode).
 Plan generation is unified in the Double-Batched FFT Library via the <a class="reference internal" href="../api/configuration.html#_CPPv4N5bbfft13configurationE" title="bbfft::configuration"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">configuration</span></code></a> struct.
@@ -274,7 +274,7 @@ In order to choose the default layout for an out-of-place transform, use</p>
 </pre></div>
 </div>
 <section id="sycl">
-<h3>SYCL<a class="headerlink" href="#sycl" title="Permalink to this heading">#</a></h3>
+<h3>SYCL<a class="headerlink" href="#sycl" title="Link to this heading">#</a></h3>
 <p>Using SYCL, the plan is created using the <a class="reference internal" href="../api/plan.html#_CPPv4N5bbfft9make_planERK13configurationN4sycl5queueEP9jit_cache" title="bbfft::make_plan"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">make_plan()</span></code></a> factory function as following:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/sycl/make_plan.hpp&quot;</span>
 
@@ -311,7 +311,7 @@ In SYCL-mode the library uses either the OpenCL or Level Zero back-end.
 The back-end can be selected at run-time by setting the SYCL_DEVICE_FILTER appropriately.</p>
 </section>
 <section id="opencl">
-<h3>OpenCL<a class="headerlink" href="#opencl" title="Permalink to this heading">#</a></h3>
+<h3>OpenCL<a class="headerlink" href="#opencl" title="Link to this heading">#</a></h3>
 <p>For OpenCL, use</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/cl/make_plan.hpp&quot;</span>
 
@@ -325,7 +325,7 @@ from the
 <a class="reference external" href="https://registry.khronos.org/OpenCL/extensions/intel/cl_intel_unified_shared_memory.html">cl_intel_unified_shared_memory</a> extension.</p>
 </section>
 <section id="level-zero">
-<h3>Level Zero<a class="headerlink" href="#level-zero" title="Permalink to this heading">#</a></h3>
+<h3>Level Zero<a class="headerlink" href="#level-zero" title="Link to this heading">#</a></h3>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;bbfft/ze/make_plan.hpp&quot;</span>
 
 <span class="n">ze_context_handle_t</span><span class="p">;</span>
@@ -342,7 +342,7 @@ Input and output buffers must be created with the <code class="docutils literal 
 </section>
 </section>
 <section id="two-or-three-dimensions">
-<h2>Two or three dimensions<a class="headerlink" href="#two-or-three-dimensions" title="Permalink to this heading">#</a></h2>
+<h2>Two or three dimensions<a class="headerlink" href="#two-or-three-dimensions" title="Link to this heading">#</a></h2>
 <p>Let <span class="math notranslate nohighlight">\(x\)</span> be the input tensor of shape <span class="math notranslate nohighlight">\(M \times N_1 \times \dots \times N_D \times K\)</span>,
 where the FFT is taken over the N-modes.
 Everything works the same way as in the one-dimensional case, except that dimension, shape, and strides
@@ -434,10 +434,10 @@ Do not expect that special data layouts beside the default data layout give the 
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     </body>
 </html>

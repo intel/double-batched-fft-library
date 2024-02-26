@@ -1,15 +1,15 @@
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Creating and using plans" href="plans.html" /><link rel="prev" title="User manual" href="index.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
         <title>Building and linking - Double-Batched FFT Library documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
 
@@ -155,7 +155,7 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">User manual</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of User manual</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Building and linking</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plans.html">Creating and using plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="data-layout.html">Understanding data layouts</a></li>
@@ -164,7 +164,7 @@
 <li class="toctree-l2"><a class="reference internal" href="descriptor.html">Descriptor format</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/plan.html">Plans</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/generator.html">Offline generation</a></li>
@@ -208,9 +208,9 @@
         </div>
         <article role="main">
           <section id="building-and-linking">
-<h1>Building and linking<a class="headerlink" href="#building-and-linking" title="Permalink to this heading">#</a></h1>
+<h1>Building and linking<a class="headerlink" href="#building-and-linking" title="Link to this heading">#</a></h1>
 <section id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">#</a></h2>
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h2>
 <p>Installing the
 <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html">Intel oneAPI Base Toolkit</a>
 is sufficent to compile the library.</p>
@@ -224,7 +224,7 @@ is sufficent to compile the library.</p>
 </ul>
 </section>
 <section id="build-from-source-using-oneapi">
-<h2>Build from source using oneAPI<a class="headerlink" href="#build-from-source-using-oneapi" title="Permalink to this heading">#</a></h2>
+<h2>Build from source using oneAPI<a class="headerlink" href="#build-from-source-using-oneapi" title="Link to this heading">#</a></h2>
 <p>First, Initialize the oneAPI environment.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">. /opt/intel/oneapi/setvars.sh</span>
 </pre></div>
@@ -249,7 +249,7 @@ Forshared libraries build use</p>
 </div>
 </section>
 <section id="build-options">
-<h2>Build options<a class="headerlink" href="#build-options" title="Permalink to this heading">#</a></h2>
+<h2>Build options<a class="headerlink" href="#build-options" title="Link to this heading">#</a></h2>
 <p>The build can be customized by passing -D&lt;option&gt;=ON or OFF to cmake.
 The following options are supported:</p>
 <div class="table-wrapper docutils container">
@@ -302,7 +302,7 @@ has no support for double precision</p></td>
 </div>
 </section>
 <section id="linking-in-a-cmake-project">
-<h2>Linking in a CMake project<a class="headerlink" href="#linking-in-a-cmake-project" title="Permalink to this heading">#</a></h2>
+<h2>Linking in a CMake project<a class="headerlink" href="#linking-in-a-cmake-project" title="Link to this heading">#</a></h2>
 <p>The project builds the three different libraries bbfft-level-zero, bbfft-opencl, and
 bbfft-sycl. The first library uses the Level Zero run-time, the second library uses
 the OpenCL library, and the last library the SYCL run-time.
@@ -407,9 +407,9 @@ For specifically requesting the static or shared library version use</p>
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
     </body>
 </html>
