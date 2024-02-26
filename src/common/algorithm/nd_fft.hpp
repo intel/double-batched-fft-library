@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace bbfft {
@@ -143,10 +144,10 @@ class nd_fft<Api, detail::plan_impl<typename Api::event_type>> : public nd_fft_b
         for (unsigned d = 1; d < this->dim_ - 1; ++d) {
             auto next_e = this->plans_[d]->execute(tmp, tmp, std::vector<event>{e});
             this->api_.release_event(e);
-            e = next_e;
+            e = std::move(next_e);
         }
         auto last_e = this->plans_[this->dim_ - 1]->execute(tmp, out, std::vector<event>{e});
-        this->api_.release_event(e);
+        this->api_.release_event(std::move(e));
         return last_e;
     }
 };
@@ -167,7 +168,7 @@ class nd_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event_type>>
             auto next_e = this->api_.get_internal_event();
             this->plans_[d]->execute(tmp, tmp, next_e, 1, &e);
             this->api_.append_reset_event(e);
-            e = next_e;
+            e = std::move(next_e);
         }
         this->plans_[this->dim_ - 1]->execute(tmp, out, signal_event, 1, &e);
         this->api_.append_reset_event(e);

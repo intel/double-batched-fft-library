@@ -26,7 +26,7 @@ template <typename T, bool Inplace> class adapter {
     auto make_inout(std::shared_ptr<allocator> alloc) {
         auto N_out = N / 2 + 1;
         if constexpr (Inplace) {
-            auto in = managed_tensor<T, 3u>(alloc, {K, N, M}, {M * 2 * N_out, M, 1});
+            auto in = managed_tensor<T, 3u>(std::move(alloc), {K, N, M}, {M * 2 * N_out, M, 1});
             auto out = tensor<std::complex<T>, 3u>(reinterpret_cast<std::complex<T> *>(in.data()),
                                                    {K, N_out, M});
             return std::make_pair(std::move(in), std::move(out));
@@ -51,7 +51,7 @@ template <typename T, bool Inplace> struct adapter<std::complex<T>, Inplace> {
     std::size_t flops() { return 5 * N * std::log2(N) * M * K; }
     std::size_t bytes() { return 2 * N * sizeof(std::complex<T>) * M * K; }
     auto make_inout(std::shared_ptr<allocator> alloc) {
-        auto in = managed_tensor<std::complex<T>, 3u>(alloc, {K, N, M});
+        auto in = managed_tensor<std::complex<T>, 3u>(std::move(alloc), {K, N, M});
         if constexpr (Inplace) {
             auto out = tensor<std::complex<T>, 3u>(in.data(), {K, N, M});
             return std::make_pair(std::move(in), std::move(out));

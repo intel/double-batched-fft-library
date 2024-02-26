@@ -5,6 +5,7 @@
 #define PLAN_IMPL_20221205_HPP
 
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 /**
@@ -46,7 +47,7 @@ template <typename EventT> class plan_impl {
      * @return Completion event
      */
     virtual auto execute(void const *in, void *out, event_t dep_event) -> event_t {
-        return execute(in, out, std::vector<event_t>{dep_event});
+        return execute(in, out, std::vector<event_t>{std::move(dep_event)});
     }
     /**
      * @brief Execute plan

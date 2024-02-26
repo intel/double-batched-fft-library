@@ -3,9 +3,10 @@
 
 #include "args.hpp"
 
-#include <CL/sycl.hpp>
 #include <iostream>
 #include <string>
+#include <sycl/sycl.hpp>
+#include <utility>
 
 void test(sycl::queue Q, args const &a);
 
@@ -24,7 +25,7 @@ int main(int argc, char **argv) {
         };
 
         auto Q = sycl::queue(handle_async_error);
-        test(Q, a);
+        test(std::move(Q), a);
     } catch (std::invalid_argument const &ex) {
         std::cerr << "Error: Could not parse command line." << std::endl;
         std::cerr << ex.what() << std::endl;

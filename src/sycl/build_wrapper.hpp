@@ -45,7 +45,7 @@ template <> struct build_wrapper<::sycl::backend::ext_oneapi_level_zero> {
         return ze::create_aot_module(std::forward<Args>(args)..., native_context, native_device);
     }
     static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
-        return shared_handle<module_handle_t>(mod, [](module_handle_t mod) {
+        return shared_handle<module_handle_t>(std::move(mod), [](module_handle_t mod) {
             zeModuleDestroy(detail::cast<ze_module_handle_t>(mod));
         });
     }
@@ -76,9 +76,14 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
         : native_context(::sycl::get_native<be_t, ::sycl::context>(c)),
           native_device(::sycl::get_native<be_t, ::sycl::device>(d)) {}
     ~build_wrapper() {
-        CL_CHECK(clReleaseContext(native_context));
-        CL_CHECK(clReleaseDevice(native_device));
+        clReleaseContext(native_context);
+        clReleaseDevice(native_device);
     }
+
+    build_wrapper(build_wrapper const &) = delete;
+    build_wrapper(build_wrapper &&) = delete;
+    build_wrapper &operator=(build_wrapper const &) = delete;
+    build_wrapper &operator=(build_wrapper &&) = delete;
 
     auto build_module(std::string const &source, std::vector<std::string> const &options,
                       std::vector<std::string> const &extensions) -> module_handle_t {
@@ -94,8 +99,9 @@ template <> struct build_wrapper<::sycl::backend::opencl> {
         return cl::create_aot_module(std::forward<Args>(args)..., native_context, native_device);
     }
     static auto make_shared_handle(module_handle_t mod) -> shared_handle<module_handle_t> {
-        return shared_handle<module_handle_t>(
-            mod, [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });
+        return shared_handle<module_handle_t>(std::move(mod), [](module_handle_t mod) {
+            clReleaseProgram(detail::cast<cl_program>(mod));
+        });
     }
     static auto make_kernel_bundle(module_handle_t mod, bool keep_ownership, ::sycl::context c)
         -> bundle_t {

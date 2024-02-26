@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <memory>
 #include <tuple>
+#include <utility>
 
 using namespace bbfft;
 
@@ -53,7 +54,7 @@ result test_body(sycl::queue Q, unsigned int M, unsigned int N, unsigned int K, 
         {ostride[2], ostride[1], ostride[0]}         // output stride
     };
 
-    auto p = make_plan(cfg, Q);
+    auto p = make_plan(cfg, std::move(Q));
     void *in = x.data();
     void *out = X.data();
     if (inverse) {

@@ -85,7 +85,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      * @return Completion event
      */
     auto execute(void const *in, void *out, event_t dep_event) -> event_t {
-        return this->impl_->execute(in, out, dep_event);
+        return this->impl_->execute(in, out, std::move(dep_event));
     }
     /**
      * @brief Execute plan (out-of-place)
