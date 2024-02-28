@@ -175,26 +175,82 @@
     X(all, 1, 1)                                                                                   \
     X(bitselect, 3, 3)                                                                             \
     X(select, 3, 3)                                                                                \
-    X(vloadn, 2, 2)                                                                                \
-    X(vstoren, 3, 3)                                                                               \
+    X(vload2, 2, 2)                                                                                \
+    X(vload3, 2, 2)                                                                                \
+    X(vload4, 2, 2)                                                                                \
+    X(vload8, 2, 2)                                                                                \
+    X(vload16, 2, 2)                                                                                \
+    X(vstore2, 3, 3)                                                                               \
+    X(vstore3, 3, 3)                                                                               \
+    X(vstore4, 3, 3)                                                                               \
+    X(vstore8, 3, 3)                                                                               \
+    X(vstore16, 3, 3)                                                                               \
     X(vload_half, 2, 2)                                                                            \
-    X(vload_halfn, 2, 2)                                                                           \
+    X(vload_half2, 2, 2)                                                                           \
+    X(vload_half3, 2, 2)                                                                           \
+    X(vload_half4, 2, 2)                                                                           \
+    X(vload_half8, 2, 2)                                                                           \
+    X(vload_half16, 2, 2)                                                                           \
     X(vstore_half, 3, 3)                                                                           \
     X(vstore_half_rte, 3, 3)                                                                       \
     X(vstore_half_rtz, 3, 3)                                                                       \
     X(vstore_half_rtp, 3, 3)                                                                       \
     X(vstore_half_rtn, 3, 3)                                                                       \
-    X(vstore_halfn, 3, 3)                                                                          \
-    X(vstore_halfn_rte, 3, 3)                                                                      \
-    X(vstore_halfn_rtz, 3, 3)                                                                      \
-    X(vstore_halfn_rtp, 3, 3)                                                                      \
-    X(vstore_halfn_rtn, 3, 3)                                                                      \
-    X(vloada_halfn, 2, 2)                                                                          \
-    X(vstorea_halfn, 3, 3)                                                                         \
-    X(vstorea_halfn_rte, 3, 3)                                                                     \
-    X(vstorea_halfn_rtz, 3, 3)                                                                     \
-    X(vstorea_halfn_rtp, 3, 3)                                                                     \
-    X(vstorea_halfn_rtn, 3, 3)                                                                     \
+    X(vstore_half2, 3, 3)                                                                          \
+    X(vstore_half3, 3, 3)                                                                          \
+    X(vstore_half4, 3, 3)                                                                          \
+    X(vstore_half8, 3, 3)                                                                          \
+    X(vstore_half16, 3, 3)                                                                          \
+    X(vstore_half2_rte, 3, 3)                                                                      \
+    X(vstore_half3_rte, 3, 3)                                                                      \
+    X(vstore_half4_rte, 3, 3)                                                                      \
+    X(vstore_half8_rte, 3, 3)                                                                      \
+    X(vstore_half16_rte, 3, 3)                                                                      \
+    X(vstore_half2_rtz, 3, 3)                                                                      \
+    X(vstore_half3_rtz, 3, 3)                                                                      \
+    X(vstore_half4_rtz, 3, 3)                                                                      \
+    X(vstore_half8_rtz, 3, 3)                                                                      \
+    X(vstore_half16_rtz, 3, 3)                                                                      \
+    X(vstore_half2_rtp, 3, 3)                                                                      \
+    X(vstore_half3_rtp, 3, 3)                                                                      \
+    X(vstore_half4_rtp, 3, 3)                                                                      \
+    X(vstore_half8_rtp, 3, 3)                                                                      \
+    X(vstore_half16_rtp, 3, 3)                                                                      \
+    X(vstore_half2_rtn, 3, 3)                                                                      \
+    X(vstore_half3_rtn, 3, 3)                                                                      \
+    X(vstore_half4_rtn, 3, 3)                                                                      \
+    X(vstore_half8_rtn, 3, 3)                                                                      \
+    X(vstore_half16_rtn, 3, 3)                                                                      \
+    X(vloada_half2, 2, 2)                                                                          \
+    X(vloada_half3, 2, 2)                                                                          \
+    X(vloada_half4, 2, 2)                                                                          \
+    X(vloada_half8, 2, 2)                                                                          \
+    X(vloada_half16, 2, 2)                                                                          \
+    X(vstorea_half2, 3, 3)                                                                         \
+    X(vstorea_half3, 3, 3)                                                                         \
+    X(vstorea_half4, 3, 3)                                                                         \
+    X(vstorea_half8, 3, 3)                                                                         \
+    X(vstorea_half16, 3, 3)                                                                         \
+    X(vstorea_half2_rte, 3, 3)                                                                     \
+    X(vstorea_half3_rte, 3, 3)                                                                     \
+    X(vstorea_half4_rte, 3, 3)                                                                     \
+    X(vstorea_half8_rte, 3, 3)                                                                     \
+    X(vstorea_half16_rte, 3, 3)                                                                     \
+    X(vstorea_half2_rtz, 3, 3)                                                                     \
+    X(vstorea_half3_rtz, 3, 3)                                                                     \
+    X(vstorea_half4_rtz, 3, 3)                                                                     \
+    X(vstorea_half8_rtz, 3, 3)                                                                     \
+    X(vstorea_half16_rtz, 3, 3)                                                                     \
+    X(vstorea_half2_rtp, 3, 3)                                                                     \
+    X(vstorea_half3_rtp, 3, 3)                                                                     \
+    X(vstorea_half4_rtp, 3, 3)                                                                     \
+    X(vstorea_half8_rtp, 3, 3)                                                                     \
+    X(vstorea_half16_rtp, 3, 3)                                                                     \
+    X(vstorea_half2_rtn, 3, 3)                                                                     \
+    X(vstorea_half3_rtn, 3, 3)                                                                     \
+    X(vstorea_half4_rtn, 3, 3)                                                                     \
+    X(vstorea_half8_rtn, 3, 3)                                                                     \
+    X(vstorea_half16_rtn, 3, 3)                                                                     \
     X(barrier, 1, 1)                                                                               \
     X(work_group_barrier, 1, 2)                                                                    \
     X(sub_group_barrier, 1, 2)                                                                     \
