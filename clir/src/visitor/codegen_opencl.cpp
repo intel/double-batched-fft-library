@@ -16,6 +16,7 @@
 #include "clir/var.hpp"
 #include "clir/visit.hpp"
 
+#include <algorithm>
 #include <array>
 #include <optional>
 #include <string>
@@ -153,12 +154,16 @@ void codegen_opencl::operator()(internal::cast &c) {
 }
 
 void codegen_opencl::operator()(internal::swizzle &s) {
+    auto max_index = std::max_element(s.indices().begin(), s.indices().end());
+    if (max_index == s.indices().end()) {
+        return;
+    }
     constexpr std::array<char, 4> names = {'x', 'y', 'z', 'w'};
     visit_check_parentheses(s, *s.term(), false);
     os_ << ".";
     switch (s.selector()) {
     case internal::swizzle_selector::index:
-        if (s.indices().size() <= 4) {
+        if (s.indices().size() <= 4 && *max_index < static_cast<short>(names.size())) {
             for (auto index : s.indices()) {
                 os_ << names.at(index);
             }
