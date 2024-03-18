@@ -9,6 +9,7 @@
 #include "clir/handle.hpp"
 
 #include <string>
+#include <utility>
 
 namespace clir {
 
@@ -18,8 +19,8 @@ class CLIR_EXPORT var {
 
     operator expr &() { return e_; }
 
-    template <typename T> expr operator[](T a) const { return e_[a]; }
-    template <typename... Is> expr s(Is... is) const { return e_.s(is...); }
+    template <typename T> expr operator[](T a) const { return e_[std::move(a)]; }
+    template <typename... Is> expr s(Is... is) const { return e_.s(std::move(is)...); }
     inline expr lo() const { return e_.lo(); }
     inline expr hi() const { return e_.hi(); }
     inline expr even() const { return e_.even(); }
