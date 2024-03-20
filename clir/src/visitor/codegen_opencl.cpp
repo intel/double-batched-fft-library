@@ -268,6 +268,27 @@ void codegen_opencl::operator()(internal::if_selection &is) {
     }
 }
 
+void codegen_opencl::operator()(internal::while_loop &loop) {
+    for (auto &a : loop.attributes()) {
+        visit(*this, *a);
+        os_ << std::endl << indent();
+    }
+    if (loop.is_do_while()) {
+        os_ << "do ";
+        block_endl_ = false;
+        visit(*this, *loop.body());
+        block_endl_ = true;
+        os_ << " while (";
+        visit(*this, *loop.condition());
+        os_ << ");" << std::endl;
+    } else {
+        os_ << "while (";
+        visit(*this, *loop.condition());
+        os_ << ") ";
+        visit(*this, *loop.body());
+    }
+}
+
 /* Kernel nodes */
 void codegen_opencl::operator()(internal::prototype &proto) {
     if (test(proto.qualifiers())) {
