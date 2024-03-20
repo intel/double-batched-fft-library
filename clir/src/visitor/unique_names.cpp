@@ -25,6 +25,10 @@ void unique_names::make_unique_name(var e) {
         throw std::runtime_error("unique_names.declaration: Expected variable");
     }
 
+    if (declared_vars_.empty()) {
+        throw std::runtime_error("unique_names.declaration: Missing scope");
+    }
+
     uintptr_t u = reinterpret_cast<uintptr_t>(v);
     for (auto const &vars : declared_vars_) {
         if (vars.find(u) != vars.end()) {
