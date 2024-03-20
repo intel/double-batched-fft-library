@@ -17,6 +17,8 @@ expr unsafe_simplification::operator()(internal::int_imm &) { return nullptr; }
 expr unsafe_simplification::operator()(internal::uint_imm &) { return nullptr; }
 expr unsafe_simplification::operator()(internal::float_imm &) { return nullptr; }
 expr unsafe_simplification::operator()(internal::cl_mem_fence_flags_imm &) { return nullptr; }
+expr unsafe_simplification::operator()(internal::memory_scope_imm &) { return nullptr; }
+expr unsafe_simplification::operator()(internal::memory_order_imm &) { return nullptr; }
 expr unsafe_simplification::operator()(internal::string_imm &) { return nullptr; }
 
 expr unsafe_simplification::operator()(internal::unary_op &e) {

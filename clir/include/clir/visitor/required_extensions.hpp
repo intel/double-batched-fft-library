@@ -6,6 +6,7 @@
 
 #include "clir/builtin_function.hpp"
 #include "clir/export.hpp"
+#include "clir/internal/data_type_node.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/internal/function_node.hpp"
 #include "clir/internal/program_node.hpp"
@@ -23,7 +24,14 @@ class CLIR_EXPORT required_extensions {
   public:
     /* Expr nodes */
     void operator()(internal::expr_node &);
+    void operator()(internal::unary_op &op);
+    void operator()(internal::binary_op &op);
+    void operator()(internal::ternary_op &op);
+    void operator()(internal::access &op);
     void operator()(internal::call_builtin &fn);
+    void operator()(internal::call &fn);
+    void operator()(internal::cast &op);
+    void operator()(internal::swizzle &op);
 
     /* Stmt nodes */
     void operator()(internal::stmt_node &);

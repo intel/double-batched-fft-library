@@ -21,7 +21,8 @@ namespace clir::internal {
 
 class CLIR_EXPORT expr_node
     : public virtual_type_list<class variable, class int_imm, class uint_imm, class float_imm,
-                               class cl_mem_fence_flags_imm, class string_imm, class unary_op,
+                               class cl_mem_fence_flags_imm, class memory_scope_imm,
+                               class memory_order_imm, class string_imm, class unary_op,
                                class binary_op, class ternary_op, class access, class call_builtin,
                                class call, class cast, class swizzle> {
   public:
@@ -94,16 +95,36 @@ class CLIR_EXPORT float_imm : public visitable<float_imm, expr_node> {
     short bits_;
 };
 
-class CLIR_EXPORT cl_mem_fence_flags_imm : public visitable<cl_mem_fence_flags_imm, expr_node> {
+class CLIR_EXPORT enumerated_imm : public expr_node {
   public:
-    cl_mem_fence_flags_imm(cl_mem_fence_flags value) : value_(value) {}
-    unsigned precedence() const override { return 0; }
-    associativity assoc() const override { return associativity::none; }
+    inline unsigned precedence() const override { return 0; }
+    inline associativity assoc() const override { return associativity::none; }
+};
 
-    auto value() const { return value_; }
+class CLIR_EXPORT cl_mem_fence_flags_imm
+    : public visitable<cl_mem_fence_flags_imm, enumerated_imm> {
+  public:
+    inline cl_mem_fence_flags_imm(cl_mem_fence_flags value) : value_(value) {}
+    inline auto value() const { return value_; }
 
   private:
     cl_mem_fence_flags value_;
+};
+class CLIR_EXPORT memory_scope_imm : public visitable<memory_scope_imm, enumerated_imm> {
+  public:
+    inline memory_scope_imm(memory_scope value) : value_(value) {}
+    inline auto value() const { return value_; }
+
+  private:
+    memory_scope value_;
+};
+class CLIR_EXPORT memory_order_imm : public visitable<memory_order_imm, enumerated_imm> {
+  public:
+    inline memory_order_imm(memory_order value) : value_(value) {}
+    inline auto value() const { return value_; }
+
+  private:
+    memory_order value_;
 };
 
 class CLIR_EXPORT string_imm : public visitable<string_imm, expr_node> {

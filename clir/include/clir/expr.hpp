@@ -6,6 +6,7 @@
 
 #include "clir/attr.hpp"
 #include "clir/builtin_function.hpp"
+#include "clir/builtin_type.hpp"
 #include "clir/export.hpp"
 #include "clir/handle.hpp"
 #include "clir/op.hpp"
@@ -80,6 +81,8 @@ class CLIR_EXPORT expr : public handle<internal::expr_node> {
     expr(double value);
     expr(double value, short bits);
     expr(cl_mem_fence_flags value);
+    expr(memory_scope value);
+    expr(memory_order value);
     expr(char const *value);
     expr(std::string value);
 

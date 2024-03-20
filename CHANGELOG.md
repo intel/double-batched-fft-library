@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.1] - 2024-XX-XX
+* clir: Fix vloadn
+* clir: Add support for atomics
+* clir: Add type qualifiers
+
 ## [0.5.0] - 2024-02-26
 
 * Added compiler options to online compiler interface

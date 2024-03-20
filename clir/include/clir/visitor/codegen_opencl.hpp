@@ -49,6 +49,8 @@ class CLIR_EXPORT codegen_opencl {
     void operator()(internal::uint_imm &v);
     void operator()(internal::float_imm &v);
     void operator()(internal::cl_mem_fence_flags_imm &v);
+    void operator()(internal::memory_scope_imm &v);
+    void operator()(internal::memory_order_imm &v);
     void operator()(internal::string_imm &v);
     void operator()(internal::unary_op &e);
     void operator()(internal::binary_op &e);

@@ -9,21 +9,21 @@
 
 namespace clir {
 
-data_type::data_type(builtin_type basic_data_type, address_space as)
-    : handle(make_type(basic_data_type, 1, as)) {}
-data_type::data_type(builtin_type basic_data_type, short size, address_space as)
-    : handle(make_type(basic_data_type, size, as)) {}
+data_type::data_type(builtin_type basic_data_type, address_space as, type_qualifier qs)
+    : handle(make_type(basic_data_type, 1, as, qs)) {}
+data_type::data_type(builtin_type basic_data_type, short size, address_space as, type_qualifier qs)
+    : handle(make_type(basic_data_type, size, as, qs)) {}
 
-auto data_type::make_type(builtin_type basic_data_type, short size, address_space as)
-    -> std::shared_ptr<internal::data_type_node> {
+auto data_type::make_type(builtin_type basic_data_type, short size, address_space as,
+                          type_qualifier qs) -> std::shared_ptr<internal::data_type_node> {
     if (size > 1) {
-        return std::make_shared<internal::vector_data_type>(basic_data_type, size, as);
+        return std::make_shared<internal::vector_data_type>(basic_data_type, size, as, qs);
     }
-    return std::make_shared<internal::scalar_data_type>(basic_data_type, as);
+    return std::make_shared<internal::scalar_data_type>(basic_data_type, as, qs);
 }
 
-data_type pointer_to(data_type ty, address_space as) {
-    return data_type(std::make_shared<internal::pointer>(std::move(ty), as));
+data_type pointer_to(data_type ty, address_space as, type_qualifier qs) {
+    return data_type(std::make_shared<internal::pointer>(std::move(ty), as, qs));
 }
 
 data_type array_of(data_type ty, std::size_t size) {

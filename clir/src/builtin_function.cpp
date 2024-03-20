@@ -36,6 +36,13 @@
                                                      std::move(e4), std::move(e5)});               \
     }
 
+#define DEFINE_BUILTIN_FUNCTION_6_6(NAME)                                                          \
+    expr NAME(expr e1, expr e2, expr e3, expr e4, expr e5, expr e6) {                              \
+        return call_builtin(builtin_function::NAME,                                                \
+                            {std::move(e1), std::move(e2), std::move(e3), std::move(e4),           \
+                             std::move(e5), std::move(e6)});                                       \
+    }
+
 #define DEFINE_BUILTIN_FUNCTION_0_inf(NAME)                                                        \
     expr NAME(std::vector<expr> args) {                                                            \
         return call_builtin(builtin_function::NAME, std::move(args));                              \
@@ -47,6 +54,10 @@
     DEFINE_BUILTIN_FUNCTION_2_2(NAME) DEFINE_BUILTIN_FUNCTION_3_3(NAME)
 #define DEFINE_BUILTIN_FUNCTION_2_3(NAME)                                                          \
     DEFINE_BUILTIN_FUNCTION_2_2(NAME) DEFINE_BUILTIN_FUNCTION_3_3(NAME)
+#define DEFINE_BUILTIN_FUNCTION_3_4(NAME)                                                          \
+    DEFINE_BUILTIN_FUNCTION_3_3(NAME) DEFINE_BUILTIN_FUNCTION_4_4(NAME)
+#define DEFINE_BUILTIN_FUNCTION_5_6(NAME)                                                          \
+    DEFINE_BUILTIN_FUNCTION_5_5(NAME) DEFINE_BUILTIN_FUNCTION_6_6(NAME)
 #define DEFINE_BUILTIN_FUNCTION(NAME, A, B) DEFINE_BUILTIN_FUNCTION_##A##_##B(NAME)
 
 #define BUILTIN_FN_CASE_3(x, y, z) case builtin_function::x:
@@ -63,6 +74,8 @@ extension get_extension(builtin_function fn) {
         return extension::cl_intel_subgroups_long;
         CLIR_EXTENSION_INTEL_SUBGROUPS_SHORT(BUILTIN_FN_CASE_3)
         return extension::cl_intel_subgroups_short;
+    default:
+        break;
     }
     return extension::unknown;
 }
@@ -80,6 +93,8 @@ char const *to_string(extension ext) {
         return "cl_intel_subgroups_long";
     case extension::cl_intel_subgroups_short:
         return "cl_intel_subgroups_short";
+    case extension::cl_ext_float_atomics:
+        return "cl_ext_float_atomics";
     case extension::builtin:
         return "builtin";
     case extension::unknown:
