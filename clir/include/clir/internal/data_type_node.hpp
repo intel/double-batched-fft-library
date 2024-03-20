@@ -19,51 +19,61 @@ class CLIR_EXPORT data_type_node
 
 class CLIR_EXPORT scalar_data_type : public visitable<scalar_data_type, data_type_node> {
   public:
-    scalar_data_type(builtin_type type, address_space space = address_space::generic_t)
-        : type_(type), space_(space) {}
+    inline scalar_data_type(builtin_type type, address_space space = address_space::generic_t,
+                            type_qualifier qualifiers = type_qualifier::none)
+        : type_(type), space_(space), qualifiers_(qualifiers) {}
 
-    builtin_type type() { return type_; }
-    address_space space() { return space_; }
+    inline builtin_type type() { return type_; }
+    inline address_space space() { return space_; }
+    inline type_qualifier qualifiers() { return qualifiers_; }
 
   private:
     builtin_type type_;
     address_space space_;
+    type_qualifier qualifiers_;
 };
 
 class CLIR_EXPORT vector_data_type : public visitable<vector_data_type, data_type_node> {
   public:
-    vector_data_type(builtin_type type, short size, address_space space = address_space::generic_t)
-        : type_(type), size_(size), space_(space) {}
+    inline vector_data_type(builtin_type type, short size,
+                            address_space space = address_space::generic_t,
+                            type_qualifier qualifiers = type_qualifier::none)
+        : type_(type), size_(size), space_(space), qualifiers_(qualifiers) {}
 
-    builtin_type type() { return type_; }
-    short size() const { return size_; }
-    address_space space() { return space_; }
+    inline builtin_type type() { return type_; }
+    inline short size() const { return size_; }
+    inline address_space space() { return space_; }
+    inline type_qualifier qualifiers() { return qualifiers_; }
 
   private:
     builtin_type type_;
     short size_;
     address_space space_;
+    type_qualifier qualifiers_;
 };
 
 class CLIR_EXPORT pointer : public visitable<pointer, data_type_node> {
   public:
-    pointer(data_type ty, address_space space = address_space::generic_t)
-        : ty_(std::move(ty)), space_(space) {}
+    inline pointer(data_type ty, address_space space = address_space::generic_t,
+                   type_qualifier qualifiers = type_qualifier::none)
+        : ty_(std::move(ty)), space_(space), qualifiers_(qualifiers) {}
 
-    data_type &ty() { return ty_; }
-    address_space space() { return space_; }
+    inline data_type &ty() { return ty_; }
+    inline address_space space() { return space_; }
+    inline type_qualifier qualifiers() { return qualifiers_; }
 
   private:
     data_type ty_;
     address_space space_;
+    type_qualifier qualifiers_;
 };
 
 class CLIR_EXPORT array : public visitable<array, data_type_node> {
   public:
-    array(data_type ty, std::size_t size) : ty_(std::move(ty)), size_(size) {}
+    inline array(data_type ty, std::size_t size) : ty_(std::move(ty)), size_(size) {}
 
-    data_type &ty() { return ty_; }
-    std::size_t size() const { return size_; }
+    inline data_type &ty() { return ty_; }
+    inline std::size_t size() const { return size_; }
 
   private:
     data_type ty_;

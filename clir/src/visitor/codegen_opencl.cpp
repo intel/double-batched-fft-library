@@ -31,6 +31,9 @@ auto codegen_data_type::operator()(internal::scalar_data_type &v)
     if (v.space() != address_space::generic_t) {
         oss << v.space() << " ";
     }
+    if (v.qualifiers() != type_qualifier::none) {
+        oss << v.qualifiers() << " ";
+    }
     oss << v.type();
     return {oss.str(), ""};
 }
@@ -39,6 +42,9 @@ auto codegen_data_type::operator()(internal::vector_data_type &v)
     std::stringstream oss;
     if (v.space() != address_space::generic_t) {
         oss << v.space() << " ";
+    }
+    if (v.qualifiers() != type_qualifier::none) {
+        oss << v.qualifiers() << " ";
     }
     oss << v.type() << v.size();
     return {oss.str(), ""};
@@ -56,6 +62,9 @@ auto codegen_data_type::operator()(internal::pointer &v) -> std::pair<std::strin
     oss << "*";
     if (v.space() != address_space::generic_t) {
         oss << v.space();
+    }
+    if (v.qualifiers() != type_qualifier::none) {
+        oss << " " << v.qualifiers();
     }
     return {oss.str(), dt.second};
 }
@@ -96,6 +105,8 @@ void codegen_opencl::operator()(internal::float_imm &v) {
     }
 }
 void codegen_opencl::operator()(internal::cl_mem_fence_flags_imm &v) { os_ << v.value(); }
+void codegen_opencl::operator()(internal::memory_scope_imm &v) { os_ << v.value(); }
+void codegen_opencl::operator()(internal::memory_order_imm &v) { os_ << v.value(); }
 void codegen_opencl::operator()(internal::string_imm &v) {
     os_ << "\"" << escaped_string(v.value()) << "\"";
 }
@@ -154,15 +165,15 @@ void codegen_opencl::operator()(internal::cast &c) {
 }
 
 void codegen_opencl::operator()(internal::swizzle &s) {
-    auto max_index = std::max_element(s.indices().begin(), s.indices().end());
-    if (max_index == s.indices().end()) {
-        return;
-    }
     constexpr std::array<char, 4> names = {'x', 'y', 'z', 'w'};
     visit_check_parentheses(s, *s.term(), false);
     os_ << ".";
     switch (s.selector()) {
-    case internal::swizzle_selector::index:
+    case internal::swizzle_selector::index: {
+        auto max_index = std::max_element(s.indices().begin(), s.indices().end());
+        if (max_index == s.indices().end()) {
+            return;
+        }
         if (s.indices().size() <= 4 && *max_index < static_cast<short>(names.size())) {
             for (auto index : s.indices()) {
                 os_ << names.at(index);
@@ -175,6 +186,7 @@ void codegen_opencl::operator()(internal::swizzle &s) {
             os_ << std::dec;
         }
         break;
+    }
     case internal::swizzle_selector::lo:
         os_ << "lo";
         break;

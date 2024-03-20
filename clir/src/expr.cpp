@@ -30,6 +30,8 @@ expr::expr(double value) : expr(std::make_shared<internal::float_imm>(value)) {}
 expr::expr(double value, short bits) : expr(std::make_shared<internal::float_imm>(value, bits)) {}
 expr::expr(cl_mem_fence_flags value)
     : expr(std::make_shared<internal::cl_mem_fence_flags_imm>(value)) {}
+expr::expr(memory_scope value) : expr(std::make_shared<internal::memory_scope_imm>(value)) {}
+expr::expr(memory_order value) : expr(std::make_shared<internal::memory_order_imm>(value)) {}
 expr::expr(char const *value) : expr(std::make_shared<internal::string_imm>(std::move(value))) {}
 expr::expr(std::string value) : expr(std::make_shared<internal::string_imm>(std::move(value))) {}
 

@@ -49,6 +49,14 @@ TEST_CASE("Code generation") {
                         function_qualifier::kernel_t) == "extern inline kernel");
     }
 
+    SUBCASE("Type qualifier") {
+        CHECK(to_string(type_qualifier::none) == "");
+        CHECK(to_string(type_qualifier::const_t) == "const");
+        CHECK(to_string(type_qualifier::restrict_t) == "restrict");
+        CHECK(to_string(type_qualifier::volatile_t) == "volatile");
+        CHECK(to_string(type_qualifier::const_t | type_qualifier::volatile_t) == "const volatile");
+    }
+
     SUBCASE("Operator precedence and associativity") {
         CHECK(e2s(++a) == "++a");
         CHECK(e2s(a++) == "a++");
@@ -123,6 +131,14 @@ TEST_CASE("Code generation") {
         oss << "global float*(** a)[10];" << std::endl;
         CHECK(e2s(declaration(pointer_to(pointer_to(array_of(pointer_to(global_float()), 10))),
                               a)) == oss.str());
+
+        CHECK(e2s(global_atomic_float()) == "global atomic_float");
+        CHECK(e2s(global_atomic_float(type_qualifier::const_t | type_qualifier::volatile_t)) ==
+              "global const volatile atomic_float");
+        CHECK(e2s(generic_int(2, type_qualifier::const_t)) == "const int2");
+        CHECK(e2s(pointer_to(global_atomic_int(type_qualifier::volatile_t), address_space::global_t,
+                             type_qualifier::restrict_t)) ==
+              "global volatile atomic_int*global restrict");
     }
 
     SUBCASE("prototype") {
@@ -231,7 +247,7 @@ TEST_CASE("To imm") {
 TEST_CASE("Required extensions") {
     auto fb = function_builder("test");
     fb.body([](block_builder &bb) {
-        bb.declare_assign(generic_int(), "a", intel_sub_group_shuffle(0, 0));
+        bb.declare_assign(generic_int(), "a", -intel_sub_group_shuffle(0, 0));
         bb.declare_assign(generic_int(), "b", intel_sub_group_block_read_us(0));
     });
     auto ext = get_required_extensions(fb.get_product());

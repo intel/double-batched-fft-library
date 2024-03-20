@@ -41,6 +41,12 @@ bool equal_expr::operator()(internal::cl_mem_fence_flags_imm &a,
                             internal::cl_mem_fence_flags_imm &b) {
     return a.value() == b.value();
 }
+bool equal_expr::operator()(internal::memory_scope_imm &a, internal::memory_scope_imm &b) {
+    return a.value() == b.value();
+}
+bool equal_expr::operator()(internal::memory_order_imm &a, internal::memory_order_imm &b) {
+    return a.value() == b.value();
+}
 bool equal_expr::operator()(internal::unary_op &a, internal::unary_op &b) {
     return a.op() == b.op() && visit(*this, *a.term(), *b.term());
 }

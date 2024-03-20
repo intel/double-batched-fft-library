@@ -179,18 +179,18 @@
     X(vload3, 2, 2)                                                                                \
     X(vload4, 2, 2)                                                                                \
     X(vload8, 2, 2)                                                                                \
-    X(vload16, 2, 2)                                                                                \
+    X(vload16, 2, 2)                                                                               \
     X(vstore2, 3, 3)                                                                               \
     X(vstore3, 3, 3)                                                                               \
     X(vstore4, 3, 3)                                                                               \
     X(vstore8, 3, 3)                                                                               \
-    X(vstore16, 3, 3)                                                                               \
+    X(vstore16, 3, 3)                                                                              \
     X(vload_half, 2, 2)                                                                            \
     X(vload_half2, 2, 2)                                                                           \
     X(vload_half3, 2, 2)                                                                           \
     X(vload_half4, 2, 2)                                                                           \
     X(vload_half8, 2, 2)                                                                           \
-    X(vload_half16, 2, 2)                                                                           \
+    X(vload_half16, 2, 2)                                                                          \
     X(vstore_half, 3, 3)                                                                           \
     X(vstore_half_rte, 3, 3)                                                                       \
     X(vstore_half_rtz, 3, 3)                                                                       \
@@ -200,57 +200,57 @@
     X(vstore_half3, 3, 3)                                                                          \
     X(vstore_half4, 3, 3)                                                                          \
     X(vstore_half8, 3, 3)                                                                          \
-    X(vstore_half16, 3, 3)                                                                          \
+    X(vstore_half16, 3, 3)                                                                         \
     X(vstore_half2_rte, 3, 3)                                                                      \
     X(vstore_half3_rte, 3, 3)                                                                      \
     X(vstore_half4_rte, 3, 3)                                                                      \
     X(vstore_half8_rte, 3, 3)                                                                      \
-    X(vstore_half16_rte, 3, 3)                                                                      \
+    X(vstore_half16_rte, 3, 3)                                                                     \
     X(vstore_half2_rtz, 3, 3)                                                                      \
     X(vstore_half3_rtz, 3, 3)                                                                      \
     X(vstore_half4_rtz, 3, 3)                                                                      \
     X(vstore_half8_rtz, 3, 3)                                                                      \
-    X(vstore_half16_rtz, 3, 3)                                                                      \
+    X(vstore_half16_rtz, 3, 3)                                                                     \
     X(vstore_half2_rtp, 3, 3)                                                                      \
     X(vstore_half3_rtp, 3, 3)                                                                      \
     X(vstore_half4_rtp, 3, 3)                                                                      \
     X(vstore_half8_rtp, 3, 3)                                                                      \
-    X(vstore_half16_rtp, 3, 3)                                                                      \
+    X(vstore_half16_rtp, 3, 3)                                                                     \
     X(vstore_half2_rtn, 3, 3)                                                                      \
     X(vstore_half3_rtn, 3, 3)                                                                      \
     X(vstore_half4_rtn, 3, 3)                                                                      \
     X(vstore_half8_rtn, 3, 3)                                                                      \
-    X(vstore_half16_rtn, 3, 3)                                                                      \
+    X(vstore_half16_rtn, 3, 3)                                                                     \
     X(vloada_half2, 2, 2)                                                                          \
     X(vloada_half3, 2, 2)                                                                          \
     X(vloada_half4, 2, 2)                                                                          \
     X(vloada_half8, 2, 2)                                                                          \
-    X(vloada_half16, 2, 2)                                                                          \
+    X(vloada_half16, 2, 2)                                                                         \
     X(vstorea_half2, 3, 3)                                                                         \
     X(vstorea_half3, 3, 3)                                                                         \
     X(vstorea_half4, 3, 3)                                                                         \
     X(vstorea_half8, 3, 3)                                                                         \
-    X(vstorea_half16, 3, 3)                                                                         \
+    X(vstorea_half16, 3, 3)                                                                        \
     X(vstorea_half2_rte, 3, 3)                                                                     \
     X(vstorea_half3_rte, 3, 3)                                                                     \
     X(vstorea_half4_rte, 3, 3)                                                                     \
     X(vstorea_half8_rte, 3, 3)                                                                     \
-    X(vstorea_half16_rte, 3, 3)                                                                     \
+    X(vstorea_half16_rte, 3, 3)                                                                    \
     X(vstorea_half2_rtz, 3, 3)                                                                     \
     X(vstorea_half3_rtz, 3, 3)                                                                     \
     X(vstorea_half4_rtz, 3, 3)                                                                     \
     X(vstorea_half8_rtz, 3, 3)                                                                     \
-    X(vstorea_half16_rtz, 3, 3)                                                                     \
+    X(vstorea_half16_rtz, 3, 3)                                                                    \
     X(vstorea_half2_rtp, 3, 3)                                                                     \
     X(vstorea_half3_rtp, 3, 3)                                                                     \
     X(vstorea_half4_rtp, 3, 3)                                                                     \
     X(vstorea_half8_rtp, 3, 3)                                                                     \
-    X(vstorea_half16_rtp, 3, 3)                                                                     \
+    X(vstorea_half16_rtp, 3, 3)                                                                    \
     X(vstorea_half2_rtn, 3, 3)                                                                     \
     X(vstorea_half3_rtn, 3, 3)                                                                     \
     X(vstorea_half4_rtn, 3, 3)                                                                     \
     X(vstorea_half8_rtn, 3, 3)                                                                     \
-    X(vstorea_half16_rtn, 3, 3)                                                                     \
+    X(vstorea_half16_rtn, 3, 3)                                                                    \
     X(barrier, 1, 1)                                                                               \
     X(work_group_barrier, 1, 2)                                                                    \
     X(sub_group_barrier, 1, 2)                                                                     \
@@ -349,7 +349,37 @@
     X(as_double4, 1, 1)                                                                            \
     X(as_double8, 1, 1)                                                                            \
     X(as_double16, 1, 1)                                                                           \
-    X(printf, 0, inf)
+    X(printf, 0, inf)                                                                              \
+    X(atomic_init, 2, 2)                                                                           \
+    X(atomic_work_item_fence, 3, 3)                                                                \
+    X(atomic_store, 2, 2)                                                                          \
+    X(atomic_store_explicit, 3, 4)                                                                 \
+    X(atomic_load, 1, 1)                                                                           \
+    X(atomic_load_explicit, 2, 3)                                                                  \
+    X(atomic_exchange, 2, 2)                                                                       \
+    X(atomic_exchange_explicit, 3, 4)                                                              \
+    X(atomic_compare_exchange_strong, 3, 3)                                                        \
+    X(atomic_compare_exchange_strong_explicit, 5, 6)                                               \
+    X(atomic_compare_exchange_weak, 3, 3)                                                          \
+    X(atomic_compare_exchange_weak_explicit, 5, 6)                                                 \
+    X(atomic_fetch_add, 2, 2)                                                                      \
+    X(atomic_fetch_add_explicit, 3, 4)                                                             \
+    X(atomic_fetch_sub, 2, 2)                                                                      \
+    X(atomic_fetch_sub_explicit, 3, 4)                                                             \
+    X(atomic_fetch_or, 2, 2)                                                                       \
+    X(atomic_fetch_or_explicit, 3, 4)                                                              \
+    X(atomic_fetch_xor, 2, 2)                                                                      \
+    X(atomic_fetch_xor_explicit, 3, 4)                                                             \
+    X(atomic_fetch_and, 2, 2)                                                                      \
+    X(atomic_fetch_and_explicit, 3, 4)                                                             \
+    X(atomic_fetch_min, 2, 2)                                                                      \
+    X(atomic_fetch_min_explicit, 3, 4)                                                             \
+    X(atomic_fetch_max, 2, 2)                                                                      \
+    X(atomic_fetch_max_explicit, 3, 4)                                                             \
+    X(atomic_flag_test_and_set, 1, 1)                                                              \
+    X(atomic_flag_test_and_set_explicit, 2, 3)                                                     \
+    X(atomic_flag_clear, 1, 1)                                                                     \
+    X(atomic_flag_clear_explicit, 2, 3)
 
 #define CLIR_EXTENSION_INTEL_SUBGROUPS(X)                                                          \
     X(intel_sub_group_shuffle, 2, 2)                                                               \
@@ -403,6 +433,8 @@
     CLIR_EXPORT expr NAME(expr e1, expr e2, expr e3, expr e4);
 #define CLIR_DECLARE_BUILTIN_FUNCTION_5_5(NAME)                                                    \
     CLIR_EXPORT expr NAME(expr e1, expr e2, expr e3, expr e4, expr e5);
+#define CLIR_DECLARE_BUILTIN_FUNCTION_6_6(NAME)                                                    \
+    CLIR_EXPORT expr NAME(expr e1, expr e2, expr e3, expr e4, expr e5, expr e6);
 #define CLIR_DECLARE_BUILTIN_FUNCTION_0_inf(NAME) CLIR_EXPORT expr NAME(std::vector<expr> args);
 #define CLIR_DECLARE_BUILTIN_FUNCTION_1_2(NAME)                                                    \
     CLIR_DECLARE_BUILTIN_FUNCTION_1_1(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_2_2(NAME)
@@ -412,6 +444,10 @@
 #define CLIR_DECLARE_BUILTIN_FUNCTION_2_3(NAME)                                                    \
     CLIR_DECLARE_BUILTIN_FUNCTION_2_2(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_3_3(NAME)
 #define CLIR_DECLARE_BUILTIN_FUNCTION(NAME, A, B) CLIR_DECLARE_BUILTIN_FUNCTION_##A##_##B(NAME)
+#define CLIR_DECLARE_BUILTIN_FUNCTION_3_4(NAME)                                                    \
+    CLIR_DECLARE_BUILTIN_FUNCTION_3_3(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_4_4(NAME)
+#define CLIR_DECLARE_BUILTIN_FUNCTION_5_6(NAME)                                                    \
+    CLIR_DECLARE_BUILTIN_FUNCTION_5_5(NAME) CLIR_DECLARE_BUILTIN_FUNCTION_6_6(NAME)
 
 #define CLIR_BUILTIN_FUNCTION(X)                                                                   \
     CLIR_STANDARD_BUILTIN_FUNCTION(X)                                                              \
@@ -429,6 +465,7 @@ enum class extension { // values must be contiguous and start from 0
     cl_intel_subgroups,
     cl_intel_subgroups_long,
     cl_intel_subgroups_short,
+    cl_ext_float_atomics,
     unknown // must be last
 };
 

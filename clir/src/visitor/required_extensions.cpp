@@ -12,6 +12,20 @@ namespace clir {
 
 /* Expr nodes */
 void required_extensions::operator()(internal::expr_node &) {}
+void required_extensions::operator()(internal::unary_op &op) { visit(*this, *op.term()); }
+void required_extensions::operator()(internal::binary_op &op) {
+    visit(*this, *op.lhs());
+    visit(*this, *op.rhs());
+}
+void required_extensions::operator()(internal::ternary_op &op) {
+    visit(*this, *op.term0());
+    visit(*this, *op.term1());
+    visit(*this, *op.term2());
+}
+void required_extensions::operator()(internal::access &op) {
+    visit(*this, *op.field());
+    visit(*this, *op.address());
+}
 void required_extensions::operator()(internal::call_builtin &fn) {
     auto ext = get_extension(fn.fn());
     if (ext == extension::unknown) {
@@ -19,6 +33,13 @@ void required_extensions::operator()(internal::call_builtin &fn) {
     }
     needs_ext_[static_cast<int>(ext)] = true;
 }
+void required_extensions::operator()(internal::call &fn) {
+    for (auto &arg : fn.args()) {
+        visit(*this, *arg);
+    }
+}
+void required_extensions::operator()(internal::cast &op) { visit(*this, *op.term()); }
+void required_extensions::operator()(internal::swizzle &op) { visit(*this, *op.term()); }
 
 /* Stmt nodes */
 void required_extensions::operator()(internal::stmt_node &) {}
