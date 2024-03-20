@@ -40,6 +40,7 @@ class CLIR_EXPORT required_extensions {
     void operator()(internal::block &b);
     void operator()(internal::for_loop &loop);
     void operator()(internal::if_selection &is);
+    void operator()(internal::while_loop &loop);
 
     /* Kernel nodes */
     void operator()(internal::prototype &);

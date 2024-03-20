@@ -89,6 +89,12 @@ void unique_names::operator()(internal::if_selection &is) {
     pop_scope();
 }
 
+void unique_names::operator()(internal::while_loop &loop) {
+    push_scope();
+    visit(*this, *loop.body());
+    pop_scope();
+}
+
 /* Kernel nodes */
 void unique_names::operator()(internal::prototype &p) {
     for (auto const &[t, v] : p.args()) {

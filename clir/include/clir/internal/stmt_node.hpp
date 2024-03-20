@@ -23,7 +23,7 @@ namespace clir::internal {
 class CLIR_EXPORT stmt_node
     : public virtual_type_list<class declaration, class declaration_assignment,
                                class expression_statement, class block, class for_loop,
-                               class if_selection> {};
+                               class if_selection, class while_loop> {};
 
 class CLIR_EXPORT declaration : public visitable<declaration, stmt_node> {
   public:
@@ -111,6 +111,25 @@ class CLIR_EXPORT if_selection : public visitable<if_selection, stmt_node> {
     expr condition_;
     stmt then_;
     std::optional<stmt> otherwise_;
+};
+
+class CLIR_EXPORT while_loop : public visitable<while_loop, stmt_node> {
+  public:
+    while_loop(expr condition, stmt body, bool do_while = false, std::vector<attr> attributes = {})
+        : condition_(std::move(condition)), body_(std::move(body)), do_while_(do_while),
+          attributes_(std::move(attributes)) {}
+
+    inline expr &condition() { return condition_; }
+    inline void condition(expr e) { condition_ = std::move(e); }
+    inline stmt &body() { return body_; }
+    inline bool is_do_while() const { return do_while_; }
+    inline std::vector<attr> &attributes() { return attributes_; }
+
+  private:
+    expr condition_;
+    stmt body_;
+    bool do_while_;
+    std::vector<attr> attributes_;
 };
 
 } // namespace clir::internal

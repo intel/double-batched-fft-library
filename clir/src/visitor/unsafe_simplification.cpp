@@ -196,6 +196,13 @@ void unsafe_simplification::operator()(internal::if_selection &is) {
     }
 }
 
+void unsafe_simplification::operator()(internal::while_loop &loop) {
+    if (auto r = visit(*this, *loop.condition()); r) {
+        loop.condition(std::move(r));
+    }
+    visit(*this, *loop.body());
+}
+
 /* Kernel nodes */
 void unsafe_simplification::operator()(internal::prototype &) {}
 void unsafe_simplification::operator()(internal::function &fn) { visit(*this, *fn.body()); }

@@ -68,6 +68,7 @@ class CLIR_EXPORT codegen_opencl {
     void operator()(internal::block &b);
     void operator()(internal::for_loop &loop);
     void operator()(internal::if_selection &is);
+    void operator()(internal::while_loop &loop);
 
     /* Kernel nodes */
     void operator()(internal::prototype &proto);

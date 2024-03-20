@@ -81,6 +81,22 @@ for_loop_builder &for_loop_builder::attribute(attr a) {
     return *this;
 }
 
+/* while loop builder */
+while_loop_builder::while_loop_builder(expr condition, bool do_while)
+    : condition_(std::move(condition)), do_while_(do_while), body_(nullptr) {}
+
+stmt while_loop_builder::get_product() {
+    if (!body_.get()) {
+        body_ = stmt(std::make_shared<internal::block>());
+    }
+    return stmt(std::make_shared<internal::while_loop>(condition_, body_, do_while_, attributes_));
+}
+
+while_loop_builder &while_loop_builder::attribute(attr a) {
+    attributes_.emplace_back(std::move(a));
+    return *this;
+}
+
 /* if selection builder */
 if_selection_builder::if_selection_builder(expr condition)
     : condition_(std::move(condition)), then_(nullptr), otherwise_(nullptr) {}

@@ -69,6 +69,11 @@ void required_extensions::operator()(internal::if_selection &is) {
     }
 }
 
+void required_extensions::operator()(internal::while_loop &loop) {
+    visit(*this, *loop.condition());
+    visit(*this, *loop.body());
+}
+
 /* Kernel nodes */
 void required_extensions::operator()(internal::prototype &) {}
 void required_extensions::operator()(internal::function &fn) {

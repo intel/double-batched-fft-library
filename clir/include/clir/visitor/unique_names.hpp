@@ -37,6 +37,7 @@ class CLIR_EXPORT unique_names {
     void operator()(internal::block &b);
     void operator()(internal::for_loop &loop);
     void operator()(internal::if_selection &is);
+    void operator()(internal::while_loop &loop);
 
     /* Kernel nodes */
     void operator()(internal::prototype &proto);

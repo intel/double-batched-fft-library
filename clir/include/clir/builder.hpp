@@ -90,6 +90,31 @@ class CLIR_EXPORT for_loop_builder {
     std::vector<attr> attributes_;
 };
 
+class CLIR_EXPORT while_loop_builder {
+  public:
+    while_loop_builder(expr condition, bool do_while = false);
+
+    stmt get_product();
+
+    while_loop_builder &attribute(attr a);
+    template <typename F> while_loop_builder &body(F &&f) {
+        auto bb = block_builder{};
+        f(bb);
+        body_ = bb.get_product();
+        return *this;
+    }
+    inline while_loop_builder &set_body(stmt body) {
+        body_ = std::move(body);
+        return *this;
+    }
+
+  private:
+    expr condition_;
+    bool do_while_;
+    stmt body_;
+    std::vector<attr> attributes_;
+};
+
 class CLIR_EXPORT if_selection_builder {
   public:
     if_selection_builder(expr condition);
