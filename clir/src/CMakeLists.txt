@@ -3,6 +3,7 @@
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CommonOptions)
 include(GenerateExportHeader)
 
 set(SOURCES
