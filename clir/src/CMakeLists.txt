@@ -5,6 +5,7 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CommonOptions)
 include(GenerateExportHeader)
+include(CommonOptions)
 
 set(SOURCES
     builder.cpp
