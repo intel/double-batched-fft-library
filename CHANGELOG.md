@@ -1,9 +1,11 @@
 # Changelog
 
-## [0.5.1] - 2024-XX-XX
+## [0.5.1] - 2024-04-05
 * clir: Fix vloadn
 * clir: Add support for atomics
 * clir: Add type qualifiers
+* clir: Add while loop builder
+* clir: Bump version to 0.5.1
 
 ## [0.5.0] - 2024-02-26
 
