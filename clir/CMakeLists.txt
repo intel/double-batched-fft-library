@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.23)
 
-project(clir VERSION 0.5.1 LANGUAGES CXX)
+project(clir VERSION 0.6.0 LANGUAGES CXX)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 option(BUILD_TESTING "Build unit tests" ON)
