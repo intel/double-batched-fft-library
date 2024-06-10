@@ -32,6 +32,7 @@ void sbfft_gen::generate(std::ostream &os, small_batch_configuration const &cfg,
     auto in = var("in");
     auto out = var("out");
     auto K = var("K");
+    auto user_data = var("user_data");
 
     auto fph = precision_helper{cfg.fp};
     auto in_ty = fph.type(p_.in_components, address_space::global_t);
@@ -43,6 +44,10 @@ void sbfft_gen::generate(std::ostream &os, small_batch_configuration const &cfg,
     fb.argument(pointer_to(in_ty), in);
     fb.argument(pointer_to(out_ty), out);
     fb.argument(generic_ulong(), K);
+    if (cfg.load_function != nullptr || cfg.store_function != nullptr) {
+        fb.argument(pointer_to(data_type(builtin_type::void_t, address_space::global_t)),
+                    user_data);
+    }
     fb.attribute(reqd_work_group_size(static_cast<int>(cfg.Mb), static_cast<int>(cfg.Kb), 1));
     fb.attribute(intel_reqd_sub_group_size(static_cast<int>(cfg.sgs)));
 
@@ -50,12 +55,14 @@ void sbfft_gen::generate(std::ostream &os, small_batch_configuration const &cfg,
 
     std::shared_ptr<tensor_accessor> in_acc, out_acc;
     if (cfg.load_function) {
-        in_acc = std::make_shared<callback_accessor>(in, in_ty, cfg.load_function);
+        in_acc =
+            std::make_shared<callback_accessor>(in, in_ty, cfg.load_function, nullptr, user_data);
     } else {
         in_acc = std::make_shared<array_accessor>(in, in_ty);
     }
     if (cfg.store_function) {
-        out_acc = std::make_shared<callback_accessor>(out, out_ty, nullptr, cfg.store_function);
+        out_acc = std::make_shared<callback_accessor>(out, out_ty, nullptr, cfg.store_function,
+                                                      user_data);
     } else {
         out_acc = std::make_shared<array_accessor>(out, out_ty);
     }

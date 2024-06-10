@@ -32,26 +32,27 @@ auto array_accessor::subview(block_builder &bb, expr const &offset) const
 }
 
 callback_accessor::callback_accessor(expr x, data_type type, char const *load, char const *store,
-                                     expr offset)
+                                     expr user_data, expr offset)
     : x_(std::move(x)), type_(std::move(type)), load_(load), store_(store),
-      offset_(std::move(offset)) {}
+      user_data_(std::move(user_data)), offset_(std::move(offset)) {}
 
 expr callback_accessor::operator()(expr const &offset) const {
     if (load_) {
-        return call(load_, {x_, offset_ + offset});
+        return call(load_, {x_, offset_ + offset, user_data_});
     }
     return x_[offset_ + offset];
 }
 expr callback_accessor::store(expr value, expr const &offset) const {
     if (store_) {
-        return call(store_, {x_, offset_ + offset, std::move(value)});
+        return call(store_, {x_, offset_ + offset, std::move(value), user_data_});
     }
     return assignment(x_[offset_ + offset], std::move(value));
 }
 auto callback_accessor::subview(block_builder &bb, expr const &offset) const
     -> std::shared_ptr<tensor_accessor> {
     auto off = bb.declare_assign(generic_size(), "offset", offset_ + offset);
-    return std::make_shared<callback_accessor>(x_, type_, load_, store_, std::move(off));
+    return std::make_shared<callback_accessor>(x_, type_, load_, store_, user_data_,
+                                               std::move(off));
 }
 
 } // namespace bbfft

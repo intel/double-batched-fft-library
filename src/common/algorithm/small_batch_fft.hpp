@@ -43,6 +43,8 @@ template <typename Api> class small_batch_fft_base : public Api::plan_type {
         std::stringstream ss;
         if (cfg.callbacks) {
             ss << std::string_view(cfg.callbacks.data, cfg.callbacks.length) << std::endl;
+            has_callbacks_ = true;
+            user_data_ = cfg.callbacks.user_data;
         }
         auto sbc = configure_small_batch_fft(cfg, api_.info());
 
@@ -91,6 +93,8 @@ template <typename Api> class small_batch_fft_base : public Api::plan_type {
     kernel_bundle bundle_;
     kernel k_;
     uint64_t K_;
+    bool has_callbacks_ = false;
+    void *user_data_ = nullptr;
 };
 
 template <typename Api, typename PlanImplT = typename Api::plan_type> class small_batch_fft;
@@ -112,6 +116,9 @@ class small_batch_fft<Api, detail::plan_impl<typename Api::event_type>>
             h.set_arg(0, in);
             h.set_arg(1, out);
             h.set_arg(2, this->K_);
+            if (this->has_callbacks_) {
+                h.set_arg(3, this->user_data_);
+            }
         });
     }
 };
@@ -134,6 +141,9 @@ class small_batch_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event
                                      h.set_arg(0, in);
                                      h.set_arg(1, out);
                                      h.set_arg(2, this->K_);
+                                     if (this->has_callbacks_) {
+                                         h.set_arg(3, this->user_data_);
+                                     }
                                  });
     }
 };

@@ -93,6 +93,8 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         std::stringstream ss;
         if (cfg.callbacks) {
             ss << std::string_view(cfg.callbacks.data, cfg.callbacks.length) << std::endl;
+            has_callbacks_ = true;
+            user_data_ = cfg.callbacks.user_data;
         }
         bool is_real = cfg.type == transform_type::r2c || cfg.type == transform_type::c2r;
         auto f2c = configure_factor2_slm_fft(cfg, api_.info());
@@ -144,6 +146,8 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     }
 
     Api api_;
+    bool has_callbacks_ = false;
+    void *user_data_ = nullptr;
     std::array<std::size_t, 3> gws_;
     std::array<std::size_t, 3> lws_;
     bool inplace_unsupported_;
@@ -175,6 +179,9 @@ class factor2_slm_fft<Api, detail::plan_impl<typename Api::event_type>>
             h.set_arg(1, out);
             h.set_arg(2, this->twiddle_);
             h.set_arg(3, this->K_);
+            if (this->has_callbacks_) {
+                h.set_arg(4, this->user_data_);
+            }
         });
     }
 };
@@ -198,6 +205,9 @@ class factor2_slm_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event
                                      h.set_arg(1, out);
                                      h.set_arg(2, this->twiddle_);
                                      h.set_arg(3, this->K_);
+                                     if (this->has_callbacks_) {
+                                         h.set_arg(4, this->user_data_);
+                                     }
                                  });
     }
 };

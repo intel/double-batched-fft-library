@@ -53,6 +53,7 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
     auto out = var("out");
     auto twiddle = var("twiddle");
     auto K = var("K");
+    auto user_data = var("user_data");
 
     auto const tw2N_offset = [](std::vector<int> const &factorization) {
         int N = factorization[0] * factorization[1];
@@ -76,18 +77,24 @@ void f2fft_gen::generate(std::ostream &os, factor2_slm_configuration const &cfg,
     fb.argument(pointer_to(out_ty), out);
     fb.argument(pointer_to(fph.type(2, address_space::constant_t)), twiddle);
     fb.argument(generic_ulong(), K);
+    if (cfg.load_function != nullptr || cfg.store_function != nullptr) {
+        fb.argument(pointer_to(data_type(builtin_type::void_t, address_space::global_t)),
+                    user_data);
+    }
     fb.attribute(reqd_work_group_size(static_cast<int>(cfg.Mb), static_cast<int>(cfg.Nb),
                                       static_cast<int>(cfg.Kb)));
     fb.attribute(intel_reqd_sub_group_size(static_cast<int>(cfg.sgs)));
 
     std::shared_ptr<tensor_accessor> in_acc, out_acc;
     if (cfg.load_function) {
-        in_acc = std::make_shared<callback_accessor>(in, in_ty, cfg.load_function);
+        in_acc =
+            std::make_shared<callback_accessor>(in, in_ty, cfg.load_function, nullptr, user_data);
     } else {
         in_acc = std::make_shared<array_accessor>(in, in_ty);
     }
     if (cfg.store_function) {
-        out_acc = std::make_shared<callback_accessor>(out, out_ty, nullptr, cfg.store_function);
+        out_acc = std::make_shared<callback_accessor>(out, out_ty, nullptr, cfg.store_function,
+                                                      user_data);
     } else {
         out_acc = std::make_shared<array_accessor>(out, out_ty);
     }
