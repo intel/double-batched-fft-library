@@ -1,7 +1,8 @@
 # Changelog
 
 ## [0.6.0] - 2024-XX-XX
-*  User data pointer was added to callback signature. Codes that used the (undocumented and experimental) callback feature need to update their callback signature.
+* User data pointer was added to callback signature. Codes that used the (undocumented and experimental) callback feature need to update their callback signature.
+* Refactor plan interface such that one can pass buffers and USM pointers
 
 ## [0.5.1] - 2024-04-05
 * clir: Fix vloadn
