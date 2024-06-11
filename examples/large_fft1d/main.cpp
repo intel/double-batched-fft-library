@@ -118,7 +118,7 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
         CL_CHECK(err);
         cl_mem out_device = in_device;
         if (!inplace) {
-            out_device_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, isize, nullptr, &err);
+            out_device_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, osize, nullptr, &err);
             CL_CHECK(err);
             out_device = out_device_buffer;
         } else {
@@ -149,9 +149,11 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
             double elapsed_time = 0.0;
             std::size_t nrepeat = 0;
             while (elapsed_time < min_time) {
-                CL_CHECK(clEnqueueCopyBuffer(queue, in_copy, in_device, 0, 0, isize, 0, nullptr,
-                                             nullptr));
-                CL_CHECK(clFinish(queue));
+                if (inplace) {
+                    CL_CHECK(clEnqueueCopyBuffer(queue, in_copy, in_device, 0, 0, isize, 0, nullptr,
+                                                 nullptr));
+                    CL_CHECK(clFinish(queue));
+                }
 
                 auto start = std::chrono::high_resolution_clock::now();
 
