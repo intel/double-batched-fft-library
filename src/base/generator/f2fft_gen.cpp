@@ -3,9 +3,9 @@
 
 #include "f2fft_gen.hpp"
 #include "bbfft/bad_configuration.hpp"
+#include "bbfft/prime_factorization.hpp"
 #include "math.hpp"
 #include "mixed_radix_fft.hpp"
-#include "prime_factorization.hpp"
 #include "root_of_unity.hpp"
 
 #include "clir/attr_defs.hpp"

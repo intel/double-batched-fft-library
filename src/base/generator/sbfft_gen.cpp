@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "sbfft_gen.hpp"
+#include "bbfft/prime_factorization.hpp"
 #include "mixed_radix_fft.hpp"
-#include "prime_factorization.hpp"
 #include "root_of_unity.hpp"
 #include "scrambler.hpp"
 

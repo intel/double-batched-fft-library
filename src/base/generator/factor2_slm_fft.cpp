@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/configuration.hpp"
+#include "bbfft/prime_factorization.hpp"
 #include "generator/f2fft_gen.hpp"
 #include "math.hpp"
-#include "prime_factorization.hpp"
 
 #include <algorithm>
 #include <cmath>

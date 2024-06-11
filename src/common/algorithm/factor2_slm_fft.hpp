@@ -37,9 +37,14 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         const auto K = cfg.shape[2];
         api_.arg_handler().set_arg(k_, 2, sizeof(twiddle_), &twiddle_);
         api_.arg_handler().set_arg(k_, 3, sizeof(K), &K);
-        if (cfg.callbacks && cfg.callbacks.user_data.value != nullptr) {
-            api_.arg_handler().set_mem_arg(k_, 4, cfg.callbacks.user_data.value,
-                                           cfg.callbacks.user_data.type);
+        if (cfg.callbacks) {
+            if (cfg.callbacks.user_data.value == nullptr) {
+                api_.arg_handler().set_arg(k_, 4, sizeof(cfg.callbacks.user_data.value),
+                                           cfg.callbacks.user_data.value);
+            } else {
+                api_.arg_handler().set_mem_arg(k_, 4, cfg.callbacks.user_data.value,
+                                               cfg.callbacks.user_data.type);
+            }
         }
     }
 
