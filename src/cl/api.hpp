@@ -43,18 +43,10 @@ class api {
     auto make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type;
     auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
-    template <typename T>
-    cl_event launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
-                           std::array<std::size_t, 3> local_work_size,
-                           std::vector<cl_event> const &dep_events, T set_args) {
-        auto handler = argument_handler(k, clSetKernelArgMemPointerINTEL_);
-        set_args(handler);
-        cl_event evt;
-        CL_CHECK(clEnqueueNDRangeKernel(queue_, k, 3, nullptr, global_work_size.data(),
-                                        local_work_size.data(), dep_events.size(),
-                                        dep_events.data(), &evt));
-        return evt;
-    }
+    inline auto arg_handler() const -> argument_handler const & { return arg_handler_; }
+    auto launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
+                       std::array<std::size_t, 3> local_work_size,
+                       std::vector<cl_event> const &dep_events) -> cl_event;
 
     cl_mem create_device_buffer(std::size_t bytes);
     template <typename T> cl_mem create_device_buffer(std::size_t num_T) {
@@ -74,12 +66,12 @@ class api {
     inline void release_kernel(kernel_type k) { clReleaseKernel(k); }
 
   private:
-    void setup_extensions();
+    void setup_arg_handler();
 
     cl_command_queue queue_;
     cl_context context_;
     cl_device_id device_;
-    clSetKernelArgMemPointerINTEL_t clSetKernelArgMemPointerINTEL_;
+    argument_handler arg_handler_;
 };
 
 } // namespace bbfft::cl

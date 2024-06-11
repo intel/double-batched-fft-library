@@ -4,6 +4,7 @@
 #ifndef ZE_ARGUMENT_HANDLER_20221129_HPP
 #define ZE_ARGUMENT_HANDLER_20221129_HPP
 
+#include "bbfft/mem.hpp"
 #include "bbfft/ze/error.hpp"
 
 #include <level_zero/ze_api.h>
@@ -12,14 +13,15 @@ namespace bbfft::ze {
 
 class argument_handler {
   public:
-    argument_handler(ze_kernel_handle_t krnl) : kernel_(krnl) {}
-
-    template <typename T> void set_arg(unsigned index, T &arg) {
-        ZE_CHECK(zeKernelSetArgumentValue(kernel_, index, sizeof(T), &arg));
+    inline static void set_arg(ze_kernel_handle_t kernel, unsigned index, std::size_t size,
+                               const void *value) {
+        ZE_CHECK(zeKernelSetArgumentValue(kernel, index, size, value));
     }
 
-  private:
-    ze_kernel_handle_t kernel_;
+    inline static void set_mem_arg(ze_kernel_handle_t kernel, unsigned index, const void *value,
+                                   mem_type) {
+        set_arg(kernel, index, sizeof(value), &value);
+    }
 };
 
 } // namespace bbfft::ze

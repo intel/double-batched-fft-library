@@ -32,6 +32,18 @@ auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel
     return ::bbfft::ze::create_kernel(b, name);
 }
 
+void api::launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
+                        std::array<std::size_t, 3> local_work_size, ze_event_handle_t signal_event,
+                        uint32_t num_wait_events, ze_event_handle_t *wait_events) {
+    ze_group_count_t launch_args;
+    // FIXME: Must be divisible (or ceil)
+    launch_args.groupCountX = global_work_size[0] / local_work_size[0];
+    launch_args.groupCountY = global_work_size[1] / local_work_size[1];
+    launch_args.groupCountZ = global_work_size[2] / local_work_size[2];
+    ZE_CHECK(zeCommandListAppendLaunchKernel(command_list_, k, &launch_args, signal_event,
+                                             num_wait_events, wait_events));
+}
+
 void *api::create_device_buffer(std::size_t bytes) {
     void *buf = nullptr;
     ze_device_mem_alloc_desc_t device_mem_desc = {ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, nullptr,

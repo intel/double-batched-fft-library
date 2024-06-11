@@ -137,9 +137,9 @@ class nd_fft<Api, detail::plan_impl<typename Api::event_type>> : public nd_fft_b
     using nd_fft_base<Api>::nd_fft_base;
     using event = typename Api::event_type;
 
-    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
+    auto execute(mem const &in, mem const &out, std::vector<event> const &dep_events)
         -> event override {
-        auto tmp = this->tmp_ ? this->tmp_ : out;
+        auto tmp = this->tmp_ ? mem(this->tmp_) : out;
         event e = this->plans_[0]->execute(in, tmp, dep_events);
         for (unsigned d = 1; d < this->dim_ - 1; ++d) {
             auto next_e = this->plans_[d]->execute(tmp, tmp, std::vector<event>{e});
@@ -159,9 +159,9 @@ class nd_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event_type>>
     using nd_fft_base<Api>::nd_fft_base;
     using event = typename Api::event_type;
 
-    void execute(void const *in, void *out, event signal_event, std::uint32_t num_dep_events,
+    void execute(mem const &in, mem const &out, event signal_event, std::uint32_t num_dep_events,
                  event *dep_events) override {
-        auto tmp = this->tmp_ ? this->tmp_ : out;
+        auto tmp = this->tmp_ ? mem(this->tmp_) : out;
         auto e = this->api_.get_internal_event();
         this->plans_[0]->execute(in, tmp, e, num_dep_events, dep_events);
         for (unsigned d = 1; d < this->dim_ - 1; ++d) {

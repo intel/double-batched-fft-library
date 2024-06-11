@@ -5,6 +5,7 @@
 #define PLAN_20220412_HPP
 
 #include "bbfft/detail/plan_impl.hpp"
+#include "bbfft/mem.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -74,7 +75,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void const *in, void *out) -> event_t { return this->impl_->execute(in, out); }
+    auto execute(mem const &in, mem const &out) -> event_t { return this->impl_->execute(in, out); }
     /**
      * @brief Execute plan (out-of-place)
      *
@@ -84,7 +85,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void const *in, void *out, event_t dep_event) -> event_t {
+    auto execute(mem const &in, mem const &out, event_t dep_event) -> event_t {
         return this->impl_->execute(in, out, std::move(dep_event));
     }
     /**
@@ -96,7 +97,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void const *in, void *out, std::vector<event_t> const &dep_events) -> event_t {
+    auto execute(mem const &in, mem const &out, std::vector<event_t> const &dep_events) -> event_t {
         return this->impl_->execute(in, out, dep_events);
     }
     /**
@@ -106,7 +107,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void *inout) -> event_t { return this->impl_->execute(inout, inout); }
+    auto execute(mem const &inout) -> event_t { return this->impl_->execute(inout, inout); }
     /**
      * @brief Execute plan (in-place)
      *
@@ -115,7 +116,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void *inout, event_t dep_event) -> event_t {
+    auto execute(mem const &inout, event_t dep_event) -> event_t {
         return this->impl_->execute(inout, inout, dep_event);
     }
     /**
@@ -126,7 +127,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void *inout, std::vector<event_t> const &dep_events) -> event_t {
+    auto execute(mem const &inout, std::vector<event_t> const &dep_events) -> event_t {
         return this->impl_->execute(inout, inout, dep_events);
     }
 };

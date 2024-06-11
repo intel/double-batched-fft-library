@@ -21,14 +21,14 @@ api::api(cl_command_queue queue) : queue_(queue) {
     CL_CHECK(
         clGetCommandQueueInfo(queue_, CL_QUEUE_DEVICE, sizeof(cl_device_id), &device_, nullptr));
 
-    setup_extensions();
+    setup_arg_handler();
 }
 api::api(cl_command_queue queue, cl_context context, cl_device_id device)
     : queue_(queue), context_(context), device_(device) {
     CL_CHECK(clRetainCommandQueue(queue_));
     CL_CHECK(clRetainContext(context_));
 
-    setup_extensions();
+    setup_arg_handler();
 }
 api::~api() {
     clReleaseContext(context_);
@@ -44,7 +44,7 @@ void api::operator=(api const &other) {
     CL_CHECK(clRetainContext(context_));
 
     device_ = other.device_;
-    clSetKernelArgMemPointerINTEL_ = other.clSetKernelArgMemPointerINTEL_;
+    arg_handler_ = other.arg_handler_;
 }
 
 device_info api::info() { return get_device_info(device_); }
@@ -65,6 +65,16 @@ auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel
     return ::bbfft::cl::create_kernel(b, name);
 }
 
+auto api::launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
+                        std::array<std::size_t, 3> local_work_size,
+                        std::vector<cl_event> const &dep_events) -> cl_event {
+    cl_event evt;
+    CL_CHECK(clEnqueueNDRangeKernel(queue_, k, 3, nullptr, global_work_size.data(),
+                                    local_work_size.data(), dep_events.size(), dep_events.data(),
+                                    &evt));
+    return evt;
+}
+
 cl_mem api::create_device_buffer(std::size_t bytes) {
     cl_int err;
     cl_mem buf =
@@ -73,16 +83,10 @@ cl_mem api::create_device_buffer(std::size_t bytes) {
     return buf;
 }
 
-void api::setup_extensions() {
+void api::setup_arg_handler() {
     cl_platform_id plat;
     CL_CHECK(clGetDeviceInfo(device_, CL_DEVICE_PLATFORM, sizeof(plat), &plat, nullptr));
-    clSetKernelArgMemPointerINTEL_ =
-        (clSetKernelArgMemPointerINTEL_t)clGetExtensionFunctionAddressForPlatform(
-            plat, "clSetKernelArgMemPointerINTEL");
-    if (clSetKernelArgMemPointerINTEL_ == nullptr) {
-        throw cl::error("OpenCL unified shared memory extension unavailable",
-                        CL_INVALID_COMMAND_QUEUE);
-    }
+    arg_handler_ = argument_handler(plat);
 }
 
 } // namespace bbfft::cl

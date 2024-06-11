@@ -4,6 +4,8 @@
 #ifndef SYCL_API_20220413_HPP
 #define SYCL_API_20220413_HPP
 
+#include "argument_handler.hpp"
+
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
@@ -37,20 +39,10 @@ class api {
     auto make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type;
     auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
-    template <typename T>
-    ::sycl::event launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_work_size,
-                                std::array<std::size_t, 3> local_work_size,
-                                std::vector<::sycl::event> const &dep_events, T set_args) {
-        auto global_range =
-            ::sycl::range{global_work_size[2], global_work_size[1], global_work_size[0]};
-        auto local_range =
-            ::sycl::range{local_work_size[2], local_work_size[1], local_work_size[0]};
-        return queue_.submit([&](::sycl::handler &h) {
-            set_args(h);
-            h.depends_on(dep_events);
-            h.parallel_for(::sycl::nd_range{global_range, local_range}, k);
-        });
-    }
+    inline auto arg_handler() const -> argument_handler const & { return *arg_handler_; }
+    auto launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_work_size,
+                       std::array<std::size_t, 3> local_work_size,
+                       std::vector<::sycl::event> const &dep_events) -> ::sycl::event;
 
     void *create_device_buffer(std::size_t bytes);
     template <typename T> void *create_device_buffer(std::size_t num_T) {
@@ -67,9 +59,12 @@ class api {
     inline void release_kernel(kernel_type) {}
 
   private:
+    void setup_arg_handler();
+
     ::sycl::queue queue_;
     ::sycl::context context_;
     ::sycl::device device_;
+    std::shared_ptr<argument_handler> arg_handler_;
 };
 
 } // namespace bbfft::sycl

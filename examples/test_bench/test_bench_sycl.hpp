@@ -23,12 +23,11 @@ class test_bench_sycl {
         return ::sycl::malloc_device<T>(elements, queue_);
     }
 
-    inline void memcpy(void *dest, const void *src, size_t bytes) {
+    inline void memcpy_d2h(void *dest, const void *src, size_t bytes) {
         queue_.memcpy(dest, src, bytes).wait();
     }
-
-    template <typename T> void copy(T const *src, T *dest, size_t count) {
-        queue_.copy(src, dest, count);
+    inline void memcpy_h2d(void *dest, const void *src, size_t bytes) {
+        queue_.memcpy(dest, src, bytes).wait();
     }
 
     inline void free(void *ptr) { ::sycl::free(ptr, queue_); }

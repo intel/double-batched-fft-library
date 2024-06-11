@@ -42,20 +42,11 @@ class api {
     auto make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type;
     auto create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type;
 
-    template <typename T>
+    inline auto arg_handler() const -> argument_handler const & { return arg_handler_; }
     void launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
                        std::array<std::size_t, 3> local_work_size, ze_event_handle_t signal_event,
-                       uint32_t num_wait_events, ze_event_handle_t *wait_events, T set_args) {
-        auto handler = argument_handler(k);
-        set_args(handler);
-        ze_group_count_t launch_args;
-        // FIXME: Must be divisible (or ceil)
-        launch_args.groupCountX = global_work_size[0] / local_work_size[0];
-        launch_args.groupCountY = global_work_size[1] / local_work_size[1];
-        launch_args.groupCountZ = global_work_size[2] / local_work_size[2];
-        ZE_CHECK(zeCommandListAppendLaunchKernel(command_list_, k, &launch_args, signal_event,
-                                                 num_wait_events, wait_events));
-    }
+                       uint32_t num_wait_events, ze_event_handle_t *wait_events);
+
     inline void append_reset_event(ze_event_handle_t event) {
         ZE_CHECK(zeCommandListAppendEventReset(command_list_, event));
     }
@@ -79,6 +70,7 @@ class api {
     ze_context_handle_t context_;
     ze_device_handle_t device_;
     std::shared_ptr<event_pool> pool_;
+    argument_handler arg_handler_;
 };
 
 } // namespace bbfft::ze

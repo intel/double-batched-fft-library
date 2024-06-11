@@ -5,6 +5,7 @@
 #define USER_MODULE_20220519_HPP
 
 #include "bbfft/export.hpp"
+#include "bbfft/mem.hpp"
 
 #include <cstddef>
 
@@ -26,7 +27,7 @@ struct BBFFT_EXPORT user_module {
     std::size_t length = 0;                               ///< Length of source code string
     char const *load_function = nullptr;                  ///< Name of load function (C string)
     char const *store_function = nullptr;                 ///< Name of store function (C string)
-    void *user_data = nullptr;                            ///< User data passed to callbacks
+    mem user_data = mem{nullptr, mem_type::buffer};       ///< User data passed to callbacks
     kernel_language language = kernel_language::opencl_c; ///< Language
 
     /**

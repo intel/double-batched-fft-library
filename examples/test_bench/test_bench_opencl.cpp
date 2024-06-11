@@ -16,16 +16,6 @@ test_bench_opencl::test_bench_opencl() : plan_{} {
     CL_CHECK(err);
     queue_ = clCreateCommandQueueWithProperties(context_, device_, nullptr, &err);
     CL_CHECK(err);
-    clDeviceMemAllocINTEL = (clDeviceMemAllocINTEL_t)clGetExtensionFunctionAddressForPlatform(
-        platform, "clDeviceMemAllocINTEL");
-    clMemFreeINTEL =
-        (clMemFreeINTEL_t)clGetExtensionFunctionAddressForPlatform(platform, "clMemFreeINTEL");
-    clEnqueueMemcpyINTEL = (clEnqueueMemcpyINTEL_t)clGetExtensionFunctionAddressForPlatform(
-        platform, "clEnqueueMemcpyINTEL");
-    if (!clDeviceMemAllocINTEL || !clMemFreeINTEL || !clEnqueueMemcpyINTEL) {
-        throw bbfft::cl::error("OpenCL unified shared memory extension unavailable",
-                               CL_INVALID_COMMAND_QUEUE);
-    }
 }
 
 test_bench_opencl::~test_bench_opencl() {
@@ -33,27 +23,28 @@ test_bench_opencl::~test_bench_opencl() {
     clReleaseContext(context_);
 }
 
-void *test_bench_opencl::malloc_device(size_t bytes) {
+cl_mem test_bench_opencl::malloc_device(size_t bytes) {
     cl_int err;
-    void *out = clDeviceMemAllocINTEL(context_, device_, nullptr, bytes, 0, &err);
+    cl_mem out = clCreateBuffer(context_, CL_MEM_READ_WRITE, bytes, nullptr, &err);
     CL_CHECK(err);
     return out;
 }
 
-void test_bench_opencl::memcpy(void *dest, const void *src, size_t bytes) {
-    cl_event event;
-    CL_CHECK(clEnqueueMemcpyINTEL(queue_, CL_FALSE, dest, src, bytes, 0, nullptr, &event));
-    CL_CHECK(clWaitForEvents(1, &event));
-    CL_CHECK(clReleaseEvent(event));
+void test_bench_opencl::memcpy_d2h(void *dest, const cl_mem src, size_t bytes) {
+    CL_CHECK(clEnqueueReadBuffer(queue_, src, CL_TRUE, 0, bytes, dest, 0, nullptr, nullptr));
+}
+void test_bench_opencl::memcpy_h2d(cl_mem dest, const void *src, size_t bytes) {
+    CL_CHECK(clEnqueueWriteBuffer(queue_, dest, CL_TRUE, 0, bytes, src, 0, nullptr, nullptr));
 }
 
-void test_bench_opencl::free(void *ptr) { CL_CHECK(clMemFreeINTEL(context_, ptr)); }
+void test_bench_opencl::free(cl_mem buf) { CL_CHECK(clReleaseMemObject(buf)); }
 
 void test_bench_opencl::setup_plan(bbfft::configuration const &cfg) {
     plan_ = bbfft::make_plan(cfg, queue_, context_, device_);
 }
 
-void test_bench_opencl::run_plan(void const *in, void *out, std::uint32_t ntimes) {
+void test_bench_opencl::run_plan(bbfft::mem const &in, bbfft::mem const &out,
+                                 std::uint32_t ntimes) {
     auto event = plan_.execute(in, out);
     for (std::uint32_t n = 1; n < ntimes; ++n) {
         auto next_event = plan_.execute(in, out, event);

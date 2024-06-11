@@ -23,10 +23,8 @@ class test_bench_level_zero_base {
         return (T *)malloc_device(elements * sizeof(T));
     }
 
-    virtual void memcpy(void *dest, const void *src, size_t bytes) = 0;
-    template <typename T> void copy(T const *src, T *dest, size_t count) {
-        memcpy(dest, src, count * sizeof(T));
-    }
+    inline void memcpy_d2h(void *dest, const void *src, size_t bytes) { memcpy(dest, src, bytes); }
+    inline void memcpy_h2d(void *dest, const void *src, size_t bytes) { memcpy(dest, src, bytes); }
 
     void free(void *ptr);
 
@@ -34,6 +32,8 @@ class test_bench_level_zero_base {
     inline auto context() const { return context_; }
 
   protected:
+    virtual void memcpy(void *dest, const void *src, size_t bytes) = 0;
+
     uint32_t get_command_queue_group_ordinal(ze_command_queue_group_property_flags_t flags);
 
     ze_device_handle_t device_;
