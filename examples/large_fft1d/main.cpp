@@ -3,6 +3,7 @@
 
 #include "args.hpp"
 #include "fft1d.hpp"
+#include "fft1d_custom.hpp"
 #include "test_signal.hpp"
 
 #include "bbfft/cl/error.hpp"
@@ -110,7 +111,8 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
     };
 
     try {
-        auto fft = fft1d(cfg, queue, context, device);
+        // auto fft = fft1d(cfg, queue, context, device);
+        auto fft = fft1d_custom(cfg, queue, context, device);
 
         test_signal_1d(in.data(), cfg, first_mode);
 
@@ -144,35 +146,34 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
         CL_CHECK(clEnqueueReadBuffer(queue, out_device, CL_TRUE, 0, osize, out.data(), 0, nullptr,
                                      nullptr));
 
-        if (check_signal_1d(out.data(), cfg, first_mode, &std::cerr)) {
-            double min_exec_time = std::numeric_limits<double>::max();
-            double elapsed_time = 0.0;
-            std::size_t nrepeat = 0;
-            while (elapsed_time < min_time) {
-                if (inplace) {
-                    CL_CHECK(clEnqueueCopyBuffer(queue, in_copy, in_device, 0, 0, isize, 0, nullptr,
-                                                 nullptr));
-                    CL_CHECK(clFinish(queue));
-                }
-
-                auto start = std::chrono::high_resolution_clock::now();
-
-                auto e = fft.execute(in_device, out_device, {});
-                CL_CHECK(clWaitForEvents(1, &e));
-                clReleaseEvent(e);
-
-                auto end = std::chrono::high_resolution_clock::now();
-                double exec_time_ns =
-                    std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-                double exec_time = exec_time_ns * 1e-9;
-                min_exec_time = std::min(min_exec_time, exec_time);
-                elapsed_time += exec_time;
-                ++nrepeat;
-            }
-            print_result(min_exec_time, nrepeat, bytes / min_exec_time * 1e-9);
-        } else {
+        if (!check_signal_1d(out.data(), cfg, first_mode, &std::cerr)) {
             std::cerr << "Check signal failed" << std::endl;
         }
+        double min_exec_time = std::numeric_limits<double>::max();
+        double elapsed_time = 0.0;
+        std::size_t nrepeat = 0;
+        while (elapsed_time < min_time) {
+            if (inplace) {
+                CL_CHECK(clEnqueueCopyBuffer(queue, in_copy, in_device, 0, 0, isize, 0, nullptr,
+                                             nullptr));
+                CL_CHECK(clFinish(queue));
+            }
+
+            auto start = std::chrono::high_resolution_clock::now();
+
+            auto e = fft.execute(in_device, out_device, {});
+            CL_CHECK(clWaitForEvents(1, &e));
+            clReleaseEvent(e);
+
+            auto end = std::chrono::high_resolution_clock::now();
+            double exec_time_ns =
+                std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+            double exec_time = exec_time_ns * 1e-9;
+            min_exec_time = std::min(min_exec_time, exec_time);
+            elapsed_time += exec_time;
+            ++nrepeat;
+        }
+        print_result(min_exec_time, nrepeat, bytes / min_exec_time * 1e-9);
     } catch (std::exception const &e) {
         std::cerr << "==> Error: " << e.what() << std::endl;
     }
