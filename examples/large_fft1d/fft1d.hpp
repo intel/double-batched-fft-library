@@ -14,22 +14,24 @@
 
 /*
  * y(k) = sum_j x(j) w_N(jk)
+ * w_N = exp(-2 pi i / N)
  * j = j0 + j1 N0 + j2 N0 N1
  * k = k2 + k1 N2 + k0 N2 N1
  *
  * y(k2,k1,k0) = sum_j0 sum_j1 sum_j2
  *                  x(j0,j1,j2) w_N((j0 + j1 N0 + j2 N0 N1)(k2 + k1 N2 + k0 N2 N1))
  *             = sum_j0 sum_j1 sum_j2
- *                  x(j0,j1,j2) w_N2(j2k2) w_N1(j1k1)) w_N12(j1k2) w_N0(j0k0) w_N(j0(k2 + k1 N2))
+ *                  x(j0,j1,j2) w_N2(j2k2) w_N1(j1k1)) w_{N1N2}(j1k2) w_N0(j0k0) w_N(j0(k2 + k1 N2))
  *             = sum_j0 w_N0(j0k0) w_N(j0(k2 + k1 N2))
- *                  sum_j1 w_N1(j1k1)) w_N12(j1k2)
+ *                  sum_j1 w_N1(j1k1)) w_{N1N2}(j1k2)
  *                      sum_j2 x(j0,j1,j2) w_N2(j2k2)
  *
  * x1(j0,j1,k2) = sum_j2 x(j0,j1,j2) w_N2(j2k2)
- * x2(j0,j1,k2) = x1(j0,j1,k2) w_N12(j1k2)
+ * x2(j0,j1,k2) = x1(j0,j1,k2) w_{N1N2}(j1k2)
  * x3(j0,k1,k2) = sum_j1 x2(j0,j1,k2) w_N1(j1k1)
  * x4(j0,k1,k2) = x3(j0,k1,k2) w_N(j0(k2 + k1 N2))
- * y(k1,k1,k2) = sum_j0 x4(j0,k1,k2) w_N1(j0k0)
+ * x5(k0,k1,k2) = sum_j0 x4(j0,k1,k2) w_N1(j0k0)
+ *  y(k2,k1,k0) = x5(k0,k1,k2) // "bit-reversal"
  */
 
 class fft1d {
