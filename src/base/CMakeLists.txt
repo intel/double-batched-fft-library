@@ -40,6 +40,7 @@ set(PUBLIC_HEADERS
     jit_cache.hpp
     jit_cache_all.hpp
     generator.hpp
+    mem.hpp
     module_format.hpp
     parser.hpp
     plan.hpp
