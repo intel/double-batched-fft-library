@@ -885,8 +885,7 @@ void stage1(global float2* in, global float2* out, constant float2* twiddle, ulo
             }
         }
     }*/
-    global float2* sub8 = out;
-    if (k2 < 525) {
+    if (k2 < 525 && k0 < K0) {
         for (short k1 = get_local_id(1); k1 < 512; k1 += 64) {
             short f3 = k1 % 8;
             short f2 = k1 / 8 % 8;
@@ -894,7 +893,7 @@ void stage1(global float2* in, global float2* out, constant float2* twiddle, ulo
             float2 val = sub[f1 * 8 + f2 * (8 * 8) + f3 * (8 * 8 * 8)];
             float arg = -((float) 6.28318530717958647693) / (500 * 512 * 525) * k0 * (k2 + k1 * 525);
             float2 tw = (float2) (native_cos(arg), native_sin(arg));
-            sub8[k2 + (k1 + k0 * 512) * 525] = (float2) (val.x * tw.x - val.y * tw.y, val.x * tw.y + val.y * tw.x) / 512;
+            out[k2 + (k1 + k0 * 512) * 525] = (float2) (val.x * tw.x - val.y * tw.y, val.x * tw.y + val.y * tw.x) / 512;
         }
     }
 }
@@ -1589,7 +1588,8 @@ fft1d_custom::fft1d_custom(bbfft::configuration const &cfg, cl_command_queue que
     plans_.emplace_back(
         plan{kernel, create_twiddle({8, 8, 8}, context), {528, 64, 500}, {8, 64, 1}});
     clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
-    clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
+    auto const K0 = 500;
+    clSetKernelArg(plans_.back().kernel, 3, sizeof(K0), &K0);
 
     kernel = clCreateKernel(program_, "stage2", &err);
     CL_CHECK(err);
