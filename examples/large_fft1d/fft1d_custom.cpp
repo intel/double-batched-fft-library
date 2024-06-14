@@ -568,16 +568,16 @@ void stage0(global float2* in, global float2* out, constant float2* twiddle, ulo
 kernel
 __attribute__((reqd_work_group_size(8,64,1)))
 __attribute__((intel_reqd_sub_group_size(8)))
-void stage1(global float2* in, global float2* out, constant float2* twiddle, ulong K) {
+void stage1(global float2* in, global float2* out, constant float2* twiddle, ulong K0) {
     local float2 X1[4096];
-    size_t kk = get_global_id(2);
-    size_t mm = get_global_id(0);
+    size_t k0 = get_global_id(2);
+    size_t k2 = get_global_id(0);
     size_t n_local = get_local_id(1);
-    local float2* sub = X1 + (get_local_id(0) + get_local_id(2) * (8u * 512u));
+    local float2* sub = X1 + get_local_id(0);
     {
         float2 x[8];
-        if (mm < 262500u && kk < K) {
-            global float2* sub1 = in + (mm + n_local * 262500u + kk * 134400000u);
+        if (k2 < 525 && k0 < K0) {
+            global float2* sub1 = in + (k2 + k0 * 525 + n_local * 262500u);
             __attribute__((opencl_unroll_hint(8)))
             for (short j1 = 0; j1 < 8; ++j1) {
                 x[j1] = sub1[j1 * (64 * 262500u)];
@@ -885,10 +885,8 @@ void stage1(global float2* in, global float2* out, constant float2* twiddle, ulo
             }
         }
     }*/
-    global float2* sub8 = out + kk * 134400000u;
-    if (mm < 262500) {
-        short k2 = mm % 525;
-        short k0 = mm / 525 % 500;
+    global float2* sub8 = out;
+    if (k2 < 525) {
         for (short k1 = get_local_id(1); k1 < 512; k1 += 64) {
             short f3 = k1 % 8;
             short f2 = k1 / 8 % 8;
@@ -1589,7 +1587,7 @@ fft1d_custom::fft1d_custom(bbfft::configuration const &cfg, cl_command_queue que
     kernel = clCreateKernel(program_, "stage1", &err);
     CL_CHECK(err);
     plans_.emplace_back(
-        plan{kernel, create_twiddle({8, 8, 8}, context), {262504, 64, cfg.shape[2]}, {8, 64, 1}});
+        plan{kernel, create_twiddle({8, 8, 8}, context), {528, 64, 500}, {8, 64, 1}});
     clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
