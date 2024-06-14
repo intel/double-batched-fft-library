@@ -4,6 +4,7 @@
 #include "args.hpp"
 #include "fft1d.hpp"
 #include "fft1d_custom.hpp"
+#include "refdft_analytic.hpp"
 #include "test_signal.hpp"
 
 #include "bbfft/cl/error.hpp"
@@ -102,7 +103,6 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
     const std::size_t bytes = isize + osize;
     auto in = std::vector<double>(isize / sizeof(double));
     auto out = std::vector<double>(osize / sizeof(double));
-    const long first_mode = cfg.shape[1] / 8;
     cl_mem in_device = nullptr, in_copy = nullptr, out_device_buffer = nullptr;
     cl_int err;
 
@@ -111,10 +111,16 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
     };
 
     try {
+        const long first_mode = cfg.shape[1] / 8;
+        const long num_modes = 1;
+        const auto factory = refdft_analytic_factory(first_mode, first_mode + num_modes - 1);
+
+        auto const bench = test_bench_1d(cfg, factory);
+
         // auto fft = fft1d(cfg, queue, context, device);
         auto fft = fft1d_custom(cfg, queue, context, device);
 
-        test_signal_1d(in.data(), cfg, first_mode);
+        bench.signal(in.data());
 
         in_device = clCreateBuffer(context, CL_MEM_READ_WRITE, isize, nullptr, &err);
         CL_CHECK(err);
@@ -146,7 +152,7 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
         CL_CHECK(clEnqueueReadBuffer(queue, out_device, CL_TRUE, 0, osize, out.data(), 0, nullptr,
                                      nullptr));
 
-        if (!check_signal_1d(out.data(), cfg, first_mode, &std::cerr)) {
+        if (!bench.check(out.data(), &std::cerr)) {
             std::cerr << "Check signal failed" << std::endl;
         }
         double min_exec_time = std::numeric_limits<double>::max();

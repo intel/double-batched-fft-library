@@ -549,16 +549,16 @@ void stage0(global float2* in, global float2* out, constant float2* twiddle, ulo
     }*/
     global float2* sub6 = out + kk * 134400000u;
     for (short n2 = get_local_linear_id(); n2 < 525; n2 += 256) {
-        short f1 = n2 % 21;
-        short f2 = n2 / 21;
-        local float2* sub5 = X1 + f2 * (21 * 8u);
+        short f1 = n2 % 25;
+        short f2 = n2 / 25 % 21;
+        local float2* sub5 = X1 + (f2 + f1 * 21) * 8u;
         for (short i = 0; i < 8; ++i) {
             size_t n01 = i + get_group_id(0) * 8;
             if (n01 < 256000u) {
-                size_t n1 = n01 / 500;
+                size_t n1 = n01 / 500 % 512;
                 float arg = -((float) 6.28318530717958647693) / (500 * 512) * n2 * n1;
                 float2 tw = (float2) (native_cos(arg), native_sin(arg));
-                float2 val = sub5[i + f1 * 8u];
+                float2 val = sub5[i];
                 sub6[n2 + n01 * 525] = (float2) (val.x * tw.x - val.y * tw.y, val.x * tw.y + val.y * tw.x) / 525;
             }
         }
@@ -888,15 +888,15 @@ void stage1(global float2* in, global float2* out, constant float2* twiddle, ulo
     global float2* sub8 = out + kk * 134400000u;
     if (mm < 262500) {
         short k2 = mm % 525;
-        short k0 = mm / 525;
-        for (short k1 = get_local_id(1); k1 < 512; k1 += 512) {
-            short f1 = k1 % 8;
+        short k0 = mm / 525 % 500;
+        for (short k1 = get_local_id(1); k1 < 512; k1 += 64) {
+            short f3 = k1 % 8;
             short f2 = k1 / 8 % 8;
-            short f3 = k1 / 64;
-            float2 val = sub[f1 * 8 + f3 * (8 * 8) + f2 * (8 * 8 * 8)];
+            short f1 = k1 / 64 % 8;
+            float2 val = sub[f1 * 8 + f2 * (8 * 8) + f3 * (8 * 8 * 8)];
             float arg = -((float) 6.28318530717958647693) / (500 * 512 * 525) * k0 * (k2 + k1 * 525);
             float2 tw = (float2) (native_cos(arg), native_sin(arg));
-            sub8[k2 + k1 * 525 + k0 * 525 * 500] = (float2) (val.x * tw.x - val.y * tw.y, val.x * tw.y + val.y * tw.x) / 512;
+            sub8[k2 + (k1 + k0 * 512) * 525] = (float2) (val.x * tw.x - val.y * tw.y, val.x * tw.y + val.y * tw.x) / 512;
         }
     }
 }
@@ -1531,7 +1531,7 @@ fft1d_custom::fft1d_custom(bbfft::configuration const &cfg, cl_command_queue que
     const std::size_t lengths[] = {sizeof(kernels)};
     program_ = clCreateProgramWithSource(context, 1, code, lengths, &err);
     CL_CHECK(err);
-    err = clBuildProgram(program_, 1, &device, "-cl-std=CL2.0", nullptr, nullptr);
+    err = clBuildProgram(program_, 1, &device, "-cl-std=CL2.0 -cl-mad-enable", nullptr, nullptr);
     if (err != CL_SUCCESS) {
         std::string log;
         std::size_t log_size;
@@ -1544,7 +1544,7 @@ fft1d_custom::fft1d_custom(bbfft::configuration const &cfg, cl_command_queue que
     }
 
     auto const create_twiddle = [](std::vector<int> const &factorization, cl_context context) {
-        constexpr double tau = -6.28318530717958647693;
+        constexpr double tau = 6.28318530717958647693;
 
         int N = factorization[0] * factorization[1];
         int tw_size = N;
@@ -1563,7 +1563,7 @@ fft1d_custom::fft1d_custom(bbfft::configuration const &cfg, cl_command_queue que
             J1 /= Nf;
             for (int i = 0; i < J1; ++i) {
                 for (int j = 0; j < Nf; ++j) {
-                    auto arg = tau / (J1 * Nf) * i * j;
+                    auto arg = -1 * tau / (J1 * Nf) * i * j;
                     tw_ptr[2 * (j + Nf * i)] = std::cos(arg);
                     tw_ptr[2 * (j + Nf * i) + 1] = std::sin(arg);
                 }
@@ -1630,12 +1630,12 @@ auto fft1d_custom::execute(cl_mem in, cl_mem out, std::vector<cl_event> const &d
     cl_event e0, e1, e2;
 
     CL_CHECK(clSetKernelArg(plans_[0].kernel, 0, sizeof(cl_mem), &in));
-    CL_CHECK(clSetKernelArg(plans_[0].kernel, 1, sizeof(cl_mem), &out));
+    CL_CHECK(clSetKernelArg(plans_[0].kernel, 1, sizeof(cl_mem), &buffer_));
     CL_CHECK(clEnqueueNDRangeKernel(queue_, plans_[0].kernel, 3, nullptr, plans_[0].gws.data(),
                                     plans_[0].lws.data(), dep_events.size(), dep_events.data(),
                                     &e0));
 
-    CL_CHECK(clSetKernelArg(plans_[1].kernel, 0, sizeof(cl_mem), &out));
+    CL_CHECK(clSetKernelArg(plans_[1].kernel, 0, sizeof(cl_mem), &buffer_));
     CL_CHECK(clSetKernelArg(plans_[1].kernel, 1, sizeof(cl_mem), &out));
     CL_CHECK(clEnqueueNDRangeKernel(queue_, plans_[1].kernel, 3, nullptr, plans_[1].gws.data(),
                                     plans_[1].lws.data(), 1, &e0, &e1));
@@ -1654,6 +1654,7 @@ auto fft1d_custom::execute(cl_mem in, cl_mem out, std::vector<cl_event> const &d
         CL_CHECK(clReleaseEvent(e2));
         e2 = e3;
     }
+
     CL_CHECK(clReleaseEvent(e1));
     CL_CHECK(clReleaseEvent(e0));
     return e2;

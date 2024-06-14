@@ -166,14 +166,18 @@ void bit_reversal(global complex_t* input, global complex_t* output) {
     size_t n1 = get_global_id(2) % N1;
 
     for (int j = 0; j < TILE_SIZE; j += COL_THREADS) {
-        tmp[l0 + (l2 + j) * TILE_SIZE] = input[g0 + n1 * N0 + (g2 + j) * N0 * N1 + N * k];
+        if (g0 < N0 && g2 + j < N2) {
+            tmp[l0 + (l2 + j) * TILE_SIZE] = input[g0 + n1 * N0 + (g2 + j) * N0 * N1 + N * k];
+        }
     }
     work_group_barrier(CLK_LOCAL_MEM_FENCE);
 
     g2 = get_group_id(1) * TILE_SIZE + l0;
     g0 = get_group_id(0) * TILE_SIZE + l2;
     for (int j = 0; j < TILE_SIZE; j += COL_THREADS) {
-        output[g2 + n1 * N2 + (g0 + j) * N2 * N1 + N * k] = tmp[(l2 + j) + l0 * TILE_SIZE];
+        if (g2 < N2 && g0 + j < N0) {
+            output[g2 + n1 * N2 + (g0 + j) * N2 * N1 + N * k] = tmp[(l2 + j) + l0 * TILE_SIZE];
+        }
     }
 }
 
@@ -207,10 +211,6 @@ kernel void r2c_post(global complex_t* input, global complex_t* output) {
 
     constexpr int tile_size = 64;
     constexpr int col_threads = 128 / tile_size;
-    if (factorization[0] % tile_size != 0 || factorization[2] % tile_size != 0) {
-        throw std::runtime_error(
-            "Internal error: Factorization must be divisible by tile size in bit reversal kernel");
-    }
 
     length = snprintf(source, sizeof(source), header_template, real_type, real_type,
                       factorization[0], factorization[1], factorization[2], tile_size, col_threads);
@@ -232,7 +232,7 @@ kernel void r2c_post(global complex_t* input, global complex_t* output) {
     }
 
     bit_reversal_ = clCreateKernel(program_, "bit_reversal", &err);
-    bit_reversal_gws_ = {factorization[0], factorization[2] / tile_size * col_threads,
+    bit_reversal_gws_ = {factorization[0], 1 + (factorization[2] - 1) / tile_size * col_threads,
                          factorization[1] * cfg.shape[2]};
     bit_reversal_lws_ = {tile_size, col_threads, 1};
     CL_CHECK(err);
@@ -280,6 +280,7 @@ auto fft1d::execute(cl_mem in, cl_mem out, std::vector<cl_event> const &dep_even
     }
     CL_CHECK(clReleaseEvent(e2));
     CL_CHECK(clReleaseEvent(e1));
+    CL_CHECK(clReleaseEvent(e0));
     return e3;
 }
 
