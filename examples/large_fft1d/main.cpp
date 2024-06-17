@@ -4,6 +4,7 @@
 #include "args.hpp"
 #include "fft1d.hpp"
 #include "fft1d_custom.hpp"
+#include "fft1d_custom2.hpp"
 #include "refdft_analytic.hpp"
 #include "test_signal.hpp"
 
@@ -112,13 +113,14 @@ void test_fft(configuration const &cfg, double min_time, cl_command_queue queue,
 
     try {
         const long first_mode = cfg.shape[1] / 8;
-        const long num_modes = 1;
+        const long num_modes = 4;
         const auto factory = refdft_analytic_factory(first_mode, first_mode + num_modes - 1);
 
         auto const bench = test_bench_1d(cfg, factory);
 
         // auto fft = fft1d(cfg, queue, context, device);
-        auto fft = fft1d_custom(cfg, queue, context, device);
+        // auto fft = fft1d_custom(cfg, queue, context, device);
+        auto fft = fft1d_custom2(cfg, queue, context, device);
 
         bench.signal(in.data());
 
