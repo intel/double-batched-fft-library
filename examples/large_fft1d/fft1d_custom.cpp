@@ -1,3 +1,6 @@
+// Copyright (C) 2024 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+
 #include "fft1d_custom.hpp"
 #include "bbfft/cl/error.hpp"
 

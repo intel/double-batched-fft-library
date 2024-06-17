@@ -1,8 +1,8 @@
 // Copyright (C) 2024 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef FFT1D_CUSTOM_20240612_HPP
-#define FFT1D_CUSTOM_20240612_HPP
+#ifndef FFT1D_CUSTOM2_20240616_HPP
+#define FFT1D_CUSTOM2_20240616_HPP
 
 #include "bbfft/configuration.hpp"
 
@@ -11,16 +11,16 @@
 #include <cstddef>
 #include <vector>
 
-class fft1d_custom {
+class fft1d_custom2 {
   public:
-    fft1d_custom(bbfft::configuration const &cfg, cl_command_queue queue, cl_context context,
-                 cl_device_id device);
-    ~fft1d_custom();
+    fft1d_custom2(bbfft::configuration const &cfg, cl_command_queue queue, cl_context context,
+                  cl_device_id device);
+    ~fft1d_custom2();
 
-    fft1d_custom(fft1d_custom const &other) = delete;
-    fft1d_custom(fft1d_custom &&other) = delete;
-    fft1d_custom &operator=(fft1d_custom const &other) = delete;
-    fft1d_custom &operator=(fft1d_custom &&other) = delete;
+    fft1d_custom2(fft1d_custom2 const &other) = delete;
+    fft1d_custom2(fft1d_custom2 &&other) = delete;
+    fft1d_custom2 &operator=(fft1d_custom2 const &other) = delete;
+    fft1d_custom2 &operator=(fft1d_custom2 &&other) = delete;
 
     auto execute(cl_mem in, cl_mem out, std::vector<cl_event> const &dep_events) -> cl_event;
 
@@ -40,4 +40,4 @@ class fft1d_custom {
     std::array<std::size_t, 3u> r2c_post_gws_;
 };
 
-#endif // FFT1D_CUSTOM_20240612_HPP
+#endif // FFT1D_CUSTOM2_20240616_HPP

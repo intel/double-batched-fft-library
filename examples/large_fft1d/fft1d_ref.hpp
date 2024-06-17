@@ -1,8 +1,5 @@
-// Copyright (C) 2024 Intel Corporation
-// SPDX-License-Identifier: BSD-3-Clause
-
-#ifndef FFT1D_20240610_HPP
-#define FFT1D_20240610_HPP
+#ifndef FFT1D_REF_20240614_HPP
+#define FFT1D_REF_20240614_HPP
 
 #include "bbfft/cl/make_plan.hpp"
 #include "bbfft/cl/mem.hpp"
@@ -61,4 +58,4 @@ class fft1d {
     std::array<std::size_t, 3u> bit_reversal_gws_, bit_reversal_lws_, r2c_post_gws_;
 };
 
-#endif // FFT1D_20240610_HPP
+#endif // FFT1D_REF_20240614_HPP
