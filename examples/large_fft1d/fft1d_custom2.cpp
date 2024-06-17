@@ -2005,25 +2005,25 @@ fft1d_custom2::fft1d_custom2(bbfft::configuration const &cfg, cl_command_queue q
         return twiddle_dev;
     };
 
+    std::uint64_t K = cfg.shape[2];
     cl_kernel kernel = clCreateKernel(program_, "stage0", &err);
     CL_CHECK(err);
     plans_.emplace_back(
-        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, 1}, {16, 32, 1}});
-    std::uint64_t K = cfg.shape[2];
+        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, K}, {16, 32, 1}});
     clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
     kernel = clCreateKernel(program_, "stage1", &err);
     CL_CHECK(err);
     plans_.emplace_back(
-        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, 1}, {16, 32, 1}});
+        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, K}, {16, 32, 1}});
     clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
     kernel = clCreateKernel(program_, "stage2", &err);
     CL_CHECK(err);
     plans_.emplace_back(
-        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, 1}, {16, 32, 1}});
+        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, K}, {16, 32, 1}});
     clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
