@@ -2004,27 +2004,25 @@ fft1d_custom2::fft1d_custom2(bbfft::configuration const &cfg, cl_command_queue q
         CL_CHECK(err);
         return twiddle_dev;
     };
+    twiddle_ = create_twiddle({21, 24}, context);
 
     std::uint64_t K = cfg.shape[2];
     cl_kernel kernel = clCreateKernel(program_, "stage0", &err);
     CL_CHECK(err);
-    plans_.emplace_back(
-        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, K}, {16, 32, 1}});
-    clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
+    plans_.emplace_back(plan{kernel, {504 * 504, 32, K}, {16, 32, 1}});
+    clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &twiddle_);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
     kernel = clCreateKernel(program_, "stage1", &err);
     CL_CHECK(err);
-    plans_.emplace_back(
-        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, K}, {16, 32, 1}});
-    clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
+    plans_.emplace_back(plan{kernel, {504 * 504, 32, K}, {16, 32, 1}});
+    clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &twiddle_);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
     kernel = clCreateKernel(program_, "stage2", &err);
     CL_CHECK(err);
-    plans_.emplace_back(
-        plan{kernel, create_twiddle({21, 24}, context), {504 * 504, 32, K}, {16, 32, 1}});
-    clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &plans_.back().twiddle);
+    plans_.emplace_back(plan{kernel, {504 * 504, 32, K}, {16, 32, 1}});
+    clSetKernelArg(plans_.back().kernel, 2, sizeof(cl_mem), &twiddle_);
     clSetKernelArg(plans_.back().kernel, 3, sizeof(K), &K);
 
     if (is_r2c) {
@@ -2033,14 +2031,14 @@ fft1d_custom2::fft1d_custom2(bbfft::configuration const &cfg, cl_command_queue q
     } else {
         r2c_post_ = nullptr;
     }
-    r2c_post_gws_ = {N / 2, cfg.shape[2]};
+    r2c_post_gws_ = {N / 2, K};
 }
 
 fft1d_custom2::~fft1d_custom2() {
     clReleaseMemObject(buffer_);
+    clReleaseMemObject(twiddle_);
     for (auto &p : plans_) {
         clReleaseKernel(p.kernel);
-        clReleaseMemObject(p.twiddle);
     }
     if (r2c_post_) {
         clReleaseKernel(r2c_post_);

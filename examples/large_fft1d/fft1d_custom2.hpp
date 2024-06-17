@@ -27,13 +27,13 @@ class fft1d_custom2 {
   private:
     struct plan {
         cl_kernel kernel;
-        cl_mem twiddle;
         std::array<std::size_t, 3u> gws;
         std::array<std::size_t, 3u> lws;
     };
 
     cl_command_queue queue_;
     std::vector<plan> plans_;
+    cl_mem twiddle_;
     cl_mem buffer_;
     cl_program program_;
     cl_kernel r2c_post_;
