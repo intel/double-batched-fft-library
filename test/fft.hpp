@@ -5,7 +5,7 @@
 #define FFT_20220517_HPP
 
 #include "doctest/doctest.h"
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include <cmath>
 #include <cstddef>

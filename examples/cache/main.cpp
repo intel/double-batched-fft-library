@@ -6,7 +6,7 @@
 #include "bbfft/jit_cache_all.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include <chrono>
 #include <iostream>

@@ -8,7 +8,7 @@
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <utility>
 
 namespace bbfft {

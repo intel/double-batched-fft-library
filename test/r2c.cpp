@@ -184,7 +184,8 @@ TEST_CASE_TEMPLATE("r2c 1d out-of-place", T, TEST_PRECISIONS) {
 
     auto KK = std::vector<std::size_t>{1, 33};
     auto MM = std::vector<std::size_t>{1, 3, 32};
-    auto NN = std::vector<std::size_t>{2, 4, 5, 8, 27, 16, 32, 128, 105, 256, 512, 102, 220, 10, 26};
+    auto NN =
+        std::vector<std::size_t>{2, 4, 5, 8, 27, 16, 32, 128, 105, 256, 512, 102, 220, 10, 26};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
@@ -370,7 +371,6 @@ TEST_CASE_TEMPLATE("c2r 3d out-of-place", T, TEST_PRECISIONS) {
 
     c2r_backward<T, 3u, false>(M, N, K);
 }
-
 
 template <typename T, std::size_t D, bool Inplace = false>
 void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {

@@ -9,7 +9,7 @@
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/plan.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 namespace bbfft {
 

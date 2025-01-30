@@ -10,8 +10,8 @@
 #include "bbfft/ze/online_compiler.hpp"
 
 #include <CL/cl.h>
-#include <CL/sycl.hpp>
 #include <level_zero/ze_api.h>
+#include <sycl/sycl.hpp>
 
 #include <cstdint>
 #include <utility>

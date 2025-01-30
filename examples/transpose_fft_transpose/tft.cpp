@@ -5,13 +5,13 @@
 #include <bbfft/device_info.hpp>
 #include <bbfft/sycl/make_plan.hpp>
 
-#include <CL/sycl.hpp>
 #include <chrono>
 #include <cmath>
 #include <complex>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <sycl/sycl.hpp>
 
 using namespace bbfft;
 using namespace sycl;

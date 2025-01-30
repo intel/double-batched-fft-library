@@ -15,9 +15,9 @@
 #include "bbfft/configuration.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
-#include <CL/sycl.hpp>
 #include <algorithm>
 #include <memory>
+#include <sycl/sycl.hpp>
 #include <tuple>
 #include <utility>
 

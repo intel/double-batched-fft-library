@@ -6,7 +6,7 @@
 
 #include "allocator.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 #include <utility>
 
 class sycl_allocator : public allocator {

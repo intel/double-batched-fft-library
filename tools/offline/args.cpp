@@ -40,7 +40,7 @@ args parse_args(int argc, char **argv) {
             } else {
                 fail();
             }
-        }else {
+        } else {
             a.configurations.emplace_back(parse_fft_descriptor(argv[i]));
         }
     }

@@ -8,7 +8,7 @@
 #include "bbfft/plan.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 class test_bench_sycl {
   public:

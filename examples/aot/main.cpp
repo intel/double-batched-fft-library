@@ -6,7 +6,7 @@
 #include "bbfft/sycl/make_plan.hpp"
 #include "bbfft/sycl/online_compiler.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 #include <chrono>
 #include <cstdint>

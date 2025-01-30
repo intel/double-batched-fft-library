@@ -11,11 +11,11 @@
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
 
-#include <CL/sycl.hpp>
 #include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <sycl/sycl.hpp>
 #include <type_traits>
 #include <vector>
 
