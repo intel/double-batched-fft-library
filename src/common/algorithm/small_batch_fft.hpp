@@ -30,13 +30,11 @@ template <typename Api> class small_batch_fft_base : public Api::plan_type {
     small_batch_fft_base(configuration const &cfg, Api api, jit_cache *cache)
         : api_(std::move(api)), module_(setup(cfg, cache)),
           bundle_(api_.make_kernel_bundle(module_.get())),
-          k_(api_.create_kernel(bundle_, identifier_)) {
+          k_(api_.create_kernel(bundle_, identifier_)),
+          has_callbacks_(static_cast<bool>(cfg.callbacks)) {
         const auto K = cfg.shape[2];
         api_.arg_handler().set_arg(k_, 2, sizeof(K), &K);
-        if (cfg.callbacks && cfg.callbacks.user_data.value != nullptr) {
-            api_.arg_handler().set_mem_arg(k_, 3, cfg.callbacks.user_data.value,
-                                           cfg.callbacks.user_data.type);
-        }
+        set_user_data(cfg.callbacks.user_data);
     }
     ~small_batch_fft_base() { api_.release_kernel(k_); }
 
@@ -44,6 +42,16 @@ template <typename Api> class small_batch_fft_base : public Api::plan_type {
     small_batch_fft_base(small_batch_fft_base &&) = delete;
     small_batch_fft_base &operator=(small_batch_fft_base const &) = delete;
     small_batch_fft_base &operator=(small_batch_fft_base &&) = delete;
+
+    void set_user_data(mem const &user_data) {
+        if (has_callbacks_) {
+            if (user_data.value != nullptr) {
+                api_.arg_handler().set_mem_arg(k_, 3, user_data.value, user_data.type);
+            } else {
+                api_.arg_handler().set_arg(k_, 3, sizeof(void *), nullptr);
+            }
+        }
+    }
 
   protected:
     auto setup(configuration const &cfg, jit_cache *cache) -> shared_handle<module_handle_t> {
@@ -97,6 +105,7 @@ template <typename Api> class small_batch_fft_base : public Api::plan_type {
     shared_handle<module_handle_t> module_;
     kernel_bundle bundle_;
     kernel k_;
+    bool has_callbacks_;
 };
 
 template <typename Api, typename PlanImplT = typename Api::plan_type> class small_batch_fft;

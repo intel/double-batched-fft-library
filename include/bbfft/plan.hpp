@@ -44,6 +44,13 @@ template <class Impl> class base_plan {
      */
     base_plan(std::shared_ptr<Impl> impl) : impl_(std::move(impl)) {}
 
+    /**
+     * @brief Update user data (for callbacks)
+     *
+     * @param user_data Pointer to user data
+     */
+    void set_user_data(mem const &user_data) { return this->impl_->set_user_data(user_data); }
+
   protected:
     std::shared_ptr<Impl> impl_;
 };

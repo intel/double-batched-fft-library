@@ -62,6 +62,13 @@ template <typename EventT> class plan_impl {
      */
     virtual auto execute(mem const &in, mem const &out, std::vector<event_t> const &dep_events)
         -> event_t = 0;
+
+    /**
+     * @brief Update user data (for callbacks)
+     *
+     * @param user_data Pointer to user data
+     */
+    virtual void set_user_data(mem const &user_data) = 0;
 };
 
 /**
@@ -90,6 +97,13 @@ template <typename EventT> class plan_unmanaged_event_impl {
      */
     virtual void execute(mem const &in, mem const &out, event_t signal_event,
                          std::uint32_t num_wait_events, event_t *wait_events) = 0;
+
+    /**
+     * @brief Update user data (for callbacks)
+     *
+     * @param user_data Pointer to user data
+     */
+    virtual void set_user_data(mem const &user_data) = 0;
 };
 } // namespace detail
 } // namespace bbfft

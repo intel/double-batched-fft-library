@@ -122,6 +122,12 @@ template <typename Api> class nd_fft_base : public Api::plan_type {
     nd_fft_base &operator=(nd_fft_base const &) = delete;
     nd_fft_base &operator=(nd_fft_base &&) = delete;
 
+    void set_user_data(mem const &user_data) {
+        for (unsigned d = 0; d < dim_; ++d) {
+            plans_[d]->set_user_data(user_data);
+        }
+    }
+
   protected:
     Api api_;
     unsigned dim_;
