@@ -5,11 +5,12 @@
 #include "bbfft/detail/cast.hpp"
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
+#include "ocloc.hpp"
 
-#include "ocloc_api.h"
 #include <cstdio>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -19,6 +20,9 @@ std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
                                                 std::string const &device_type, bool spv_only,
                                                 std::vector<std::string> const &options,
                                                 std::vector<std::string> const &extensions) {
+    auto oclocInvoke = get_oclocInvoke();
+    auto oclocFreeOutput = get_oclocFreeOutput();
+
     auto format_ext_list = [](auto const &extensions) -> std::string {
         if (extensions.empty()) {
             return {};
@@ -72,6 +76,7 @@ std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
     uint8_t **data_outputs = nullptr;
     uint64_t *len_outputs = nullptr;
     char **name_outputs = nullptr;
+
     oclocInvoke(num_args, argv, num_sources, &data_sources, &len_sources, &name_sources,
                 num_input_headers, nullptr, nullptr, nullptr, &num_outputs, &data_outputs,
                 &len_outputs, &name_outputs);

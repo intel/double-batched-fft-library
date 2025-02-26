@@ -16,6 +16,7 @@ option(ENABLE_WARNINGS "Enable compiler warnings" ON)
 option(BUILD_DOCUMENTATION "Generate documentation" OFF)
 option(BUILD_BENCHMARK "Build the benchmark" ON)
 option(BUILD_EXAMPLE "Build the examples" ON)
+option(BUILD_AOT_EXAMPLE "Build the ahead-of-time compilation example (requires ocloc)" OFF)
 option(BUILD_TESTING "Build unit tests" ON)
 option(BUILD_SYCL "Build Double-Batched FFT Library for SYCL" ON)
 cmake_dependent_option(BUILD_LEVEL_ZERO

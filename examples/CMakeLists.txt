@@ -1,8 +1,10 @@
 # Copyright (C) 2022 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 
-if(BUILD_SYCL)
+if(BUILD_SYCL AND BUILD_AOT_EXAMPLE)
     add_subdirectory(aot)
+endif()
+if(BUILD_SYCL)
     add_subdirectory(cache)
 endif()
 if(BUILD_OPENCL)

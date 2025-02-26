@@ -1,8 +1,11 @@
 # Changelog
 
-## [0.6.0] - 2024-XX-XX
-* User data pointer was added to callback signature. Codes that used the (undocumented and experimental) callback feature need to update their callback signature.
-* Refactor plan interface such that one can pass buffers and USM pointers
+## [0.6.0] - 2025-XX-XX
+* User data pointer was added to callback signature. Codes that used the (undocumented and experimental)
+  callback feature need to update their callback signature.
+* Refactor plan interface such that one can pass buffers and USM pointers.
+* Removed build dependency on libocloc.so; the library is loaded at run-time (dlopen)
+  if the Level Zero backend is used.
 
 ## [0.5.1] - 2024-04-05
 * clir: Fix vloadn

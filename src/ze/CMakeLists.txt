@@ -6,13 +6,13 @@ if(BUILD_LEVEL_ZERO)
     include(InstallLib)
 
     find_package(LevelZero REQUIRED)
-    find_package(ocloc REQUIRED)
 
     set(SOURCES
         api.cpp
         device.cpp
         error.cpp
         event_pool.cpp
+        ocloc.cpp
         online_compiler.cpp
         plan.cpp
     )
@@ -28,10 +28,9 @@ if(BUILD_LEVEL_ZERO)
     add_library(bbfft::bbfft-level-zero ALIAS bbfft-level-zero)
     set_common_options(bbfft-level-zero)
     target_link_libraries(bbfft-level-zero PUBLIC bbfft-base ${LevelZero_LIBRARY})
-    target_link_libraries(bbfft-level-zero PRIVATE ${ocloc_LIBRARY})
     target_include_directories(bbfft-level-zero PUBLIC ${LevelZero_INCLUDE_DIR})
-    target_include_directories(bbfft-level-zero PRIVATE ${ocloc_INCLUDE_DIR}
-        "${CMAKE_CURRENT_SOURCE_DIR}/../common")
+    target_include_directories(bbfft-level-zero PRIVATE
+                               "${CMAKE_CURRENT_SOURCE_DIR}/../common")
     target_sources(bbfft-level-zero PUBLIC FILE_SET HEADERS
         BASE_DIRS ${PROJECT_SOURCE_DIR}/include
         FILES ${PUBLIC_HEADERS})
