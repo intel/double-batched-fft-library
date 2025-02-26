@@ -4,11 +4,12 @@
 #include "args.hpp"
 
 #include <bbfft/configuration.hpp>
-#include <bbfft/device_info.hpp>
 #include <bbfft/generator.hpp>
 
 #include <exception>
 #include <iostream>
+#include <string>
+#include <vector>
 
 using namespace bbfft;
 

@@ -3,7 +3,6 @@
 
 #include "bbfft/configuration.hpp"
 
-#include <ostream>
 #include <sstream>
 #include <stdexcept>
 

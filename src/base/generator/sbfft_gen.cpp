@@ -9,19 +9,22 @@
 
 #include "clir/attr_defs.hpp"
 #include "clir/builder.hpp"
+#include "clir/builtin_function.hpp"
 #include "clir/builtin_type.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/unique_names.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
-#include <cmath>
-#include <sstream>
-#include <stdexcept>
-#include <utility>
+#include <array>
+#include <complex>
+#include <functional>
+#include <string>
+#include <vector>
 
 using namespace clir;
 

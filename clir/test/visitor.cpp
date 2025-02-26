@@ -8,7 +8,8 @@
 #include "clir/expr.hpp"
 #include "clir/func.hpp"
 #include "clir/internal/function_node.hpp"
-#include "clir/visit.hpp"
+#include "clir/stmt.hpp"
+#include "clir/var.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/equal_expr.hpp"
 #include "clir/visitor/required_extensions.hpp"
@@ -18,8 +19,11 @@
 #include "doctest/doctest.h"
 
 #include <cstdint>
+#include <memory>
 #include <sstream>
+#include <string>
 #include <variant>
+#include <vector>
 
 using namespace clir;
 

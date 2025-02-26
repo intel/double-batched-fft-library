@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "clir/visitor/required_extensions.hpp"
+#include "clir/expr.hpp"
 #include "clir/func.hpp"
+#include "clir/handle.hpp"
 #include "clir/prog.hpp"
+#include "clir/stmt.hpp"
 #include "clir/visit.hpp"
 
+#include <optional>
 #include <stdexcept>
 
 namespace clir {

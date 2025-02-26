@@ -5,15 +5,13 @@
 #define TEST_BENCH_OPENCL_20221207_HPP
 
 #include "bbfft/cl/make_plan.hpp"
-#include "bbfft/cl/mem.hpp"
+#include "bbfft/configuration.hpp"
 #include "bbfft/mem.hpp"
-#include "bbfft/plan.hpp"
 
 #include <CL/cl.h>
 
-namespace bbfft {
-struct configuration;
-}
+#include <cstddef>
+#include <cstdint>
 
 class test_bench_opencl {
   public:

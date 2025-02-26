@@ -5,6 +5,10 @@
 
 #include "bbfft/tensor_indexer.hpp"
 
+#include <array>
+#include <cmath>
+#include <complex>
+#include <cstdlib>
 #include <limits>
 #include <ostream>
 

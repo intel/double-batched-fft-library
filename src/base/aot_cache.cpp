@@ -5,8 +5,6 @@
 
 #include <utility>
 
-#include <iostream>
-
 namespace bbfft {
 
 auto aot_cache::get(jit_cache_key const &key) const -> shared_handle<module_handle_t> {

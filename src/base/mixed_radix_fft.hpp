@@ -11,7 +11,6 @@
 #include "generator/utility.hpp"
 
 #include <complex>
-#include <cstddef>
 #include <functional>
 #include <map>
 #include <utility>

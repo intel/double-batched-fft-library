@@ -7,7 +7,8 @@
 #include "bbfft/detail/cast.hpp"
 #include "bbfft/detail/compiler_options.hpp"
 
-#include <CL/cl_ext.h>
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
 
 namespace bbfft::cl {
 

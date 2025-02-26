@@ -13,10 +13,12 @@
 #include "bbfft/shared_handle.hpp"
 
 #include <CL/cl.h>
+#include <CL/cl_platform.h>
+
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 namespace bbfft::cl {

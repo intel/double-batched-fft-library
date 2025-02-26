@@ -6,35 +6,14 @@
 
 #include "clir/export.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/internal/function_node.hpp"
 #include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
+#include "clir/stmt.hpp"
 
 namespace clir {
-
-namespace internal {
-enum class number_type { general, zero, one };
-
-class CLIR_EXPORT determine_number_type {
-  public:
-    /* Expr nodes */
-    inline number_type operator()(internal::expr_node &) { return number_type::general; }
-    inline number_type operator()(internal::int_imm &v) { return determine(v.value()); }
-    inline number_type operator()(internal::uint_imm &v) { return determine(v.value()); }
-    inline number_type operator()(internal::float_imm &v) { return determine(v.value()); }
-
-  private:
-    template <typename T> number_type determine(T value) {
-        if (value == T(0)) {
-            return number_type::zero;
-        } else if (value == T(1)) {
-            return number_type::one;
-        }
-        return number_type::general;
-    }
-};
-} // namespace internal
 
 class CLIR_EXPORT prog;
 class CLIR_EXPORT func;

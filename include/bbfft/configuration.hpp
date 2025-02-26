@@ -10,6 +10,7 @@
 #include <array>
 #include <cstddef>
 #include <iosfwd>
+#include <string>
 
 namespace bbfft {
 

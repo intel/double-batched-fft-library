@@ -3,6 +3,7 @@
 
 #include "args.hpp"
 #include "common.hpp"
+#include "utility.hpp"
 
 #include "test_bench_opencl.hpp"
 

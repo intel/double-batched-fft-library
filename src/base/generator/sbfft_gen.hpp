@@ -13,9 +13,9 @@
 #include "clir/builder.hpp"
 #include "clir/expr.hpp"
 
-#include <cstdint>
-#include <functional>
+#include <cstddef>
 #include <iosfwd>
+#include <memory>
 #include <string_view>
 
 namespace bbfft {

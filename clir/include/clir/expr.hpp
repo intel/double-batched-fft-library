@@ -11,6 +11,7 @@
 #include "clir/handle.hpp"
 #include "clir/op.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -38,7 +39,6 @@ namespace internal {
 class CLIR_EXPORT expr_node;
 }
 
-enum class cl_mem_fence_flags;
 class CLIR_EXPORT data_type;
 class CLIR_EXPORT expr;
 class CLIR_EXPORT stmt;

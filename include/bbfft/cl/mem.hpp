@@ -1,6 +1,10 @@
 #ifndef CL_MEM_20240610_HPP
 #define CL_MEM_20240610_HPP
 
+#include "bbfft/mem.hpp"
+
+#include <CL/cl.h>
+
 namespace bbfft {
 
 template <> struct auto_mem_type<cl_mem> {

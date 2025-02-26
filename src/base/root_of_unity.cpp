@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "root_of_unity.hpp"
-#include "clir/builtin_function.hpp"
 
+#include <cmath>
 #include <numeric>
 
 namespace bbfft {

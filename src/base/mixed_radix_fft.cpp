@@ -8,15 +8,15 @@
 #include "scrambler.hpp"
 
 #include "clir/builder.hpp"
+#include "clir/builtin_function.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
-#include "clir/stmt.hpp"
 #include "clir/var.hpp"
 
 #include <algorithm>
-#include <cstddef>
+#include <iterator>
+#include <string>
 #include <type_traits>
-#include <unordered_map>
 
 using namespace clir;
 

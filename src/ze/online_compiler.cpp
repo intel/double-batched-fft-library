@@ -3,6 +3,8 @@
 
 #include "bbfft/ze/online_compiler.hpp"
 #include "bbfft/detail/cast.hpp"
+#include "bbfft/jit_cache.hpp"
+#include "bbfft/shared_handle.hpp"
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
 #include "ocloc.hpp"
@@ -10,9 +12,9 @@
 #include <cstdio>
 #include <cstring>
 #include <limits>
-#include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 
 namespace bbfft::ze {
 

@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "snippet.hpp"
+#include "generator/tensor_view.hpp"
+#include "generator/utility.hpp"
 
 #include "clir/attr_defs.hpp"
 #include "clir/builtin_function.hpp"
 #include "clir/data_type.hpp"
+#include "clir/stmt.hpp"
+#include "clir/var.hpp"
 #include "clir/visitor/to_imm.hpp"
 
 #include <cstdint>
+#include <memory>
+#include <string>
 #include <variant>
 
 using namespace clir;

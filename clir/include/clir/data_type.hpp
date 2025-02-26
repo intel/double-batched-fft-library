@@ -45,6 +45,8 @@
 
 namespace clir {
 
+class CLIR_EXPORT data_type;
+
 namespace internal {
 class CLIR_EXPORT data_type_node;
 } // namespace internal

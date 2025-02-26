@@ -3,8 +3,18 @@
 
 #include "fft1d.hpp"
 #include "bbfft/cl/error.hpp"
+#include "bbfft/cl/mem.hpp" // IWYU pragma: keep
+#include "bbfft/mem.hpp"
+#include "bbfft/plan.hpp"
+#include "bbfft/prime_factorization.hpp"
+#include "bbfft/user_module.hpp"
 
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
+
+#include <cstdio>
 #include <stdexcept>
+#include <string>
 
 using namespace bbfft;
 

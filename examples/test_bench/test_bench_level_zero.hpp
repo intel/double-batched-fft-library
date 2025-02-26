@@ -5,10 +5,13 @@
 #define TEST_BENCH_LEVEL_ZERO_20221207_HPP
 
 #include "bbfft/configuration.hpp"
-#include "bbfft/plan.hpp"
 #include "bbfft/ze/make_plan.hpp"
 
 #include <level_zero/ze_api.h>
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 class test_bench_level_zero_base {
   public:

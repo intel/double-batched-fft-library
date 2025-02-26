@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "info.hpp"
+#include "bbfft/device_info.hpp"
+
+#include <utility>
+#include <vector>
 
 using namespace bbfft;
 

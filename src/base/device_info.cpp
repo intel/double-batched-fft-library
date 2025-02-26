@@ -4,7 +4,6 @@
 #include "bbfft/device_info.hpp"
 
 #include <algorithm>
-#include <ostream>
 #include <sstream>
 #include <stdexcept>
 

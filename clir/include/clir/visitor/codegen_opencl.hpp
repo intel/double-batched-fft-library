@@ -4,20 +4,22 @@
 #ifndef CODEGEN_OPENCL_20220405_HPP
 #define CODEGEN_OPENCL_20220405_HPP
 
+#include "clir/data_type.hpp"
 #include "clir/export.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/internal/attr_node.hpp"
 #include "clir/internal/data_type_node.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/internal/function_node.hpp"
 #include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
+#include "clir/stmt.hpp"
 
 #include <iosfwd>
 #include <sstream>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace clir {
 

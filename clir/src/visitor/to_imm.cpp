@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "clir/visitor/to_imm.hpp"
+#include "clir/handle.hpp"
 #include "clir/visit.hpp"
 
 namespace clir {

@@ -10,7 +10,6 @@
 #include "clir/var.hpp"
 
 #include <limits>
-#include <numeric>
 
 namespace clir {
 

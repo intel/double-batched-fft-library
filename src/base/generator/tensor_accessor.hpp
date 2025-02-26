@@ -4,13 +4,14 @@
 #ifndef TENSOR_ACCESSOR_20230718_HPP
 #define TENSOR_ACCESSOR_20230718_HPP
 
+#include "bbfft/configuration.hpp"
 #include "generator/utility.hpp"
 
 #include "clir/builder.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
 
-#include <utility>
+#include <memory>
 
 namespace bbfft {
 

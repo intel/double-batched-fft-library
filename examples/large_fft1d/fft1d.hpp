@@ -5,10 +5,7 @@
 #define FFT1D_20240610_HPP
 
 #include "bbfft/cl/make_plan.hpp"
-#include "bbfft/cl/mem.hpp"
 #include "bbfft/configuration.hpp"
-#include "bbfft/mem.hpp"
-#include "bbfft/prime_factorization.hpp"
 
 #include <CL/cl.h>
 #include <array>

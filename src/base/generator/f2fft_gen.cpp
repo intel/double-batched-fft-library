@@ -3,26 +3,27 @@
 
 #include "f2fft_gen.hpp"
 #include "bbfft/bad_configuration.hpp"
+#include "bbfft/configuration.hpp"
 #include "bbfft/prime_factorization.hpp"
+#include "generator/snippet.hpp"
 #include "math.hpp"
 #include "mixed_radix_fft.hpp"
-#include "root_of_unity.hpp"
 
 #include "clir/attr_defs.hpp"
 #include "clir/builder.hpp"
+#include "clir/builtin_function.hpp"
 #include "clir/builtin_type.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/unique_names.hpp"
 #include "clir/visitor/unsafe_simplification.hpp"
 
-#include <cassert>
-#include <cmath>
-#include <sstream>
-#include <stdexcept>
+#include <array>
+#include <string>
 #include <utility>
 
 using namespace clir;

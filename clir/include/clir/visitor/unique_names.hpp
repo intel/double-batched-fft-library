@@ -5,9 +5,13 @@
 #define UNIQUE_NAMES_20220405_HPP
 
 #include "clir/export.hpp"
+#include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/internal/function_node.hpp"
 #include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
+#include "clir/stmt.hpp"
+#include "clir/var.hpp"
 
 #include <cstdint>
 #include <string>

@@ -4,6 +4,7 @@
 #include "test_bench_level_zero.hpp"
 #include "bbfft/ze/error.hpp"
 
+#include <memory>
 #include <vector>
 
 test_bench_level_zero_base::test_bench_level_zero_base() {

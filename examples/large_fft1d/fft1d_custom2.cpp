@@ -3,10 +3,15 @@
 
 #include "fft1d_custom2.hpp"
 #include "bbfft/cl/error.hpp"
+#include "bbfft/user_module.hpp"
+
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
 
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
+#include <string>
 
 static char const kernels[] = R"OpenCL(
 kernel

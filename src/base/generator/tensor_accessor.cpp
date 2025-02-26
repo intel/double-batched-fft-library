@@ -3,6 +3,10 @@
 
 #include "tensor_accessor.hpp"
 
+#include <string>
+#include <utility>
+#include <vector>
+
 using namespace clir;
 
 namespace bbfft {

@@ -6,7 +6,11 @@
 
 #include "doctest/doctest.h"
 
-#include <sstream>
+#include <array>
+#include <cstddef>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 using namespace bbfft;
 

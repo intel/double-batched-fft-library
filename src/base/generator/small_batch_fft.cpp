@@ -3,12 +3,19 @@
 
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/generator_impl.hpp"
+#include "bbfft/device_info.hpp"
+#include "bbfft/user_module.hpp"
 #include "generator/sbfft_gen.hpp"
 #include "math.hpp"
 
-#include <cmath>
+#include <algorithm>
+#include <array>
+#include <cstdlib>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <string_view>
 
 namespace bbfft {
 

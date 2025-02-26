@@ -4,8 +4,7 @@
 #include "bbfft/ze/device.hpp"
 #include "bbfft/ze/error.hpp"
 
-#include <array>
-#include <cstddef>
+#include <vector>
 
 namespace bbfft {
 

@@ -6,7 +6,6 @@
 
 #include "bbfft/export.hpp"
 
-#include <utility>
 #include <vector>
 
 namespace bbfft {

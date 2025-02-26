@@ -4,6 +4,7 @@
 #include "args.hpp"
 #include "utility.hpp"
 
+#include <bbfft/cl/mem.hpp>
 #include <bbfft/configuration.hpp>
 #include <bbfft/device_info.hpp>
 

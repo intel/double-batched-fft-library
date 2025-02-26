@@ -7,6 +7,8 @@
 #include "clir/export.hpp"
 #include "clir/handle.hpp"
 
+#include <memory>
+
 namespace clir {
 
 namespace internal {

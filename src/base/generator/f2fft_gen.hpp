@@ -5,7 +5,6 @@
 #define F2FFT_GEN_20230811_HPP
 
 #include "bbfft/detail/generator_impl.hpp"
-#include "generator/snippet.hpp"
 #include "generator/tensor_accessor.hpp"
 #include "generator/tensor_view.hpp"
 #include "generator/utility.hpp"
@@ -14,10 +13,11 @@
 #include "clir/builder.hpp"
 #include "clir/expr.hpp"
 
-#include <cstdint>
-#include <functional>
+#include <cstddef>
 #include <iosfwd>
+#include <memory>
 #include <string_view>
+#include <vector>
 
 namespace bbfft {
 

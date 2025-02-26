@@ -5,11 +5,10 @@
 
 #include <bbfft/configuration.hpp>
 #include <bbfft/detail/compiler_options.hpp>
-#include <bbfft/device_info.hpp>
 #include <bbfft/generator.hpp>
+#include <bbfft/module_format.hpp>
 #include <bbfft/ze/online_compiler.hpp>
 
-#include <cstdint>
 #include <exception>
 #include <fstream>
 #include <iostream>

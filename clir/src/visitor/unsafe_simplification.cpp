@@ -4,10 +4,38 @@
 #include "clir/visitor/unsafe_simplification.hpp"
 #include "clir/builtin_function.hpp"
 #include "clir/func.hpp"
+#include "clir/handle.hpp"
 #include "clir/op.hpp"
 #include "clir/prog.hpp"
 #include "clir/stmt.hpp"
 #include "clir/visit.hpp"
+
+#include <optional>
+#include <utility>
+#include <vector>
+
+namespace clir::internal {
+enum class number_type { general, zero, one };
+
+class determine_number_type {
+  public:
+    /* Expr nodes */
+    inline number_type operator()(internal::expr_node &) { return number_type::general; }
+    inline number_type operator()(internal::int_imm &v) { return determine(v.value()); }
+    inline number_type operator()(internal::uint_imm &v) { return determine(v.value()); }
+    inline number_type operator()(internal::float_imm &v) { return determine(v.value()); }
+
+  private:
+    template <typename T> number_type determine(T value) {
+        if (value == T(0)) {
+            return number_type::zero;
+        } else if (value == T(1)) {
+            return number_type::one;
+        }
+        return number_type::general;
+    }
+};
+} // namespace clir::internal
 
 namespace clir {
 

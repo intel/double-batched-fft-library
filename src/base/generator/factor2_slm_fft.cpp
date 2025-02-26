@@ -2,14 +2,22 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "bbfft/configuration.hpp"
+#include "bbfft/detail/generator_impl.hpp"
+#include "bbfft/device_info.hpp"
 #include "bbfft/prime_factorization.hpp"
+#include "bbfft/user_module.hpp"
 #include "generator/f2fft_gen.hpp"
 #include "math.hpp"
 
 #include <algorithm>
-#include <cmath>
+#include <array>
+#include <cstdlib>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace bbfft {
 

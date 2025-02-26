@@ -4,13 +4,17 @@
 #include "args.hpp"
 #include "info.hpp"
 
+#include "bbfft/configuration.hpp"
+#include "bbfft/device_info.hpp"
+#include "bbfft/module_format.hpp"
 #include "bbfft/parser.hpp"
 
-#include <cstdlib>
 #include <cstring>
+#include <initializer_list>
 #include <ostream>
-#include <sstream>
 #include <stdexcept>
+#include <unordered_map>
+#include <utility>
 
 using namespace bbfft;
 

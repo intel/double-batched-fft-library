@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "args.hpp"
-#include "fft1d.hpp"
-#include "fft1d_custom.hpp"
 #include "fft1d_custom2.hpp"
 #include "refdft_analytic.hpp"
 #include "test_signal.hpp"
@@ -12,7 +10,13 @@
 #include "bbfft/configuration.hpp"
 
 #include <CL/cl.h>
+#include <CL/cl_platform.h>
+
+#include <algorithm>
+#include <array>
 #include <chrono>
+#include <cstddef>
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
