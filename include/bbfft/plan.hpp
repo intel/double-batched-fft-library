@@ -52,7 +52,8 @@ template <class Impl> class base_plan {
     void set_user_data(mem const &user_data) { return this->impl_->set_user_data(user_data); }
 
   protected:
-    std::shared_ptr<Impl> impl_; //! Opaque handle to implementation
+    //! Opaque handle to implementation
+    std::shared_ptr<Impl> impl_;
 };
 
 /**

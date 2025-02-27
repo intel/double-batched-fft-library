@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 find_package(Doxygen REQUIRED)
-find_package(Sphinx REQUIRED COMPONENTS breathe furo)
+find_package(Sphinx REQUIRED COMPONENTS breathe sphinx_book_theme)
 
 set(DOXYFILE_IN Doxyfile.in)
 set(DOXYFILE ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)

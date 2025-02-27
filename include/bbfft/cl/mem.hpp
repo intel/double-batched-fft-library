@@ -7,7 +7,13 @@
 
 namespace bbfft {
 
+/**
+ * @brief Auto mem type specialization for cl_mem buffers
+ *
+ * @tparam T type
+ */
 template <> struct auto_mem_type<cl_mem> {
+    //! Memory type value
     constexpr static mem_type value = mem_type::buffer;
 };
 

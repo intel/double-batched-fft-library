@@ -57,6 +57,7 @@ constexpr bool usm_pointer_type =
  * @tparam T type
  */
 template <typename T> struct auto_mem_type<T, std::enable_if_t<usm_pointer_type<T>>> {
+    //! Memory type value
     constexpr static mem_type value = mem_type::usm_pointer;
 };
 
@@ -79,8 +80,10 @@ struct mem {
     template <typename T>
     inline mem(T const value, mem_type type = auto_mem_type_v<T>) : value{value}, type{type} {}
 
-    const void *value; //! Memory object (either pointer or cl_mem)
-    mem_type type;     //! Memory object type
+    //! Memory object (either pointer or cl_mem)
+    const void *value;
+    //! Memory object type
+    mem_type type;
 };
 
 } // namespace bbfft

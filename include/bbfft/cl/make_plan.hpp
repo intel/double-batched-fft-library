@@ -13,6 +13,7 @@
 
 namespace bbfft {
 
+//! Plan type for OpenCL
 using opencl_plan = plan<cl_event>;
 
 /**
