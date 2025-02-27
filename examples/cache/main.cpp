@@ -27,29 +27,38 @@ template <typename F> auto bench(F &&f) {
 }
 
 int main(int argc, char **argv) {
-    auto q = sycl::queue{};
-    std::cout << "This example measures plan creation time with and without cache." << std::endl;
+    try {
+        auto q = sycl::queue{};
+        std::cout << "This example measures plan creation time with and without cache."
+                  << std::endl;
 
-    auto cfg = configuration{1, {1, 32, 2048}, precision::f32};
+        auto cfg = configuration{1, {1, 32, 2048}, precision::f32};
 
-    auto const print_result = [](char const *description, auto result) {
-        std::cout << description << ":" << std::endl;
-        int i = 0;
-        for (auto r : result) {
-            std::cout << "  " << i++ << ": " << r << std::endl;
-        }
-    };
+        auto const print_result = [](char const *description, auto result) {
+            std::cout << description << ":" << std::endl;
+            int i = 0;
+            for (auto r : result) {
+                std::cout << "  " << i++ << ": " << r << std::endl;
+            }
+        };
 
-    auto t1 = bench([&]() { make_plan(cfg, q); });
-    print_result("no cache", t1);
+        auto t1 = bench([&]() { make_plan(cfg, q); });
+        print_result("no cache", t1);
 
-    jit_cache_all cache;
-    auto t2 = bench([&]() { make_plan(cfg, q, &cache); });
-    print_result("cache all", t2);
+        jit_cache_all cache;
+        auto t2 = bench([&]() { make_plan(cfg, q, &cache); });
+        print_result("cache all", t2);
 
-    cfg.shape[2] = 4096;
-    auto t3 = bench([&]() { make_plan(cfg, q, &cache); });
-    print_result("cache all different batch size", t3);
+        cfg.shape[2] = 4096;
+        auto t3 = bench([&]() { make_plan(cfg, q, &cache); });
+        print_result("cache all different batch size", t3);
+    } catch (sycl::exception const &e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    } catch (std::exception const &e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
 
     return 0;
 }

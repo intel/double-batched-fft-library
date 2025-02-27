@@ -51,7 +51,7 @@ void unique_names::make_unique_name(var e) {
                 new_name = name + std::to_string(nc->second);
             } while (name_counter.find(new_name) != name_counter.end());
             v->set_name(new_name);
-            name = new_name;
+            name = std::move(new_name);
             break;
         }
     }

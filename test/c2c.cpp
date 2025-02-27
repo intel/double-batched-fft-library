@@ -14,7 +14,7 @@
 using namespace bbfft;
 using namespace sycl;
 
-template <typename T> void test_c2c_forward(configuration cfg, queue Q) {
+template <typename T> void test_c2c_forward(configuration const &cfg, queue Q) {
     std::size_t M = cfg.shape[0], N = cfg.shape[1], K = cfg.shape[2];
     auto xi = tensor_indexer<std::size_t, 3u, layout::col_major>(fit_array<3u>(cfg.shape),
                                                                  fit_array<3u>(cfg.istride));
@@ -62,7 +62,7 @@ TEST_CASE_TEMPLATE("c2c forward", T, TEST_PRECISIONS) {
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
 
     configuration cfg = {1, {M, N, K}, to_precision_v<T>, direction::forward};
-    test_c2c_forward<T>(cfg, Q);
+    test_c2c_forward<T>(cfg, std::move(Q));
 }
 
 TEST_CASE_TEMPLATE("c2c non-packed forward", T, TEST_PRECISIONS) {
@@ -78,7 +78,7 @@ TEST_CASE_TEMPLATE("c2c non-packed forward", T, TEST_PRECISIONS) {
     std::array<std::size_t, bbfft::max_tensor_dim> stride = {1, (M + 1), (M + 1) * (N + 1)};
     configuration cfg = {
         1, {M, N, K}, to_precision_v<T>, direction::forward, transform_type::c2c, stride, stride};
-    test_c2c_forward<T>(cfg, Q);
+    test_c2c_forward<T>(cfg, std::move(Q));
 }
 
 TEST_CASE_TEMPLATE("c2c identity", T, TEST_PRECISIONS) {

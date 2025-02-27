@@ -3,6 +3,7 @@
 
 #include "args.hpp"
 
+#include <bbfft/bad_configuration.hpp>
 #include <bbfft/configuration.hpp>
 #include <bbfft/generator.hpp>
 
@@ -28,7 +29,16 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    generate_fft_kernels(std::cout, a.configurations, a.info);
+    try {
+        generate_fft_kernels(std::cout, a.configurations, a.info);
+    } catch (bbfft::bad_configuration const &e) {
+        std::cerr << "==> Bad configuration: " << e.what() << std::endl;
+        return -1;
+    } catch (std::exception const &e) {
+        std::cerr << "==> Could not compile FFT kernels." << std::endl;
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
 
     return 0;
 }

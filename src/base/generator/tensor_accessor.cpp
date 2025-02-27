@@ -24,7 +24,7 @@ array_accessor::array_accessor(expr x, data_type type, int component)
 
 expr array_accessor::operator()(expr const &offset) const {
     auto e = x_[offset];
-    return component_ >= 0 ? e.s(component_) : e;
+    return component_ >= 0 ? e.s(component_) : std::move(e);
 }
 expr array_accessor::store(expr value, expr const &offset) const {
     return assignment(this->operator()(offset), std::move(value));

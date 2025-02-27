@@ -36,7 +36,7 @@ void parallel_2d_loop(block_builder &bb, expr n_local, std::size_t Nb, std::size
     if (N == Nb) {
         bb.add(block_builder{}.body(builder(n_local)).get_product());
     } else {
-        auto loop_var = var(var_name);
+        auto loop_var = var(std::move(var_name));
         bb.add(for_loop_builder(declaration_assignment(generic_short(), loop_var, n_local),
                                 loop_var < static_cast<short>(N), add_into(loop_var, Nb))
                    .body(builder(loop_var))
@@ -208,7 +208,7 @@ void f2fft_gen_c2c::load(block_builder &bb, copy_params cp) const {
     global_load(bb, cp, cp.kk, cp.view);
 }
 
-void f2fft_gen_c2c::postprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_c2c::postprocess(block_builder &bb, prepost_params const &pp) const {
     auto const &f = pp.cfg.factorization;
     auto const Nf = f.front();
     auto const J2 = product(f.begin() + 1, f.end(), 1);
@@ -242,7 +242,7 @@ void f2fft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
     cp.x_acc->component(-1);
 }
 
-void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_r2c_half::postprocess(block_builder &bb, prepost_params const &pp) const {
     bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
                .then([&](block_builder &bb) {
                    auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
@@ -289,7 +289,7 @@ void f2fft_gen_r2c_double::load(block_builder &bb, copy_params cp) const {
     cp.x_acc->component(-1);
 }
 
-void f2fft_gen_r2c_double::postprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_r2c_double::postprocess(block_builder &bb, prepost_params const &pp) const {
     auto const N = p().N_fft;
     auto store_fac = [&](block_builder &bb, tensor_view<1u> const &view_a,
                          tensor_view<1u> const &view_b) {
@@ -337,7 +337,7 @@ void f2fft_gen_r2c_double::postprocess_i(block_builder &bb, precision_helper fph
     }
 }
 
-void f2fft_gen_c2r_half::preprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_c2r_half::preprocess(block_builder &bb, prepost_params const &pp) const {
     bb.add(if_selection_builder(pp.mm < pp.cfg.M && pp.kk < pp.K)
                .then([&](block_builder &bb) {
                    auto view = pp.view.subview(bb, pp.mm, slice{}, pp.kk);
@@ -387,7 +387,7 @@ void f2fft_gen_c2r_half::load(block_builder &bb, copy_params cp) const {
     copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, Nf);
 }
 
-void f2fft_gen_c2r_half::postprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_c2r_half::postprocess(block_builder &bb, prepost_params const &pp) const {
     auto const &f = pp.cfg.factorization;
     auto const Nf = f.front();
     auto const J2 = product(f.begin() + 1, f.end(), 1);
@@ -416,7 +416,7 @@ void f2fft_gen_c2r_half::postprocess(block_builder &bb, prepost_params pp) const
         "j2");
 }
 
-void f2fft_gen_c2r_double::preprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_c2r_double::preprocess(block_builder &bb, prepost_params const &pp) const {
     auto N = p().N_fft;
     auto load_fac2 = [&](block_builder &bb, tensor_view<1u> const &view_a,
                          tensor_view<1u> const &view_b) {
@@ -480,7 +480,7 @@ void f2fft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {
     copy_N_block_with_permutation(bb, X1_view_1d, cp.x_view, Nf);
 }
 
-void f2fft_gen_c2r_double::postprocess(block_builder &bb, prepost_params pp) const {
+void f2fft_gen_c2r_double::postprocess(block_builder &bb, prepost_params const &pp) const {
     auto const &f = pp.cfg.factorization;
     auto const Nf = f.front();
     auto const J2 = product(f.begin() + 1, f.end(), 1);

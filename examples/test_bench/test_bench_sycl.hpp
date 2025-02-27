@@ -13,6 +13,7 @@
 class test_bench_sycl {
   public:
     inline test_bench_sycl() : plan_{}, queue_{::sycl::default_selector_v} {}
+    ~test_bench_sycl() = default;
 
     test_bench_sycl(test_bench_sycl const &) = delete;
     test_bench_sycl &operator=(test_bench_sycl const &) = delete;

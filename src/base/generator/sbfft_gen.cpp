@@ -143,33 +143,33 @@ void sbfft_gen::generate(std::ostream &os, small_batch_configuration const &cfg,
     generate_opencl(os, f);
 }
 
-void sbfft_gen::double_load(block_builder &bb, copy_params cp, int k_offset) const {
+void sbfft_gen::double_load(block_builder &bb, copy_params const &cp, int k_offset) const {
     auto X_src = cp.view.reshaped_mode(2, std::array<expr, 2u>{p_.k_stride, cp.kb})
                      .subview(bb, slice{}, slice{}, k_offset, slice{});
     copy_mbNkb_block_on_2D_grid(bb, X_src, cp.X1_view, cp.mb, p_.N_in,
                                 k_offset == 1 ? cp.kb_odd : cp.kb);
 }
 
-void sbfft_gen::double_store(block_builder &bb, copy_params cp, int k_offset) const {
+void sbfft_gen::double_store(block_builder &bb, copy_params const &cp, int k_offset) const {
     auto X_dest = cp.view.reshaped_mode(2, std::array<expr, 2u>{p_.k_stride, cp.kb})
                       .subview(bb, slice{}, slice{}, k_offset, slice{});
     copy_mbNkb_block_on_2D_grid(bb, cp.X1_view, X_dest, cp.mb, p_.N_out,
                                 k_offset == 1 ? cp.kb_odd : cp.kb);
 }
 
-void sbfft_gen_c2c::load(block_builder &bb, copy_params cp) const {
+void sbfft_gen_c2c::load(block_builder &bb, copy_params const &cp) const {
     copy_mbNkb_block_on_2D_grid(bb, cp.view, cp.X1_view, cp.mb, p().N_in, cp.kb);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     copy_N_block_with_permutation(bb, cp.X1_1d, cp.x_view, p().N_fft);
 }
 
-void sbfft_gen_c2c::store(block_builder &bb, copy_params cp) const {
+void sbfft_gen_c2c::store(block_builder &bb, copy_params const &cp) const {
     copy_N_block_with_permutation(bb, cp.x_view, cp.X1_1d, p().N_fft, cp.P);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     copy_mbNkb_block_on_2D_grid(bb, cp.X1_view, cp.view, cp.mb, p().N_out, cp.kb);
 }
 
-void sbfft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
+void sbfft_gen_r2c_half::load(block_builder &bb, copy_params const &cp) const {
     copy_mbNkb_block_on_2D_grid(bb, cp.view, cp.X1_view, cp.mb, p().N_in, cp.kb);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
 
@@ -181,7 +181,7 @@ void sbfft_gen_r2c_half::load(block_builder &bb, copy_params cp) const {
     cp.x_acc->component(-1);
 }
 
-void sbfft_gen_r2c_half::store(block_builder &bb, copy_params cp) const {
+void sbfft_gen_r2c_half::store(block_builder &bb, copy_params const &cp) const {
     postprocess(bb, cp.fph, cp.x_view, cp.X1_1d, cp.cfg.N, cp.P);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     copy_mbNkb_block_on_2D_grid(bb, cp.X1_view, cp.view, cp.mb, p().N_out, cp.kb);
@@ -209,14 +209,14 @@ void sbfft_gen_r2c_half::postprocess(block_builder &bb, precision_helper fph,
     }
 }
 
-void sbfft_gen_c2r_half::load(block_builder &bb, copy_params cp) const {
+void sbfft_gen_c2r_half::load(block_builder &bb, copy_params const &cp) const {
     copy_mbNkb_block_on_2D_grid(bb, cp.view, cp.X1_view, cp.mb, p().N_in, cp.kb);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
 
     preprocess(bb, cp.fph, cp.X1_1d, cp.x_view, cp.cfg.N);
 }
 
-void sbfft_gen_c2r_half::store(block_builder &bb, copy_params cp) const {
+void sbfft_gen_c2r_half::store(block_builder &bb, copy_params const &cp) const {
     auto X1_dest = cp.X1_1d.reshaped_mode(0, std::array<expr, 2u>{2, p().N_fft});
     cp.x_acc->component(0);
     copy_N_block_with_permutation(bb, cp.x_view, X1_dest.subview(bb, 0, slice{}), p().N_fft, cp.P);
@@ -256,7 +256,7 @@ void sbfft_gen_c2r_half::preprocess(block_builder &bb, precision_helper fph,
     }
 }
 
-void sbfft_gen_r2c_double::load(block_builder &bb, copy_params cp) const {
+void sbfft_gen_r2c_double::load(block_builder &bb, copy_params const &cp) const {
     double_load(bb, cp, 0);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     cp.x_acc->component(0);
@@ -271,7 +271,7 @@ void sbfft_gen_r2c_double::load(block_builder &bb, copy_params cp) const {
     cp.x_acc->component(-1);
 }
 
-void sbfft_gen_r2c_double::store(block_builder &bb, copy_params cp) const {
+void sbfft_gen_r2c_double::store(block_builder &bb, copy_params const &cp) const {
     postprocess(bb, cp.fph, cp.x_view, cp.X1_1d, cp.cfg.N, 0, cp.P);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     double_store(bb, cp, 0);
@@ -300,7 +300,7 @@ void sbfft_gen_r2c_double::postprocess(block_builder &bb, precision_helper fph,
     }
 }
 
-void sbfft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {
+void sbfft_gen_c2r_double::load(block_builder &bb, copy_params const &cp) const {
     double_load(bb, cp, 0);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));
     preprocess(bb, cp.fph, cp.X1_1d, cp.x_view, cp.cfg.N, 0);
@@ -312,7 +312,7 @@ void sbfft_gen_c2r_double::load(block_builder &bb, copy_params cp) const {
     preprocess(bb, cp.fph, cp.X1_1d, cp.x_view, cp.cfg.N, 1);
 }
 
-void sbfft_gen_c2r_double::store(block_builder &bb, copy_params cp) const {
+void sbfft_gen_c2r_double::store(block_builder &bb, copy_params const &cp) const {
     cp.x_acc->component(0);
     copy_N_block_with_permutation(bb, cp.x_view, cp.X1_1d, p().N_out, cp.P);
     bb.add(barrier(cl_mem_fence_flags::CLK_LOCAL_MEM_FENCE));

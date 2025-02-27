@@ -3,6 +3,7 @@
 
 #include "args.hpp"
 
+#include <bbfft/bad_configuration.hpp>
 #include <bbfft/configuration.hpp>
 #include <bbfft/detail/compiler_options.hpp>
 #include <bbfft/generator.hpp>
@@ -49,6 +50,9 @@ int main(int argc, char **argv) {
                        : ze::compile_to_spirv(oss.str(), a.device, detail::compiler_options,
                                               detail::required_extensions);
         kernel_file.write(reinterpret_cast<char *>(bin.data()), bin.size());
+    } catch (bbfft::bad_configuration const &e) {
+        std::cerr << "==> Bad configuration: " << e.what() << std::endl;
+        return -1;
     } catch (std::exception const &e) {
         std::cerr << "==> Could not compile FFT kernels." << std::endl;
         std::cerr << e.what() << std::endl;

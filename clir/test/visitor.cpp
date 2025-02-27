@@ -22,6 +22,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -34,7 +35,7 @@ TEST_CASE("Code generation") {
 
     auto e2s = [](auto &&e) {
         std::stringstream s;
-        generate_opencl(s, e);
+        generate_opencl(s, std::move(e));
         return s.str();
     };
 

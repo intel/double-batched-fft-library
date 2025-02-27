@@ -35,12 +35,12 @@ expr complex_mul::operator()(expr c, expr w) {
 
 expr complex_mul::pair_real(clir::expr x1, clir::expr x2, std::complex<double> const &w) {
     auto wr = fph_.constant(w.real());
-    return wr * (x1 + x2);
+    return std::move(wr) * (std::move(x1) + std::move(x2));
 }
 
 expr complex_mul::pair_imag(clir::expr x1, clir::expr x2, std::complex<double> const &w) {
     auto wi = fph_.constant(w.imag());
-    return wi * init_vector(fph_.type(2), {x2.s(1) - x1.s(1), x1.s(0) - x2.s(0)});
+    return std::move(wi) * init_vector(fph_.type(2), {x2.s(1) - x1.s(1), x1.s(0) - x2.s(0)});
 }
 
 clir::expr basic_esum::operator()(block_builder &, int kf) {
@@ -127,27 +127,27 @@ clir::expr pair_optimization_esum::operator()(block_builder &bb, int kf) {
 
 expr multiply_imaginary_unit(precision_helper fph, expr x, expr is_odd) {
     return select(intel_sub_group_shuffle_down(-x, -x, 1), intel_sub_group_shuffle_up(x, x, 1),
-                  cast(fph.select_type(), is_odd));
+                  cast(fph.select_type(), std::move(is_odd)));
 }
 
 expr sub_group_xc(precision_helper fph, expr x, std::complex<double> y) {
-    return x * fph.constant(y.real());
+    return std::move(x) * fph.constant(y.real());
 }
 expr sub_group_xs(precision_helper fph, expr x, std::complex<double> y, expr &is_odd) {
-    return multiply_imaginary_unit(fph, x * fph.constant(y.imag()), is_odd);
+    return multiply_imaginary_unit(fph, std::move(x) * fph.constant(y.imag()), is_odd);
 }
 
 expr add_copy_sign(expr x, expr y, int sign) {
     if (sign < 0) {
-        return x - y;
+        return std::move(x) - std::move(y);
     }
-    return x + y;
+    return std::move(x) + std::move(y);
 }
 
 expr sub_group_xy(precision_helper fph, expr x, std::complex<double> y, expr &is_odd) {
     auto xc = sub_group_xc(fph, x, y);
-    auto xs = sub_group_xs(fph, x, y, is_odd);
-    return xc + xs;
+    auto xs = sub_group_xs(fph, std::move(x), y, is_odd);
+    return std::move(xc) + std::move(xs);
 }
 
 void generate_fft::basic(block_builder &bb, precision fp, int direction,

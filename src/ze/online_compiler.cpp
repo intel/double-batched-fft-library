@@ -38,7 +38,7 @@ std::vector<uint8_t> compile_to_spirv_or_native(std::string const &source,
         return oss.str();
     };
     unsigned int num_args = 2;
-    constexpr unsigned int max_num_args = 10;
+    constexpr unsigned int max_num_args = 11;
     char const *argv[max_num_args] = {"ocloc", "compile"};
     auto ext_list = format_ext_list(extensions);
     if (!ext_list.empty()) {

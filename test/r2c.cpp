@@ -392,8 +392,10 @@ void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {
     xi_shape[tensor_dim - 1] = K;
     Xi_shape[0] = M;
     Xi_shape[1] = N[0] / 2 + 1;
-    for (std::size_t d = 1; d < D; ++d) {
-        Xi_shape[d + 1] = N[d];
+    if constexpr (D > 1) {
+        for (std::size_t d = 1; d < D; ++d) {
+            Xi_shape[d + 1] = N[d];
+        }
     }
     Xi_shape[tensor_dim - 1] = K;
     auto xi = tensor_indexer<std::size_t, tensor_dim, layout::col_major>(xi_shape);

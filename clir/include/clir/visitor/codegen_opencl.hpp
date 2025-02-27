@@ -42,6 +42,11 @@ class CLIR_EXPORT codegen_opencl {
     codegen_opencl(std::ostream &os);
     ~codegen_opencl();
 
+    codegen_opencl(codegen_opencl const &) = delete;
+    codegen_opencl(codegen_opencl &&) = delete;
+    codegen_opencl &operator=(codegen_opencl const &) = delete;
+    codegen_opencl &operator=(codegen_opencl &&) = delete;
+
     /* Attributes */
     void operator()(internal::attr_node &attr);
 

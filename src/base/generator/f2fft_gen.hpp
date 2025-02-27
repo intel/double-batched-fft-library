@@ -60,9 +60,9 @@ class f2fft_gen {
         unscrambler<clir::expr> unscramble = unscrambler<clir::expr>({});
     };
 
-    virtual void preprocess(clir::block_builder &, prepost_params) const {}
+    virtual void preprocess(clir::block_builder &, prepost_params const &) const {}
     virtual void load(clir::block_builder &bb, copy_params cp) const = 0;
-    virtual void postprocess(clir::block_builder &, prepost_params) const = 0;
+    virtual void postprocess(clir::block_builder &, prepost_params const &) const = 0;
 
     void global_load(clir::block_builder &bb, copy_params const &cp, clir::expr k,
                      tensor_view<3u> const &view) const;
@@ -77,7 +77,7 @@ class f2fft_gen_c2c : public f2fft_gen {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params const &pp) const override;
 };
 
 class f2fft_gen_r2c : public f2fft_gen {
@@ -92,7 +92,7 @@ class f2fft_gen_r2c_half : public f2fft_gen_r2c {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params const &pp) const override;
 
   private:
     static void postprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
@@ -106,7 +106,7 @@ class f2fft_gen_r2c_double : public f2fft_gen_r2c {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params const &pp) const override;
 
   private:
     static void postprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
@@ -126,8 +126,8 @@ class f2fft_gen_c2r_half : public f2fft_gen_c2r {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void preprocess(clir::block_builder &bb, prepost_params pp) const override;
-    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void preprocess(clir::block_builder &bb, prepost_params const &pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params const &pp) const override;
 
   private:
     static void preprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,
@@ -141,8 +141,8 @@ class f2fft_gen_c2r_double : public f2fft_gen_c2r {
 
   protected:
     void load(clir::block_builder &bb, copy_params cp) const override;
-    void preprocess(clir::block_builder &bb, prepost_params pp) const override;
-    void postprocess(clir::block_builder &bb, prepost_params pp) const override;
+    void preprocess(clir::block_builder &bb, prepost_params const &pp) const override;
+    void postprocess(clir::block_builder &bb, prepost_params const &pp) const override;
 
   private:
     static void preprocess_i(clir::block_builder &bb, precision_helper fph, clir::expr i,

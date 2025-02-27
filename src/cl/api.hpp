@@ -36,7 +36,7 @@ class api {
     ~api();
 
     api(api const &other);
-    void operator=(api const &other);
+    api &operator=(api const &other);
 
     device_info info();
     uint64_t device_id();

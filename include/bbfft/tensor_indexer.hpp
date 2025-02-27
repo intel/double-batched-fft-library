@@ -44,8 +44,10 @@ constexpr auto fit_array(std::array<IdxT, Din> const &in, IdxT fill_value = IdxT
     for (unsigned int d = 0; d < d_min; ++d) {
         out[d] = in[d];
     }
-    for (unsigned int d = d_min; d < Dout; ++d) {
-        out[d] = fill_value;
+    if constexpr (d_min < Dout) {
+        for (unsigned int d = d_min; d < Dout; ++d) {
+            out[d] = fill_value;
+        }
     }
     return out;
 }
@@ -82,8 +84,10 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
             shape_ = reversed(shape_);
         }
         stride_[0] = 1;
-        for (unsigned int i = 1; i < D; ++i) {
-            stride_[i] = stride_[i - 1] * shape_[i - 1];
+        if constexpr (D > 1) {
+            for (unsigned int i = 1; i < D; ++i) {
+                stride_[i] = stride_[i - 1] * shape_[i - 1];
+            }
         }
     }
 
@@ -114,8 +118,8 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      * @return Linear index
      */
     template <typename... Indices, typename = std::enable_if_t<sizeof...(Indices) == D, int>>
-    IdxT operator()(Indices &&...is) const {
-        return linear_index(is...);
+    IdxT operator()(Indices... is) const {
+        return linear_index(std::move(is)...);
     }
 
     /**
@@ -139,7 +143,8 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      *
      * @return Numbers \f$N_1,\dots,N_D\f$
      */
-    auto shape() const {
+    auto shape() const
+        -> std::conditional_t<L == layout::row_major, multi_idx_t, multi_idx_t const &> {
         if constexpr (L == layout::row_major) {
             return reversed(shape_);
         }
@@ -163,7 +168,8 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
      *
      * @return Stride array
      */
-    auto stride() const {
+    auto stride() const
+        -> std::conditional_t<L == layout::row_major, multi_idx_t, multi_idx_t const &> {
         if constexpr (L == layout::row_major) {
             return reversed(stride_);
         }
@@ -321,7 +327,7 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
     template <typename Head> IdxT linear_index(Head head) const { return head * stride(D - 1u); }
     template <typename Head, typename... Tail> IdxT linear_index(Head head, Tail... tail) const {
         constexpr auto d = (D - 1u) - sizeof...(Tail);
-        return head * stride(d) + linear_index(tail...);
+        return std::move(head) * stride(d) + linear_index(std::move(tail)...);
     }
 
     template <std::size_t E> static auto reversed(std::array<IdxT, E> const &a) {

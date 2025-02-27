@@ -51,6 +51,13 @@ class argument_handler {
         throw std::logic_error("Unsupported mem type");
     }
 
+    inline auto operator==(argument_handler const &other) const -> bool {
+        return clSetKernelArgMemPointerINTEL_ == other.clSetKernelArgMemPointerINTEL_;
+    }
+    inline auto operator!=(argument_handler const &other) const -> bool {
+        return clSetKernelArgMemPointerINTEL_ != other.clSetKernelArgMemPointerINTEL_;
+    }
+
   private:
     clSetKernelArgMemPointerINTEL_t clSetKernelArgMemPointerINTEL_;
 };

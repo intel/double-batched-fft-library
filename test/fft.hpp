@@ -52,8 +52,10 @@ std::array<std::size_t, D> unflatten(std::size_t idx, std::array<std::size_t, D>
 template <typename F, std::size_t D, typename... T>
 auto outer_product(F f, std::array<T, D>... arg) {
     auto result = f(arg[0]...);
-    for (std::size_t d = 1; d < D; ++d) {
-        result *= f(arg[d]...);
+    if constexpr (D > 1) {
+        for (std::size_t d = 1; d < D; ++d) {
+            result *= f(arg[d]...);
+        }
     }
     return result;
 }

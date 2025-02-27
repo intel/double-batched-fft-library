@@ -10,6 +10,8 @@
 #include <CL/cl.h>
 #include <CL/cl_platform.h>
 
+#include <utility>
+
 namespace bbfft::cl {
 
 api::api(cl_command_queue queue) : queue_(queue) {
@@ -37,15 +39,25 @@ api::~api() {
 }
 
 api::api(api const &other) { *this = other; }
-void api::operator=(api const &other) {
-    queue_ = other.queue_;
-    CL_CHECK(clRetainCommandQueue(queue_));
+api &api::operator=(api const &other) {
+    if (queue_ != other.queue_) {
+        queue_ = other.queue_;
+        CL_CHECK(clRetainCommandQueue(queue_));
+    }
 
-    context_ = other.context_;
-    CL_CHECK(clRetainContext(context_));
+    if (context_ != other.context_) {
+        context_ = other.context_;
+        CL_CHECK(clRetainContext(context_));
+    }
 
-    device_ = other.device_;
-    arg_handler_ = other.arg_handler_;
+    if (device_ != other.device_) {
+        device_ = other.device_;
+    }
+    if (arg_handler_ != other.arg_handler_) {
+        arg_handler_ = other.arg_handler_;
+    }
+
+    return *this;
 }
 
 device_info api::info() { return get_device_info(device_); }
@@ -56,7 +68,7 @@ auto api::build_module(std::string const &source) -> shared_handle<module_handle
     cl_program mod = ::bbfft::cl::build_kernel_bundle(
         source, context_, device_, detail::compiler_options, detail::required_extensions);
     return shared_handle<module_handle_t>(
-        detail::cast<module_handle_t>(mod),
+        detail::cast<module_handle_t>(std::move(mod)),
         [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });
 }
 auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {

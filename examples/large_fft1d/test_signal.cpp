@@ -83,7 +83,8 @@ bool test_bench_1d::check(void *x, std::ostream *os) const {
                 auto val = xv[xi(0, n, k)];
                 auto refval = complex_t{};
                 ref_->X(n, k, &refval);
-                const auto err = std::abs(val - refval) / Linf;
+                const auto err =
+                    Linf > 0.0 ? std::abs(val - refval) / Linf : std::abs(val - refval);
                 bool below_tol = err <= tolerance;
                 ok = ok && below_tol;
                 if (os && !below_tol) {
