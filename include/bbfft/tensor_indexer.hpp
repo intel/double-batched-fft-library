@@ -324,7 +324,9 @@ template <typename IdxT, unsigned int D, layout L = layout::row_major> class ten
     }
 
   private:
-    template <typename Head> IdxT linear_index(Head head) const { return head * stride(D - 1u); }
+    template <typename Head> IdxT linear_index(Head head) const {
+        return std::move(head) * stride(D - 1u);
+    }
     template <typename Head, typename... Tail> IdxT linear_index(Head head, Tail... tail) const {
         constexpr auto d = (D - 1u) - sizeof...(Tail);
         return std::move(head) * stride(d) + linear_index(std::move(tail)...);

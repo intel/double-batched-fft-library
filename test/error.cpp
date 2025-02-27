@@ -17,5 +17,5 @@ TEST_CASE("unsupported fft dim") {
     CHECK_THROWS_AS((make_plan(cfg, Q)), bad_configuration);
 
     cfg.dim = max_fft_dim + 1;
-    CHECK_THROWS_AS((make_plan(cfg, Q)), bad_configuration);
+    CHECK_THROWS_AS((make_plan(cfg, std::move(Q))), bad_configuration);
 }

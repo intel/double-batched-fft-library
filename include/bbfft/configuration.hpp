@@ -196,7 +196,7 @@ struct BBFFT_EXPORT configuration {
  * @brief Output configuration as FFT descriptor
  *
  * @param os output stream
- * @param cfg configuration
+ * @param info configuration
  *
  * @return Reference to os
  */

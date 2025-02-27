@@ -28,7 +28,7 @@ std::string escaped_string(std::string_view str) {
     auto result = std::string{};
     result.reserve(str.size() + num_special);
     for (auto c : str) {
-        if (int i = is_special(c); i >= 0 && 2 * i + 1 < special_escaped_size) {
+        if (int i = is_special(c); i >= 0 && i < (special_escaped_size - 1) / 2) {
 
             result.push_back(special_escaped[2 * i]);
             result.push_back(special_escaped[2 * i + 1]);

@@ -13,6 +13,7 @@
 
 namespace bbfft {
 
+//! Plan type for SYCL
 using sycl_plan = plan<::sycl::event>;
 
 /**

@@ -52,7 +52,7 @@ template <class Impl> class base_plan {
     void set_user_data(mem const &user_data) { return this->impl_->set_user_data(user_data); }
 
   protected:
-    std::shared_ptr<Impl> impl_;
+    std::shared_ptr<Impl> impl_; //! Opaque handle to implementation
 };
 
 /**
@@ -178,7 +178,6 @@ class plan_unmanaged_event : public base_plan<detail::plan_unmanaged_event_impl<
      * @brief Execute plan (in-place)
      *
      * @param inout Pointer to input and output tensor
-     * @param out Pointer to output tensor
      * @param signal_event Event signaled on FFT completion [Optional]
      * @param num_wait_events Number of events to wait on before launch; must be zero if wait_events
      * == nullptr [Optional]

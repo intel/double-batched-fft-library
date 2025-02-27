@@ -34,16 +34,16 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    auto kernel_file = std::ofstream(a.kernel_filename, std::ios::binary);
-    if (!kernel_file) {
-        std::cerr << "==> Could not open " << a.kernel_filename << " for writing." << std::endl;
-        return -1;
-    }
-
-    std::ostringstream oss;
-    auto kernel_names = generate_fft_kernels(oss, a.configurations, a.info);
-
     try {
+        auto kernel_file = std::ofstream(a.kernel_filename, std::ios::binary);
+        if (!kernel_file) {
+            std::cerr << "==> Could not open " << a.kernel_filename << " for writing." << std::endl;
+            return -1;
+        }
+
+        std::ostringstream oss;
+        auto kernel_names = generate_fft_kernels(oss, a.configurations, a.info);
+
         auto bin = a.format == module_format::native
                        ? ze::compile_to_native(oss.str(), a.device, detail::compiler_options,
                                                detail::required_extensions)

@@ -70,10 +70,10 @@ class api {
   private:
     void setup_arg_handler();
 
-    cl_command_queue queue_;
-    cl_context context_;
-    cl_device_id device_;
-    argument_handler arg_handler_;
+    cl_command_queue queue_ = nullptr;
+    cl_context context_ = nullptr;
+    cl_device_id device_ = nullptr;
+    argument_handler arg_handler_ = {};
 };
 
 } // namespace bbfft::cl

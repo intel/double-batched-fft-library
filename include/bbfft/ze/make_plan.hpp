@@ -13,6 +13,7 @@
 
 namespace bbfft {
 
+//! Plan type for Level Zero
 using level_zero_plan = plan_unmanaged_event<ze_event_handle_t>;
 
 /**

@@ -386,8 +386,10 @@ void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {
     std::array<std::size_t, tensor_dim> Xi_shape = {};
     xi_shape[0] = M;
     xi_shape[1] = Inplace ? 2 * (N[0] / 2 + 1) : N[0];
-    for (std::size_t d = 1; d < D; ++d) {
-        xi_shape[d + 1] = N[d];
+    if constexpr (D > 1) {
+        for (std::size_t d = 1; d < D; ++d) {
+            xi_shape[d + 1] = N[d];
+        }
     }
     xi_shape[tensor_dim - 1] = K;
     Xi_shape[0] = M;

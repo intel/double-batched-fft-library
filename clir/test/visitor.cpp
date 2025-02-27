@@ -246,7 +246,7 @@ TEST_CASE("To imm") {
     expr b = 42.0;
     CHECK(std::holds_alternative<int64_t>(get_imm(a)));
     CHECK(std::holds_alternative<double>(get_imm(b)));
-    CHECK(std::holds_alternative<std::monostate>(get_imm(a + b)));
+    CHECK(std::holds_alternative<std::monostate>(get_imm(std::move(a) + std::move(b))));
 }
 
 TEST_CASE("Required extensions") {
