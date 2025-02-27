@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.6.0] - 2025-XX-XX
+## [0.6.0] - 2025-02-27
 * User data pointer was added to callback signature. Codes that used the (undocumented and experimental)
   callback feature need to update their callback signature.
 * Refactor plan interface such that one can pass buffers and USM pointers.
