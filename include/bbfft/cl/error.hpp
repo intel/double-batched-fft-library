@@ -7,8 +7,8 @@
 #include "bbfft/export.hpp"
 
 #include <CL/cl.h>
+#include <CL/cl_platform.h>
 
-#include <cstdio>
 #include <exception>
 #include <string>
 

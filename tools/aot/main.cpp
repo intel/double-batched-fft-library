@@ -3,13 +3,13 @@
 
 #include "args.hpp"
 
+#include <bbfft/bad_configuration.hpp>
 #include <bbfft/configuration.hpp>
 #include <bbfft/detail/compiler_options.hpp>
-#include <bbfft/device_info.hpp>
 #include <bbfft/generator.hpp>
+#include <bbfft/module_format.hpp>
 #include <bbfft/ze/online_compiler.hpp>
 
-#include <cstdint>
 #include <exception>
 #include <fstream>
 #include <iostream>
@@ -34,22 +34,25 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    auto kernel_file = std::ofstream(a.kernel_filename, std::ios::binary);
-    if (!kernel_file) {
-        std::cerr << "==> Could not open " << a.kernel_filename << " for writing." << std::endl;
-        return -1;
-    }
-
-    std::ostringstream oss;
-    auto kernel_names = generate_fft_kernels(oss, a.configurations, a.info);
-
     try {
+        auto kernel_file = std::ofstream(a.kernel_filename, std::ios::binary);
+        if (!kernel_file) {
+            std::cerr << "==> Could not open " << a.kernel_filename << " for writing." << std::endl;
+            return -1;
+        }
+
+        std::ostringstream oss;
+        auto kernel_names = generate_fft_kernels(oss, a.configurations, a.info);
+
         auto bin = a.format == module_format::native
                        ? ze::compile_to_native(oss.str(), a.device, detail::compiler_options,
                                                detail::required_extensions)
                        : ze::compile_to_spirv(oss.str(), a.device, detail::compiler_options,
                                               detail::required_extensions);
         kernel_file.write(reinterpret_cast<char *>(bin.data()), bin.size());
+    } catch (bbfft::bad_configuration const &e) {
+        std::cerr << "==> Bad configuration: " << e.what() << std::endl;
+        return -1;
     } catch (std::exception const &e) {
         std::cerr << "==> Could not compile FFT kernels." << std::endl;
         std::cerr << e.what() << std::endl;

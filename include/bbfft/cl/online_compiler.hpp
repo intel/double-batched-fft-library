@@ -9,6 +9,7 @@
 #include "bbfft/module_format.hpp"
 
 #include <CL/cl.h>
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>

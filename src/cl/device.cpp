@@ -4,8 +4,13 @@
 #include "bbfft/cl/device.hpp"
 #include "bbfft/cl/error.hpp"
 
+#include <CL/cl.h>
 #include <CL/cl_ext.h>
+#include <CL/cl_platform.h>
+
+#include <cstddef>
 #include <type_traits>
+#include <vector>
 
 namespace bbfft {
 

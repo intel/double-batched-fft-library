@@ -37,6 +37,19 @@ Plan class
 .. doxygenclass:: bbfft::plan
    :members:
 
+Mem struct
+----------
+
+.. doxygenstruct:: bbfft::mem
+   :members:
+
+.. doxygenenum:: bbfft::mem_type
+
+.. doxygenstruct:: bbfft::auto_mem_type
+   :members:
+
+.. doxygenvariable:: bbfft::auto_mem_type_v
+
 Configuration errors
 ====================
 

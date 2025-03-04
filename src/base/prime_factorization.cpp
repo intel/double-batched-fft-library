@@ -1,12 +1,13 @@
 // Copyright (C) 2022 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "prime_factorization.hpp"
+#include "bbfft/prime_factorization.hpp"
 #include "math.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <utility>
 
 namespace bbfft {
 

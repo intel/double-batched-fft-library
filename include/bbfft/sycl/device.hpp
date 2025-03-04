@@ -7,8 +7,8 @@
 #include "bbfft/device_info.hpp"
 #include "bbfft/export.hpp"
 
-#include <CL/sycl.hpp>
 #include <cstdint>
+#include <sycl/sycl.hpp>
 
 namespace bbfft {
 

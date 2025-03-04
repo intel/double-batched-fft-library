@@ -5,6 +5,7 @@
 
 #include <cstdlib>
 #include <stdexcept>
+#include <string>
 
 args parse_args(int argc, char **argv) {
     args a = {};

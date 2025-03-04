@@ -10,6 +10,8 @@
 #include "bbfft/jit_cache_all.hpp"
 
 #include <ostream>
+#include <string>
+#include <vector>
 
 namespace bbfft {
 

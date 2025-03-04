@@ -8,7 +8,6 @@
 
 #include <level_zero/ze_api.h>
 
-#include <cstdio>
 #include <exception>
 #include <string>
 

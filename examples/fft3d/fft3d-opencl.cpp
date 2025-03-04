@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "args.hpp"
+#include "bbfft/cl/mem.hpp"
 #include "common.hpp"
+#include "utility.hpp"
 
 #include "test_bench_opencl.hpp"
 

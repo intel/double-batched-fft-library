@@ -3,11 +3,14 @@
 
 #include "bbfft/parser.hpp"
 
+#include <array>
 #include <cctype>
+#include <cstddef>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace bbfft {
 

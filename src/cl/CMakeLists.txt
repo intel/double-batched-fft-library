@@ -16,6 +16,7 @@ if(BUILD_OPENCL)
         cl/device.hpp
         cl/error.hpp
         cl/make_plan.hpp
+        cl/mem.hpp
         cl/online_compiler.hpp
     )
     list(TRANSFORM PUBLIC_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/include/bbfft/")

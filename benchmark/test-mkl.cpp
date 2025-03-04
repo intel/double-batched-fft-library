@@ -12,10 +12,10 @@
 #include "sycl_allocator.hpp"
 #include "tensor.hpp"
 
-#include <CL/sycl.hpp>
 #include <mkl.h>
 #include <oneapi/mkl/dfti.hpp>
 #include <oneapi/mkl/rng.hpp>
+#include <sycl/sycl.hpp>
 
 #include <complex>
 #include <memory>

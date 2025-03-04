@@ -8,6 +8,7 @@
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/shared_handle.hpp"
 
+#include <cstdint>
 #include <string>
 #include <unordered_set>
 #include <vector>

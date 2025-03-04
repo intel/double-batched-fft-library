@@ -6,6 +6,7 @@
 
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
+#include "bbfft/mem.hpp"
 
 #include <array>
 #include <ostream>
@@ -14,6 +15,12 @@
 #include <vector>
 
 namespace bbfft {
+
+class dummy_argument_handler {
+  public:
+    inline void set_arg(int, unsigned, std::size_t, const void *) const {}
+    inline void set_mem_arg(int, unsigned, const void *, mem_type) const {}
+};
 
 class dummy_api {
   public:
@@ -37,9 +44,10 @@ class dummy_api {
     }
     inline auto make_kernel_bundle(module_handle_t) -> kernel_bundle_type { return {}; };
     inline auto create_kernel(kernel_bundle_type, std::string const &) -> kernel_type { return {}; }
-    template <typename T>
-    event_type launch_kernel(kernel_type &, std::array<std::size_t, 3>, std::array<std::size_t, 3>,
-                             std::vector<event_type> const &, T) {
+
+    inline auto arg_handler() -> dummy_argument_handler { return dummy_argument_handler{}; }
+    inline auto launch_kernel(kernel_type &, std::array<std::size_t, 3>, std::array<std::size_t, 3>,
+                              std::vector<event_type> const &) -> event_type {
         return 0;
     }
 

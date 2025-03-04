@@ -7,8 +7,8 @@
 #include "real_type.hpp"
 #include "signal.hpp"
 
-#include <CL/sycl.hpp>
 #include <complex>
+#include <sycl/sycl.hpp>
 
 template <typename U, typename V>
 void initialize_input_tensors(sycl::queue Q, tensor<U, 3u> &x, tensor<V, 3u> &X, bool inverse) {

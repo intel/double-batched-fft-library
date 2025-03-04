@@ -9,10 +9,11 @@
 #include "bbfft/jit_cache.hpp"
 #include "bbfft/plan.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 namespace bbfft {
 
+//! Plan type for SYCL
 using sycl_plan = plan<::sycl::event>;
 
 /**

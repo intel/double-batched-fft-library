@@ -13,9 +13,9 @@
 #include "clir/builder.hpp"
 #include "clir/expr.hpp"
 
-#include <cstdint>
-#include <functional>
+#include <cstddef>
 #include <iosfwd>
+#include <memory>
 #include <string_view>
 
 namespace bbfft {
@@ -49,11 +49,11 @@ class sbfft_gen {
         permutation_fun P = identity;
     };
 
-    virtual void load(clir::block_builder &bb, copy_params cp) const = 0;
-    virtual void store(clir::block_builder &bb, copy_params cp) const = 0;
+    virtual void load(clir::block_builder &bb, copy_params const &cp) const = 0;
+    virtual void store(clir::block_builder &bb, copy_params const &cp) const = 0;
 
-    void double_load(clir::block_builder &bb, copy_params cp, int k_offset) const;
-    void double_store(clir::block_builder &bb, copy_params cp, int k_offset) const;
+    void double_load(clir::block_builder &bb, copy_params const &cp, int k_offset) const;
+    void double_store(clir::block_builder &bb, copy_params const &cp, int k_offset) const;
 
   private:
     gen_cfg p_;
@@ -64,8 +64,8 @@ class sbfft_gen_c2c : public sbfft_gen {
     sbfft_gen_c2c(std::size_t N) : sbfft_gen(gen_cfg{N, N, N, N, 2, 2, 1}) {}
 
   protected:
-    void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
+    void load(clir::block_builder &bb, copy_params const &cp) const override;
+    void store(clir::block_builder &bb, copy_params const &cp) const override;
 };
 
 class sbfft_gen_r2c : public sbfft_gen {
@@ -79,8 +79,8 @@ class sbfft_gen_r2c_half : public sbfft_gen_r2c {
     sbfft_gen_r2c_half(std::size_t N) : sbfft_gen_r2c(N, 2, 1) {}
 
   protected:
-    void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
+    void load(clir::block_builder &bb, copy_params const &cp) const override;
+    void store(clir::block_builder &bb, copy_params const &cp) const override;
 
   private:
     static void postprocess(clir::block_builder &bb, precision_helper fph, tensor_view<1u> const &y,
@@ -92,8 +92,8 @@ class sbfft_gen_r2c_double : public sbfft_gen_r2c {
     sbfft_gen_r2c_double(std::size_t N) : sbfft_gen_r2c(N, 1, 2) {}
 
   protected:
-    void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
+    void load(clir::block_builder &bb, copy_params const &cp) const override;
+    void store(clir::block_builder &bb, copy_params const &cp) const override;
 
   private:
     static void postprocess(clir::block_builder &bb, precision_helper fph, tensor_view<1u> const &y,
@@ -112,8 +112,8 @@ class sbfft_gen_c2r_half : public sbfft_gen_c2r {
     sbfft_gen_c2r_half(std::size_t N) : sbfft_gen_c2r(N, 2, 1) {}
 
   protected:
-    void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
+    void load(clir::block_builder &bb, copy_params const &cp) const override;
+    void store(clir::block_builder &bb, copy_params const &cp) const override;
 
   private:
     static void preprocess(clir::block_builder &bb, precision_helper fph, tensor_view<1u> const &X1,
@@ -125,8 +125,8 @@ class sbfft_gen_c2r_double : public sbfft_gen_c2r {
     sbfft_gen_c2r_double(std::size_t N) : sbfft_gen_c2r(N, 1, 2) {}
 
   protected:
-    void load(clir::block_builder &bb, copy_params cp) const override;
-    void store(clir::block_builder &bb, copy_params cp) const override;
+    void load(clir::block_builder &bb, copy_params const &cp) const override;
+    void store(clir::block_builder &bb, copy_params const &cp) const override;
 
   private:
     static void preprocess(clir::block_builder &bb, precision_helper fph, tensor_view<1u> const &X1,

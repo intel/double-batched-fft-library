@@ -18,7 +18,6 @@ Detailed list of dependencies:
 - C++ compiler with SYCL support
 - OpenCL library
 - Level Zero loader library
-- ocloc (OpenCL offline compiler from the Intel Compute Runtime)
 
 Build from source using oneAPI
 ==============================
@@ -67,6 +66,7 @@ Option                 Description
 BUILD_DOCUMENTATION    Generate the documentation
 BUILD_BENCHMARK        Build benchmark executables
 BUILD_EXAMPLE          Build examples
+BUILD_AOT_EXAMPLE      Build ahead-of-time compilation example
 BUILD_TESTING          Build unit tests
 BUILD_SYCL             Build FFT library for SYCL
 BUILD_LEVEL_ZERO       Build FFT library for Level Zero (must be ON if BUILD_SYCL=ON)
@@ -118,3 +118,13 @@ To link the library and to set include directories you only need
 .. code:: cmake
 
     target_link_libraries(your-target PRIVATE bbfft::bbfft-sycl)
+
+Runtime dependencies for Level Zero
+===================================
+
+When the Level Zero runtime is used or the SYCL runtime with Level Zero backend,
+then compiling FFT plans requires *libocloc.so*.
+(Dynamically loaded using *dlopen*.)
+The ocloc library is part of the
+`Intel(R) Graphics Compute Runtime <https://github.com/intel/compute-runtime>`_
+and should be available if Intel GPU drivers were installed.

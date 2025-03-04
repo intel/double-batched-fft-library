@@ -10,6 +10,7 @@
 
 #include <level_zero/ze_api.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>

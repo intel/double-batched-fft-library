@@ -1,0 +1,5 @@
+[
+    { "symbol": ["std::array", "private", "<array>", "public"] },
+    { "symbol": ["std::pair", "private", "<utility>", "public"] },
+    { "symbol": ["std::nullptr_t", "private", "<cstddef>", "public"] }
+]

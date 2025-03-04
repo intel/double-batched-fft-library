@@ -12,7 +12,7 @@ The online compilation API is described here.
 OpenCL
 ======
 
-.. doxygenfunction:: bbfft::cl::build_kernel_bundle(std::string const&, cl_context, cl_device_id)
+.. doxygenfunction:: bbfft::cl::build_kernel_bundle(std::string const&, cl_context, cl_device_id, std::vector<std::string> const&, std::vector<std::string> const&)
 
 .. doxygenfunction:: bbfft::cl::build_kernel_bundle(uint8_t const*, std::size_t, module_format, cl_context, cl_device_id)
 
@@ -23,7 +23,7 @@ OpenCL
 Level Zero
 ==========
 
-.. doxygenfunction:: bbfft::ze::build_kernel_bundle(std::string const&, ze_context_handle_t, ze_device_handle_t)
+.. doxygenfunction:: bbfft::ze::build_kernel_bundle(std::string const&, ze_context_handle_t, ze_device_handle_t, std::vector<std::string> const&, std::vector<std::string> const&)
 
 .. doxygenfunction:: bbfft::ze::build_kernel_bundle(uint8_t const*, std::size_t, module_format, ze_context_handle_t, ze_device_handle_t)
 
@@ -38,7 +38,7 @@ Level Zero
 SYCL
 ====
 
-.. doxygenfunction:: bbfft::sycl::build_native_module(std::string const&, ::sycl::context, ::sycl::device)
+.. doxygenfunction:: bbfft::sycl::build_native_module(std::string const&, ::sycl::context, ::sycl::device, std::vector<std::string> const&, std::vector<std::string> const&)
 
 .. doxygenfunction:: bbfft::sycl::build_native_module(uint8_t const*, std::size_t, module_format, ::sycl::context, ::sycl::device)
 

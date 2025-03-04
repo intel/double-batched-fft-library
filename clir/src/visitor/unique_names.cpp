@@ -4,17 +4,16 @@
 #include "clir/visitor/unique_names.hpp"
 #include "clir/expr.hpp"
 #include "clir/func.hpp"
+#include "clir/handle.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/prog.hpp"
 #include "clir/stmt.hpp"
 #include "clir/var.hpp"
 #include "clir/visit.hpp"
 
-#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 #include <utility>
 
 namespace clir {
@@ -52,7 +51,7 @@ void unique_names::make_unique_name(var e) {
                 new_name = name + std::to_string(nc->second);
             } while (name_counter.find(new_name) != name_counter.end());
             v->set_name(new_name);
-            name = new_name;
+            name = std::move(new_name);
             break;
         }
     }

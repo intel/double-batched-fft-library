@@ -3,6 +3,9 @@
 
 #include "bbfft/cl/error.hpp"
 
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
+
 #include <utility>
 
 namespace bbfft::cl {

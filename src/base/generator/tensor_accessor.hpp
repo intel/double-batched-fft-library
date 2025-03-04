@@ -4,13 +4,14 @@
 #ifndef TENSOR_ACCESSOR_20230718_HPP
 #define TENSOR_ACCESSOR_20230718_HPP
 
+#include "bbfft/configuration.hpp"
 #include "generator/utility.hpp"
 
 #include "clir/builder.hpp"
 #include "clir/data_type.hpp"
 #include "clir/expr.hpp"
 
-#include <utility>
+#include <memory>
 
 namespace bbfft {
 
@@ -55,8 +56,8 @@ class array_accessor : public tensor_accessor {
 
 class callback_accessor : public tensor_accessor {
   public:
-    callback_accessor(clir::expr x, clir::data_type type, char const *load = nullptr,
-                      char const *store = nullptr, clir::expr offset = 0);
+    callback_accessor(clir::expr x, clir::data_type type, char const *load, char const *store,
+                      clir::expr user_data, clir::expr offset = 0);
 
     clir::expr operator()(clir::expr const &offset) const override;
     clir::expr store(clir::expr value, clir::expr const &offset) const override;
@@ -68,6 +69,7 @@ class callback_accessor : public tensor_accessor {
     clir::data_type type_;
     char const *load_;
     char const *store_;
+    clir::expr user_data_;
     clir::expr offset_;
 };
 

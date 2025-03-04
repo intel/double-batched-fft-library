@@ -184,7 +184,8 @@ TEST_CASE_TEMPLATE("r2c 1d out-of-place", T, TEST_PRECISIONS) {
 
     auto KK = std::vector<std::size_t>{1, 33};
     auto MM = std::vector<std::size_t>{1, 3, 32};
-    auto NN = std::vector<std::size_t>{2, 4, 5, 8, 27, 16, 32, 128, 105, 256, 512, 102, 220, 10, 26};
+    auto NN =
+        std::vector<std::size_t>{2, 4, 5, 8, 27, 16, 32, 128, 105, 256, 512, 102, 220, 10, 26};
 
     std::size_t M, N, K;
     DOCTEST_TENSOR3_TEST(MM, NN, KK);
@@ -371,7 +372,6 @@ TEST_CASE_TEMPLATE("c2r 3d out-of-place", T, TEST_PRECISIONS) {
     c2r_backward<T, 3u, false>(M, N, K);
 }
 
-
 template <typename T, std::size_t D, bool Inplace = false>
 void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {
     auto Q = queue();
@@ -386,14 +386,18 @@ void identity_test(std::size_t M, std::array<std::size_t, D> N, std::size_t K) {
     std::array<std::size_t, tensor_dim> Xi_shape = {};
     xi_shape[0] = M;
     xi_shape[1] = Inplace ? 2 * (N[0] / 2 + 1) : N[0];
-    for (std::size_t d = 1; d < D; ++d) {
-        xi_shape[d + 1] = N[d];
+    if constexpr (D > 1) {
+        for (std::size_t d = 1; d < D; ++d) {
+            xi_shape[d + 1] = N[d];
+        }
     }
     xi_shape[tensor_dim - 1] = K;
     Xi_shape[0] = M;
     Xi_shape[1] = N[0] / 2 + 1;
-    for (std::size_t d = 1; d < D; ++d) {
-        Xi_shape[d + 1] = N[d];
+    if constexpr (D > 1) {
+        for (std::size_t d = 1; d < D; ++d) {
+            Xi_shape[d + 1] = N[d];
+        }
     }
     Xi_shape[tensor_dim - 1] = K;
     auto xi = tensor_indexer<std::size_t, tensor_dim, layout::col_major>(xi_shape);

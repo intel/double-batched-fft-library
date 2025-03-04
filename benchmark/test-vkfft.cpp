@@ -17,9 +17,9 @@
 #include "vkfft_error.hpp"
 
 #include <CL/cl.h>
-#include <CL/sycl.hpp>
 #include <algorithm>
 #include <memory>
+#include <sycl/sycl.hpp>
 #include <tuple>
 #include <type_traits>
 

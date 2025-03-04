@@ -33,7 +33,13 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     factor2_slm_fft_base(configuration const &cfg, Api api, jit_cache *cache)
         : api_(std::move(api)), module_(setup(cfg, cache)),
           bundle_(api_.make_kernel_bundle(module_.get())),
-          k_(api_.create_kernel(bundle_, identifier_)) {}
+          k_(api_.create_kernel(bundle_, identifier_)),
+          has_callbacks_(static_cast<bool>(cfg.callbacks)) {
+        const auto K = cfg.shape[2];
+        api_.arg_handler().set_arg(k_, 2, sizeof(twiddle_), &twiddle_);
+        api_.arg_handler().set_arg(k_, 3, sizeof(K), &K);
+        set_user_data(cfg.callbacks.user_data);
+    }
 
     ~factor2_slm_fft_base() {
         api_.release_kernel(k_);
@@ -44,6 +50,16 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     factor2_slm_fft_base(factor2_slm_fft_base &&) = delete;
     factor2_slm_fft_base &operator=(factor2_slm_fft_base const &) = delete;
     factor2_slm_fft_base &operator=(factor2_slm_fft_base &&) = delete;
+
+    void set_user_data(mem const &user_data) {
+        if (has_callbacks_) {
+            if (user_data.value != nullptr) {
+                api_.arg_handler().set_mem_arg(k_, 4, user_data.value, user_data.type);
+            } else {
+                api_.arg_handler().set_arg(k_, 4, sizeof(void *), nullptr);
+            }
+        }
+    }
 
   protected:
     template <typename T>
@@ -98,7 +114,7 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         auto f2c = configure_factor2_slm_fft(cfg, api_.info());
 
         auto N = cfg.shape[1];
-        K_ = cfg.shape[2];
+        const auto K = cfg.shape[2];
 
         auto is_even = N % 2 == 0;
         auto have_2N = is_real && is_even;
@@ -112,9 +128,9 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         }
 
         std::size_t Mg = (f2c.M - 1) / f2c.Mb + 1;
-        std::size_t Kng = K_;
+        std::size_t Kng = K;
         if (is_real && !is_even) {
-            Kng = (K_ - 1) / 2 + 1;
+            Kng = (K - 1) / 2 + 1;
         }
         std::size_t Kg = (Kng - 1) / f2c.Kb + 1;
         gws_ = std::array<std::size_t, 3>{Mg * f2c.Mb, f2c.Nb, Kg * f2c.Kb};
@@ -151,8 +167,8 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     shared_handle<module_handle_t> module_;
     kernel_bundle bundle_;
     kernel k_;
-    uint64_t K_;
     buffer twiddle_;
+    bool has_callbacks_;
 };
 
 template <typename Api, typename PlanImplT = typename Api::plan_type> class factor2_slm_fft;
@@ -164,18 +180,15 @@ class factor2_slm_fft<Api, detail::plan_impl<typename Api::event_type>>
     using factor2_slm_fft_base<Api>::factor2_slm_fft_base;
     using event = typename Api::event_type;
 
-    auto execute(void const *in, void *out, std::vector<event> const &dep_events)
+    auto execute(mem const &in, mem const &out, std::vector<event> const &dep_events)
         -> event override {
-        if (in == out && this->inplace_unsupported_) {
+        if (in.value == out.value && this->inplace_unsupported_) {
             throw bad_configuration("The plan does not support in-place transform on the current "
                                     "device. Please use the out-of-place transform.");
         }
-        return this->api_.launch_kernel(this->k_, this->gws_, this->lws_, dep_events, [&](auto &h) {
-            h.set_arg(0, in);
-            h.set_arg(1, out);
-            h.set_arg(2, this->twiddle_);
-            h.set_arg(3, this->K_);
-        });
+        this->api_.arg_handler().set_mem_arg(this->k_, 0, in.value, in.type);
+        this->api_.arg_handler().set_mem_arg(this->k_, 1, out.value, out.type);
+        return this->api_.launch_kernel(this->k_, this->gws_, this->lws_, dep_events);
     }
 };
 
@@ -186,19 +199,16 @@ class factor2_slm_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event
     using factor2_slm_fft_base<Api>::factor2_slm_fft_base;
     using event = typename Api::event_type;
 
-    void execute(void const *in, void *out, event signal_event, std::uint32_t num_dep_events,
+    void execute(mem const &in, mem const &out, event signal_event, std::uint32_t num_dep_events,
                  event *dep_events) override {
-        if (in == out && this->inplace_unsupported_) {
+        if (in.value == out.value && this->inplace_unsupported_) {
             throw bad_configuration("The plan does not support in-place transform on the current "
                                     "device. Please use the out-of-place transform.");
         }
+        this->api_.arg_handler().set_mem_arg(this->k_, 0, in.value, in.type);
+        this->api_.arg_handler().set_mem_arg(this->k_, 1, out.value, out.type);
         this->api_.launch_kernel(this->k_, this->gws_, this->lws_, signal_event, num_dep_events,
-                                 dep_events, [&](auto &h) {
-                                     h.set_arg(0, in);
-                                     h.set_arg(1, out);
-                                     h.set_arg(2, this->twiddle_);
-                                     h.set_arg(3, this->K_);
-                                 });
+                                 dep_events);
     }
 };
 

@@ -10,7 +10,7 @@
 #include "clir/builder.hpp"
 #include "clir/expr.hpp"
 
-#include <cstdint>
+#include <cstddef>
 #include <functional>
 
 namespace bbfft {

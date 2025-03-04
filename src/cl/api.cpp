@@ -7,7 +7,10 @@
 #include "bbfft/detail/cast.hpp"
 #include "bbfft/detail/compiler_options.hpp"
 
-#include <CL/cl_ext.h>
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
+
+#include <utility>
 
 namespace bbfft::cl {
 
@@ -21,14 +24,14 @@ api::api(cl_command_queue queue) : queue_(queue) {
     CL_CHECK(
         clGetCommandQueueInfo(queue_, CL_QUEUE_DEVICE, sizeof(cl_device_id), &device_, nullptr));
 
-    setup_extensions();
+    setup_arg_handler();
 }
 api::api(cl_command_queue queue, cl_context context, cl_device_id device)
     : queue_(queue), context_(context), device_(device) {
     CL_CHECK(clRetainCommandQueue(queue_));
     CL_CHECK(clRetainContext(context_));
 
-    setup_extensions();
+    setup_arg_handler();
 }
 api::~api() {
     clReleaseContext(context_);
@@ -36,15 +39,25 @@ api::~api() {
 }
 
 api::api(api const &other) { *this = other; }
-void api::operator=(api const &other) {
-    queue_ = other.queue_;
-    CL_CHECK(clRetainCommandQueue(queue_));
+api &api::operator=(api const &other) {
+    if (queue_ != other.queue_) {
+        queue_ = other.queue_;
+        CL_CHECK(clRetainCommandQueue(queue_));
+    }
 
-    context_ = other.context_;
-    CL_CHECK(clRetainContext(context_));
+    if (context_ != other.context_) {
+        context_ = other.context_;
+        CL_CHECK(clRetainContext(context_));
+    }
 
-    device_ = other.device_;
-    clSetKernelArgMemPointerINTEL_ = other.clSetKernelArgMemPointerINTEL_;
+    if (device_ != other.device_) {
+        device_ = other.device_;
+    }
+    if (arg_handler_ != other.arg_handler_) {
+        arg_handler_ = other.arg_handler_;
+    }
+
+    return *this;
 }
 
 device_info api::info() { return get_device_info(device_); }
@@ -55,7 +68,7 @@ auto api::build_module(std::string const &source) -> shared_handle<module_handle
     cl_program mod = ::bbfft::cl::build_kernel_bundle(
         source, context_, device_, detail::compiler_options, detail::required_extensions);
     return shared_handle<module_handle_t>(
-        detail::cast<module_handle_t>(mod),
+        detail::cast<module_handle_t>(std::move(mod)),
         [](module_handle_t mod) { clReleaseProgram(detail::cast<cl_program>(mod)); });
 }
 auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {
@@ -63,6 +76,16 @@ auto api::make_kernel_bundle(module_handle_t mod) -> kernel_bundle_type {
 }
 auto api::create_kernel(kernel_bundle_type b, std::string const &name) -> kernel_type {
     return ::bbfft::cl::create_kernel(b, name);
+}
+
+auto api::launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_size,
+                        std::array<std::size_t, 3> local_work_size,
+                        std::vector<cl_event> const &dep_events) -> cl_event {
+    cl_event evt;
+    CL_CHECK(clEnqueueNDRangeKernel(queue_, k, 3, nullptr, global_work_size.data(),
+                                    local_work_size.data(), dep_events.size(), dep_events.data(),
+                                    &evt));
+    return evt;
 }
 
 cl_mem api::create_device_buffer(std::size_t bytes) {
@@ -73,16 +96,10 @@ cl_mem api::create_device_buffer(std::size_t bytes) {
     return buf;
 }
 
-void api::setup_extensions() {
+void api::setup_arg_handler() {
     cl_platform_id plat;
     CL_CHECK(clGetDeviceInfo(device_, CL_DEVICE_PLATFORM, sizeof(plat), &plat, nullptr));
-    clSetKernelArgMemPointerINTEL_ =
-        (clSetKernelArgMemPointerINTEL_t)clGetExtensionFunctionAddressForPlatform(
-            plat, "clSetKernelArgMemPointerINTEL");
-    if (clSetKernelArgMemPointerINTEL_ == nullptr) {
-        throw cl::error("OpenCL unified shared memory extension unavailable",
-                        CL_INVALID_COMMAND_QUEUE);
-    }
+    arg_handler_ = argument_handler(plat);
 }
 
 } // namespace bbfft::cl

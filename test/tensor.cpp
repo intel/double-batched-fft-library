@@ -5,6 +5,7 @@
 
 #include "doctest/doctest.h"
 
+#include <array>
 #include <cstddef>
 #include <ostream>
 

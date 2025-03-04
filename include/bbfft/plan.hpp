@@ -5,6 +5,7 @@
 #define PLAN_20220412_HPP
 
 #include "bbfft/detail/plan_impl.hpp"
+#include "bbfft/mem.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -43,7 +44,15 @@ template <class Impl> class base_plan {
      */
     base_plan(std::shared_ptr<Impl> impl) : impl_(std::move(impl)) {}
 
+    /**
+     * @brief Update user data (for callbacks)
+     *
+     * @param user_data Pointer to user data
+     */
+    void set_user_data(mem const &user_data) { return this->impl_->set_user_data(user_data); }
+
   protected:
+    //! Opaque handle to implementation
     std::shared_ptr<Impl> impl_;
 };
 
@@ -74,7 +83,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void const *in, void *out) -> event_t { return this->impl_->execute(in, out); }
+    auto execute(mem const &in, mem const &out) -> event_t { return this->impl_->execute(in, out); }
     /**
      * @brief Execute plan (out-of-place)
      *
@@ -84,7 +93,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void const *in, void *out, event_t dep_event) -> event_t {
+    auto execute(mem const &in, mem const &out, event_t dep_event) -> event_t {
         return this->impl_->execute(in, out, std::move(dep_event));
     }
     /**
@@ -96,7 +105,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void const *in, void *out, std::vector<event_t> const &dep_events) -> event_t {
+    auto execute(mem const &in, mem const &out, std::vector<event_t> const &dep_events) -> event_t {
         return this->impl_->execute(in, out, dep_events);
     }
     /**
@@ -106,7 +115,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void *inout) -> event_t { return this->impl_->execute(inout, inout); }
+    auto execute(mem const &inout) -> event_t { return this->impl_->execute(inout, inout); }
     /**
      * @brief Execute plan (in-place)
      *
@@ -115,7 +124,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void *inout, event_t dep_event) -> event_t {
+    auto execute(mem const &inout, event_t dep_event) -> event_t {
         return this->impl_->execute(inout, inout, dep_event);
     }
     /**
@@ -126,7 +135,7 @@ template <typename EventT> class plan : public base_plan<detail::plan_impl<Event
      *
      * @return Completion event
      */
-    auto execute(void *inout, std::vector<event_t> const &dep_events) -> event_t {
+    auto execute(mem const &inout, std::vector<event_t> const &dep_events) -> event_t {
         return this->impl_->execute(inout, inout, dep_events);
     }
 };
@@ -170,7 +179,6 @@ class plan_unmanaged_event : public base_plan<detail::plan_unmanaged_event_impl<
      * @brief Execute plan (in-place)
      *
      * @param inout Pointer to input and output tensor
-     * @param out Pointer to output tensor
      * @param signal_event Event signaled on FFT completion [Optional]
      * @param num_wait_events Number of events to wait on before launch; must be zero if wait_events
      * == nullptr [Optional]

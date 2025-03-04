@@ -9,6 +9,7 @@ namespace clir {
 
 std::string escaped_string(std::string_view str) {
     constexpr char special_escaped[] = "\\'\\\"\\?\\\\\\a\\b\\f\\n\\r\\t\\v";
+    constexpr int special_escaped_size = sizeof(special_escaped) / sizeof(char);
     auto const is_special = [](char c) -> int {
         constexpr char special[] = "\'\"\?\\\a\b\f\n\r\t\v";
         for (std::size_t i = 0; i < sizeof(special) - 1; ++i) {
@@ -27,7 +28,8 @@ std::string escaped_string(std::string_view str) {
     auto result = std::string{};
     result.reserve(str.size() + num_special);
     for (auto c : str) {
-        if (int i = is_special(c); i >= 0) {
+        if (int i = is_special(c); i >= 0 && i < (special_escaped_size - 1) / 2) {
+
             result.push_back(special_escaped[2 * i]);
             result.push_back(special_escaped[2 * i + 1]);
         } else {

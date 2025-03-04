@@ -10,9 +10,9 @@
 #include "bbfft/module_format.hpp"
 #include "bbfft/shared_handle.hpp"
 
-#include <CL/sycl.hpp>
 #include <cstdint>
 #include <string>
+#include <sycl/sycl.hpp>
 #include <vector>
 
 namespace bbfft::sycl {

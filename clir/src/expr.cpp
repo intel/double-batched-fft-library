@@ -10,7 +10,6 @@
 #include "clir/var.hpp"
 
 #include <limits>
-#include <numeric>
 
 namespace clir {
 
@@ -169,7 +168,7 @@ expr init_vector(data_type ty, std::vector<expr> args) {
     for (std::size_t i = 1; i < args.size(); ++i) {
         list = comma(list, args[i]);
     }
-    return cast(ty, list);
+    return cast(std::move(ty), std::move(list));
 }
 
 } // namespace clir

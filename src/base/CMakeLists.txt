@@ -40,9 +40,11 @@ set(PUBLIC_HEADERS
     jit_cache.hpp
     jit_cache_all.hpp
     generator.hpp
+    mem.hpp
     module_format.hpp
     parser.hpp
     plan.hpp
+    prime_factorization.hpp
     tensor_indexer.hpp
     shared_handle.hpp
     user_module.hpp
@@ -56,6 +58,8 @@ list(TRANSFORM PUBLIC_HEADERS PREPEND "${PROJECT_SOURCE_DIR}/include/bbfft/")
 add_library(bbfft-private-test OBJECT ${SOURCES_PRIVATE_TEST})
 target_include_directories(bbfft-private-test PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>"
 )
 set_property(TARGET bbfft-private-test PROPERTY POSITION_INDEPENDENT_CODE ON)
 

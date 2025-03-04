@@ -25,7 +25,7 @@ template <typename Harness, typename T> void test_runtime(args a) {
     auto X_device = a.inplace ? x_device : h.template malloc_device<T>(size);
 
     init(x, a.N[0], a.N[1], a.N[2], a.inplace);
-    h.copy(x, x_device, size);
+    h.memcpy_h2d(x_device, x, size * sizeof(T));
 
     bbfft::configuration cfg = {3,
                                 {1, a.N[0], a.N[1], a.N[2], 1},
@@ -42,7 +42,7 @@ template <typename Harness, typename T> void test_runtime(args a) {
     }
     bench(1, execute3d, a.verbose);
 
-    h.copy(X_device, x, size);
+    h.memcpy_d2h(x, X_device, size * sizeof(T));
     if (check(x, a.N[0], a.N[1], a.N[2])) {
         if (a.verbose) {
             std::cout << "Bench (" << a.nrepeat << "x)" << std::endl;

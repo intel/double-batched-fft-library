@@ -5,6 +5,8 @@
 
 #include "doctest/doctest.h"
 
+#include <string>
+
 using namespace clir;
 
 TEST_CASE("Escape string") {

@@ -8,7 +8,8 @@
 #include "clir/expr.hpp"
 #include "clir/func.hpp"
 #include "clir/internal/function_node.hpp"
-#include "clir/visit.hpp"
+#include "clir/stmt.hpp"
+#include "clir/var.hpp"
 #include "clir/visitor/codegen_opencl.hpp"
 #include "clir/visitor/equal_expr.hpp"
 #include "clir/visitor/required_extensions.hpp"
@@ -18,8 +19,12 @@
 #include "doctest/doctest.h"
 
 #include <cstdint>
+#include <memory>
 #include <sstream>
+#include <string>
+#include <utility>
 #include <variant>
+#include <vector>
 
 using namespace clir;
 
@@ -30,7 +35,7 @@ TEST_CASE("Code generation") {
 
     auto e2s = [](auto &&e) {
         std::stringstream s;
-        generate_opencl(s, e);
+        generate_opencl(s, std::move(e));
         return s.str();
     };
 
@@ -241,7 +246,7 @@ TEST_CASE("To imm") {
     expr b = 42.0;
     CHECK(std::holds_alternative<int64_t>(get_imm(a)));
     CHECK(std::holds_alternative<double>(get_imm(b)));
-    CHECK(std::holds_alternative<std::monostate>(get_imm(a + b)));
+    CHECK(std::holds_alternative<std::monostate>(get_imm(std::move(a) + std::move(b))));
 }
 
 TEST_CASE("Required extensions") {

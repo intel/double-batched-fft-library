@@ -31,7 +31,7 @@ else()
     cmake_push_check_state()
     set(CMAKE_REQUIRED_FLAGS "${SYCL_COMPILE_OPTIONS}")
     set(CMAKE_REQUIRED_LINK_OPTIONS "${SYCL_LINK_OPTIONS}")
-    check_cxx_source_compiles("#include <CL/sycl.hpp>
+    check_cxx_source_compiles("#include <sycl/sycl.hpp>
     int main() {
         sycl::queue{};
         return 0;

@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "info.hpp"
+#include "bbfft/device_info.hpp"
+
+#include <utility>
+#include <vector>
 
 using namespace bbfft;
 
 const std::unordered_map<std::string, device_info> builtin_device_info = {
-    {"pvc", {1024, {16, 32}, 128 * 1024, device_type::gpu}}};
+    {"pvc", {1024, {16, 32}, 128 * 1024, device_type::gpu}},
+    {"dg2", {512, {8, 16, 32}, 64 * 1024, device_type::gpu}}};

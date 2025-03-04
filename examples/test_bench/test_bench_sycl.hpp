@@ -8,11 +8,12 @@
 #include "bbfft/plan.hpp"
 #include "bbfft/sycl/make_plan.hpp"
 
-#include <CL/sycl.hpp>
+#include <sycl/sycl.hpp>
 
 class test_bench_sycl {
   public:
     inline test_bench_sycl() : plan_{}, queue_{::sycl::default_selector_v} {}
+    ~test_bench_sycl() = default;
 
     test_bench_sycl(test_bench_sycl const &) = delete;
     test_bench_sycl &operator=(test_bench_sycl const &) = delete;
@@ -23,12 +24,11 @@ class test_bench_sycl {
         return ::sycl::malloc_device<T>(elements, queue_);
     }
 
-    inline void memcpy(void *dest, const void *src, size_t bytes) {
+    inline void memcpy_d2h(void *dest, const void *src, size_t bytes) {
         queue_.memcpy(dest, src, bytes).wait();
     }
-
-    template <typename T> void copy(T const *src, T *dest, size_t count) {
-        queue_.copy(src, dest, count);
+    inline void memcpy_h2d(void *dest, const void *src, size_t bytes) {
+        queue_.memcpy(dest, src, bytes).wait();
     }
 
     inline void free(void *ptr) { ::sycl::free(ptr, queue_); }

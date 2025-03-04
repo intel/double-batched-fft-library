@@ -6,6 +6,7 @@
 
 #include "clir/builtin_function.hpp"
 #include "clir/export.hpp"
+#include "clir/func.hpp"
 #include "clir/internal/data_type_node.hpp"
 #include "clir/internal/expr_node.hpp"
 #include "clir/internal/function_node.hpp"
@@ -17,7 +18,6 @@
 
 namespace clir {
 
-class CLIR_EXPORT func;
 class CLIR_EXPORT prog;
 
 class CLIR_EXPORT required_extensions {

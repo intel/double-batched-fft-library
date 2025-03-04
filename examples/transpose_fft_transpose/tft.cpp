@@ -5,13 +5,13 @@
 #include <bbfft/device_info.hpp>
 #include <bbfft/sycl/make_plan.hpp>
 
-#include <CL/sycl.hpp>
 #include <chrono>
 #include <cmath>
 #include <complex>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <sycl/sycl.hpp>
 
 using namespace bbfft;
 using namespace sycl;
@@ -201,14 +201,23 @@ template <typename T, std::size_t M, std::size_t N> int test(queue Q, std::size_
 int main(int argc, char **argv) {
     using T = double;
 
-    auto Q = queue();
+    try {
+        auto Q = queue();
 
-    std::size_t K = argc >= 2 ? atoi(argv[3]) : 0u;
+        std::size_t K = argc >= 2 ? atoi(argv[3]) : 0u;
+        K = std::min(std::size_t{65536u}, K);
 
-    test<T, 16, 16>(Q, K);
-    test<T, 1120, 32>(Q, K);
-    test<T, 128, 512>(Q, K);
-    test<T, 70, 16>(Q, K);
+        test<T, 16, 16>(Q, K);
+        test<T, 1120, 32>(Q, K);
+        test<T, 128, 512>(Q, K);
+        test<T, 70, 16>(Q, K);
+    } catch (sycl::exception const &e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    } catch (std::exception const &e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
 
     return 0;
 }

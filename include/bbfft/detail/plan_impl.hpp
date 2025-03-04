@@ -4,6 +4,8 @@
 #ifndef PLAN_IMPL_20221205_HPP
 #define PLAN_IMPL_20221205_HPP
 
+#include "bbfft/mem.hpp"
+
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -34,7 +36,7 @@ template <typename EventT> class plan_impl {
      *
      * @return Completion event
      */
-    virtual auto execute(void const *in, void *out) -> event_t {
+    virtual auto execute(mem const &in, mem const &out) -> event_t {
         return execute(in, out, std::vector<event_t>{});
     }
     /**
@@ -46,7 +48,7 @@ template <typename EventT> class plan_impl {
      *
      * @return Completion event
      */
-    virtual auto execute(void const *in, void *out, event_t dep_event) -> event_t {
+    virtual auto execute(mem const &in, mem const &out, event_t dep_event) -> event_t {
         return execute(in, out, std::vector<event_t>{std::move(dep_event)});
     }
     /**
@@ -58,8 +60,15 @@ template <typename EventT> class plan_impl {
      *
      * @return Completion event
      */
-    virtual auto execute(void const *in, void *out, std::vector<event_t> const &dep_events)
+    virtual auto execute(mem const &in, mem const &out, std::vector<event_t> const &dep_events)
         -> event_t = 0;
+
+    /**
+     * @brief Update user data (for callbacks)
+     *
+     * @param user_data Pointer to user data
+     */
+    virtual void set_user_data(mem const &user_data) = 0;
 };
 
 /**
@@ -86,8 +95,15 @@ template <typename EventT> class plan_unmanaged_event_impl {
      * @param wait_events Pointer to events to wait on before launch; must point to at least
      * num_wait_events [Optional]
      */
-    virtual void execute(void const *in, void *out, event_t signal_event,
+    virtual void execute(mem const &in, mem const &out, event_t signal_event,
                          std::uint32_t num_wait_events, event_t *wait_events) = 0;
+
+    /**
+     * @brief Update user data (for callbacks)
+     *
+     * @param user_data Pointer to user data
+     */
+    virtual void set_user_data(mem const &user_data) = 0;
 };
 } // namespace detail
 } // namespace bbfft

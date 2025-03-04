@@ -5,9 +5,9 @@
 
 #include "bbfft/sycl/online_compiler.hpp"
 
-#include <CL/sycl.hpp>
 #include <cstdio>
 #include <stdexcept>
+#include <sycl/sycl.hpp>
 #include <utility>
 
 using ::sycl::backend;

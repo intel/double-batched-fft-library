@@ -5,6 +5,7 @@
 #include "algorithm.hpp"
 #include "api.hpp"
 #include "bbfft/cl/make_plan.hpp"
+#include "bbfft/cl/mem.hpp" // IWYU pragma: keep
 #include "bbfft/configuration.hpp"
 #include "bbfft/jit_cache.hpp"
 

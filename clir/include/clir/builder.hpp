@@ -6,8 +6,10 @@
 
 #include "clir/attr.hpp"
 #include "clir/builtin_type.hpp"
+#include "clir/data_type.hpp"
 #include "clir/export.hpp"
 #include "clir/expr.hpp"
+#include "clir/func.hpp"
 #include "clir/internal/function_node.hpp"
 #include "clir/internal/program_node.hpp"
 #include "clir/internal/stmt_node.hpp"
@@ -17,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace clir {

@@ -4,13 +4,15 @@
 #include "args.hpp"
 #include "info.hpp"
 
+#include "bbfft/configuration.hpp"
+#include "bbfft/device_info.hpp"
 #include "bbfft/parser.hpp"
 
-#include <cstdlib>
 #include <cstring>
 #include <ostream>
-#include <sstream>
 #include <stdexcept>
+#include <unordered_map>
+#include <utility>
 
 using namespace bbfft;
 
@@ -40,7 +42,7 @@ args parse_args(int argc, char **argv) {
             } else {
                 fail();
             }
-        }else {
+        } else {
             a.configurations.emplace_back(parse_fft_descriptor(argv[i]));
         }
     }

@@ -53,7 +53,7 @@ TEST_CASE_TEMPLATE("load callback", T, TEST_PRECISIONS) {
     auto plan_ref = make_plan(cfg_ref, Q);
 
     char const load_template[] = R"OpenCL(
-%s2 load(global %s2* in, size_t offset) {
+%s2 load(global %s2* in, size_t offset, global void*) {
     uint n = offset / %lu %% %lu;
     if (n < %lu) {
         uint k = offset / %lu;
@@ -149,7 +149,7 @@ TEST_CASE_TEMPLATE("store callback", T, TEST_PRECISIONS) {
     auto plan_ref = make_plan(cfg_ref, Q);
 
     char const store_template[] = R"OpenCL(
-void store(global %s2* out, size_t offset, %s2 value) {
+void store(global %s2* out, size_t offset, %s2 value, global void*) {
     uint n = offset / %lu %% %lu;
     if (n < %lu) {
         uint k = offset / %lu;

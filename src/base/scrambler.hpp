@@ -45,7 +45,7 @@ template <typename T = int> class scrambler {
             index = std::move(index) / Ni;
             N *= Ni;
         }
-        return in0toN_ ? result : result + index * N;
+        return in0toN_ ? std::move(result) : std::move(result) + std::move(index) * N;
     }
 
     void in0toN(bool in0toN) { in0toN_ = in0toN; }

@@ -4,10 +4,7 @@
 #ifndef ROOT_OF_UNITY_20220407_HPP
 #define ROOT_OF_UNITY_20220407_HPP
 
-#include "clir/expr.hpp"
-
 #include <array>
-#include <cmath>
 #include <complex>
 #include <utility>
 

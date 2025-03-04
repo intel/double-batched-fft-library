@@ -5,10 +5,16 @@
 #include "bbfft/cl/device.hpp"
 #include "bbfft/cl/error.hpp"
 #include "bbfft/detail/cast.hpp"
+#include "bbfft/jit_cache.hpp"
+#include "bbfft/shared_handle.hpp"
+
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
 
 #include <cstdio>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 
 namespace bbfft::cl {
 

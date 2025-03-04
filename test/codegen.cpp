@@ -3,11 +3,13 @@
 
 #include "bbfft/configuration.hpp"
 #include "bbfft/detail/generator_impl.hpp"
+#include "bbfft/prime_factorization.hpp"
 #include "math.hpp"
-#include "prime_factorization.hpp"
 #include "scrambler.hpp"
 
 #include "doctest/doctest.h"
+#include <ostream>
+#include <string>
 #include <vector>
 
 using namespace bbfft;

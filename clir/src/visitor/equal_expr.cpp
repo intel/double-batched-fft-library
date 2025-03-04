@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "clir/visitor/equal_expr.hpp"
+#include "clir/handle.hpp"
 #include "clir/visit.hpp"
 
-#include <algorithm>
+#include <vector>
 
 namespace clir {
 
