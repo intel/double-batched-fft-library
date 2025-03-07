@@ -35,4 +35,3 @@ html_theme_options = {
     'path_to_docs': 'docs',
     'navigation_with_keys': False
 }
-html_css_files = ['fix-scrollbar-bug.css']
