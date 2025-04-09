@@ -88,12 +88,12 @@ auto api::launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_s
     return evt;
 }
 
-cl_mem api::create_device_buffer(std::size_t bytes) {
+auto api::create_device_buffer(std::size_t bytes) -> mem {
     cl_int err;
     cl_mem buf =
         clCreateBuffer(context_, CL_MEM_READ_WRITE | CL_MEM_HOST_NO_ACCESS, bytes, nullptr, &err);
     CL_CHECK(err);
-    return buf;
+    return mem{buf, mem_type::buffer};
 }
 
 void api::setup_arg_handler() {

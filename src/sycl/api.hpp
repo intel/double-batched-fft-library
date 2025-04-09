@@ -9,6 +9,7 @@
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/mem.hpp"
 #include "bbfft/shared_handle.hpp"
 
 #include <array>
@@ -25,7 +26,6 @@ class api {
   public:
     using event_type = ::sycl::event;
     using plan_type = detail::plan_impl<event_type>;
-    using buffer_type = void *;
     using kernel_bundle_type = ::sycl::kernel_bundle<::sycl::bundle_state::executable>;
     using kernel_type = ::sycl::kernel;
 
@@ -44,18 +44,18 @@ class api {
                        std::array<std::size_t, 3> local_work_size,
                        std::vector<::sycl::event> const &dep_events) -> ::sycl::event;
 
-    void *create_device_buffer(std::size_t bytes);
-    template <typename T> void *create_device_buffer(std::size_t num_T) {
+    auto create_device_buffer(std::size_t bytes) -> mem;
+    template <typename T> auto create_device_buffer(std::size_t num_T) -> mem {
         return create_device_buffer(num_T * sizeof(T));
     }
 
-    void *create_twiddle_table(void *twiddle_table, std::size_t bytes);
-    template <typename T> void *create_twiddle_table(std::vector<T> &twiddle_table) {
+    auto create_twiddle_table(void *twiddle_table, std::size_t bytes) -> mem;
+    template <typename T> auto create_twiddle_table(std::vector<T> &twiddle_table) -> mem {
         return create_twiddle_table(twiddle_table.data(), twiddle_table.size() * sizeof(T));
     }
 
     inline void release_event(event_type) {}
-    inline void release_buffer(buffer_type ptr) { free(ptr, context_); }
+    inline void release_buffer(mem const &m) { free(const_cast<void *>(m.value), context_); }
     inline void release_kernel(kernel_type) {}
 
   private:

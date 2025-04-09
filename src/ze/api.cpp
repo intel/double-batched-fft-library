@@ -44,15 +44,15 @@ void api::launch_kernel(kernel_type &k, std::array<std::size_t, 3> global_work_s
                                              num_wait_events, wait_events));
 }
 
-void *api::create_device_buffer(std::size_t bytes) {
+auto api::create_device_buffer(std::size_t bytes) -> mem {
     void *buf = nullptr;
     ze_device_mem_alloc_desc_t device_mem_desc = {ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC, nullptr,
                                                   0, 0};
     ZE_CHECK(zeMemAllocDevice(context_, &device_mem_desc, bytes, 0, device_, &buf));
-    return buf;
+    return mem{buf, mem_type::usm_pointer};
 }
 
-void *api::create_twiddle_table(void *twiddle_table, std::size_t bytes) {
+auto api::create_twiddle_table(void *twiddle_table, std::size_t bytes) -> mem {
     ze_command_queue_desc_t command_list_desc = {
         ZE_STRUCTURE_TYPE_COMMAND_QUEUE_DESC, nullptr, 0, 0, 0, ZE_COMMAND_QUEUE_MODE_ASYNCHRONOUS,
         ZE_COMMAND_QUEUE_PRIORITY_NORMAL};
@@ -69,7 +69,7 @@ void *api::create_twiddle_table(void *twiddle_table, std::size_t bytes) {
     ZE_CHECK(zeEventHostReset(event));
 
     ZE_CHECK(zeCommandListDestroy(tmp_queue));
-    return tw;
+    return mem{tw, mem_type::usm_pointer};
 }
 
 } // namespace bbfft::ze

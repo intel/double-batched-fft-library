@@ -11,6 +11,7 @@
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/mem.hpp"
 
 #include <cstddef>
 #include <memory>
@@ -21,7 +22,6 @@ namespace bbfft {
 
 template <typename Api> class nd_fft_base : public Api::plan_type {
   public:
-    using buffer = typename Api::buffer_type;
     using event = typename Api::event_type;
 
     nd_fft_base(configuration const &cfg, Api api, jit_cache *cache)
@@ -112,7 +112,7 @@ template <typename Api> class nd_fft_base : public Api::plan_type {
     }
 
     ~nd_fft_base() {
-        if (tmp_) {
+        if (tmp_.value) {
             api_.release_buffer(tmp_);
         }
     }
@@ -129,10 +129,10 @@ template <typename Api> class nd_fft_base : public Api::plan_type {
     }
 
   protected:
+    mem tmp_ = mem{nullptr, mem_type::usm_pointer};
     Api api_;
     unsigned dim_;
     std::array<std::shared_ptr<typename Api::plan_type>, max_fft_dim> plans_;
-    buffer tmp_ = nullptr;
 };
 
 template <typename Api, typename PlanImplT = typename Api::plan_type> class nd_fft;
@@ -145,7 +145,7 @@ class nd_fft<Api, detail::plan_impl<typename Api::event_type>> : public nd_fft_b
 
     auto execute(mem const &in, mem const &out, std::vector<event> const &dep_events)
         -> event override {
-        auto tmp = this->tmp_ ? mem(this->tmp_) : out;
+        auto tmp = this->tmp_.value ? this->tmp_ : out;
         event e = this->plans_[0]->execute(in, tmp, dep_events);
         for (unsigned d = 1; d < this->dim_ - 1; ++d) {
             auto next_e = this->plans_[d]->execute(tmp, tmp, std::vector<event>{e});
@@ -167,7 +167,7 @@ class nd_fft<Api, detail::plan_unmanaged_event_impl<typename Api::event_type>>
 
     void execute(mem const &in, mem const &out, event signal_event, std::uint32_t num_dep_events,
                  event *dep_events) override {
-        auto tmp = this->tmp_ ? mem(this->tmp_) : out;
+        auto tmp = this->tmp_.value ? this->tmp_ : out;
         auto e = this->api_.get_internal_event();
         this->plans_[0]->execute(in, tmp, e, num_dep_events, dep_events);
         for (unsigned d = 1; d < this->dim_ - 1; ++d) {
