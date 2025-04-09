@@ -10,6 +10,7 @@
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/mem.hpp"
 #include "bbfft/shared_handle.hpp"
 #include "bbfft/ze/error.hpp"
 
@@ -29,7 +30,6 @@ class api {
 
     using event_type = ze_event_handle_t;
     using plan_type = detail::plan_unmanaged_event_impl<event_type>;
-    using buffer_type = void *;
     using kernel_bundle_type = ze_module_handle_t;
     using kernel_type = ze_kernel_handle_t;
 
@@ -52,17 +52,17 @@ class api {
     }
     ze_event_handle_t get_internal_event() { return pool_->get_event(); }
 
-    void *create_device_buffer(std::size_t bytes);
-    template <typename T> void *create_device_buffer(std::size_t num_T) {
+    auto create_device_buffer(std::size_t bytes) -> mem;
+    template <typename T> auto create_device_buffer(std::size_t num_T) -> mem {
         return create_device_buffer(num_T * sizeof(T));
     }
 
-    void *create_twiddle_table(void *twiddle_table, std::size_t bytes);
-    template <typename T> void *create_twiddle_table(std::vector<T> &twiddle_table) {
+    auto create_twiddle_table(void *twiddle_table, std::size_t bytes) -> mem;
+    template <typename T> auto create_twiddle_table(std::vector<T> &twiddle_table) -> mem {
         return create_twiddle_table(twiddle_table.data(), twiddle_table.size() * sizeof(T));
     }
 
-    inline void release_buffer(buffer_type ptr) { zeMemFree(context_, ptr); }
+    inline void release_buffer(mem const &m) { zeMemFree(context_, const_cast<void *>(m.value)); }
     inline void release_kernel(kernel_type k) { zeKernelDestroy(k); }
 
   private:

@@ -26,7 +26,6 @@ class dummy_api {
   public:
     using event_type = int;
     using plan_type = detail::plan_impl<event_type>;
-    using buffer_type = void *;
     using kernel_bundle_type = int;
     using kernel_type = int;
 
@@ -51,16 +50,22 @@ class dummy_api {
         return 0;
     }
 
-    inline buffer_type create_device_buffer(std::size_t) { return nullptr; }
-    template <typename T> buffer_type create_device_buffer(std::size_t) { return nullptr; }
+    inline auto create_device_buffer(std::size_t) -> mem {
+        return mem{nullptr, mem_type::usm_pointer};
+    }
+    template <typename T> auto create_device_buffer(std::size_t) -> mem {
+        return mem{nullptr, mem_type::usm_pointer};
+    }
 
-    inline buffer_type create_twiddle_table(void *, std::size_t) { return nullptr; }
-    template <typename T> inline buffer_type create_twiddle_table(std::vector<T> &) {
-        return nullptr;
+    inline auto create_twiddle_table(void *, std::size_t) -> mem {
+        return mem{nullptr, mem_type::usm_pointer};
+    }
+    template <typename T> inline auto create_twiddle_table(std::vector<T> &) -> mem {
+        return mem{nullptr, mem_type::usm_pointer};
     }
 
     inline static void release_event(event_type) {}
-    inline static void release_buffer(buffer_type) {}
+    inline static void release_buffer(mem const &) {}
     inline static void release_kernel(kernel_type) {}
 
   private:

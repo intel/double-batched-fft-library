@@ -10,6 +10,7 @@
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/mem.hpp"
 #include "bbfft/shared_handle.hpp"
 
 #include <algorithm>
@@ -26,7 +27,6 @@ namespace bbfft {
 
 template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
   public:
-    using buffer = typename Api::buffer_type;
     using kernel_bundle = typename Api::kernel_bundle_type;
     using kernel = typename Api::kernel_type;
 
@@ -36,7 +36,7 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
           k_(api_.create_kernel(bundle_, identifier_)),
           has_callbacks_(static_cast<bool>(cfg.callbacks)) {
         const auto K = cfg.shape[2];
-        api_.arg_handler().set_arg(k_, 2, sizeof(twiddle_), &twiddle_);
+        api_.arg_handler().set_mem_arg(k_, 2, twiddle_.value, twiddle_.type);
         api_.arg_handler().set_arg(k_, 3, sizeof(K), &K);
         set_user_data(cfg.callbacks.user_data);
     }
@@ -159,6 +159,7 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
         return mod;
     }
 
+    mem twiddle_ = mem{nullptr, mem_type::usm_pointer};
     Api api_;
     std::array<std::size_t, 3> gws_;
     std::array<std::size_t, 3> lws_;
@@ -167,7 +168,6 @@ template <typename Api> class factor2_slm_fft_base : public Api::plan_type {
     shared_handle<module_handle_t> module_;
     kernel_bundle bundle_;
     kernel k_;
-    buffer twiddle_;
     bool has_callbacks_;
 };
 

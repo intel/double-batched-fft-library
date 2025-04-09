@@ -10,6 +10,7 @@
 #include "bbfft/detail/plan_impl.hpp"
 #include "bbfft/device_info.hpp"
 #include "bbfft/jit_cache.hpp"
+#include "bbfft/mem.hpp"
 #include "bbfft/shared_handle.hpp"
 
 #include <CL/cl.h>
@@ -27,7 +28,6 @@ class api {
   public:
     using event_type = cl_event;
     using plan_type = detail::plan_impl<event_type>;
-    using buffer_type = cl_mem;
     using kernel_bundle_type = cl_program;
     using kernel_type = cl_kernel;
 
@@ -50,21 +50,23 @@ class api {
                        std::array<std::size_t, 3> local_work_size,
                        std::vector<cl_event> const &dep_events) -> cl_event;
 
-    cl_mem create_device_buffer(std::size_t bytes);
-    template <typename T> cl_mem create_device_buffer(std::size_t num_T) {
+    auto create_device_buffer(std::size_t bytes) -> mem;
+    template <typename T> auto create_device_buffer(std::size_t num_T) -> mem {
         return create_device_buffer(num_T * sizeof(T));
     }
 
-    template <typename T> cl_mem create_twiddle_table(std::vector<T> &twiddle_table) {
+    template <typename T> auto create_twiddle_table(std::vector<T> &twiddle_table) -> mem {
         cl_int err;
         cl_mem tw = clCreateBuffer(context_, CL_MEM_COPY_HOST_PTR | CL_MEM_READ_ONLY,
                                    twiddle_table.size() * sizeof(T), twiddle_table.data(), &err);
         CL_CHECK(err);
-        return tw;
+        return mem{tw, mem_type::buffer};
     }
 
     inline void release_event(event_type e) { clReleaseEvent(e); }
-    inline void release_buffer(buffer_type b) { clReleaseMemObject(b); }
+    inline void release_buffer(mem const &b) {
+        clReleaseMemObject(static_cast<cl_mem>(const_cast<void *>(b.value)));
+    }
     inline void release_kernel(kernel_type k) { clReleaseKernel(k); }
 
   private:

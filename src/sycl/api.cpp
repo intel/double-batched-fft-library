@@ -53,14 +53,14 @@ auto api::launch_kernel(::sycl::kernel &k, std::array<std::size_t, 3> global_wor
     });
 }
 
-void *api::create_device_buffer(std::size_t bytes) {
-    return malloc_device(bytes, device_, context_);
+auto api::create_device_buffer(std::size_t bytes) -> mem {
+    return mem{malloc_device(bytes, device_, context_), mem_type::usm_pointer};
 }
 
-void *api::create_twiddle_table(void *twiddle_table, std::size_t bytes) {
+auto api::create_twiddle_table(void *twiddle_table, std::size_t bytes) -> mem {
     void *tw = malloc_device(bytes, device_, context_);
     queue_.memcpy(tw, twiddle_table, bytes).wait();
-    return tw;
+    return mem{tw, mem_type::usm_pointer};
 }
 
 void api::setup_arg_handler() {
